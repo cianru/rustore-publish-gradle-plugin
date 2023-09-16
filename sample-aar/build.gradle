@@ -1,0 +1,57 @@
+import ru.cian.Dependencies
+
+apply plugin: 'com.android.library'
+apply plugin: 'ru.cian.rustore-publish'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+
+    dependencies {
+        classpath "ru.cian:rustore-publish-gradle-plugin:" + Dependencies.sample.rustorePlugin
+    }
+}
+
+rustorePublish {
+    instances {
+        release {
+            credentialsPath = "$rootDir/sample2/rustore-credentials-1.json"
+            deployType = "upload-only"
+            buildFormat = "aab"
+        }
+    }
+}
+
+android {
+    compileSdkVersion Dependencies.android.compileSdkVersion
+    buildToolsVersion Dependencies.android.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion Dependencies.android.minSdkVersion
+        targetSdkVersion Dependencies.android.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            debuggable false
+        }
+        debug {
+            debuggable true
+        }
+    }
+
+    flavorDimensions "version"
+    lintOptions {
+        abortOnError false
+    }
+}
+
+beforeEvaluate {
+    println("-------------------------------------------------------------------------")
+    println("Should get error!")
+    println("-------------------------------------------------------------------------")
+}

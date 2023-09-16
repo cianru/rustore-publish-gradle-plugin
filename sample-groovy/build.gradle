@@ -1,0 +1,86 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "ru.cian:rustore-publish-gradle-plugin:" + libs.versions.sampleRustorePlugin.get()
+    }
+}
+
+apply plugin: "com.android.application"
+//apply plugin: "ru.cian.rustore-publish"
+apply plugin: "ru.cian.rustore-publish-gradle-plugin"
+
+rustorePublish {
+    instances {
+        demoRelease {
+            credentialsPath = "$projectDir/rustore-credentials-1.json"
+            deployType = "upload-only"
+            buildFormat = "apk"
+        }
+        fullRelease {
+            credentialsPath = "$projectDir/rustore-credentials-2.json"
+            deployType = "publish"
+            buildFormat = "aab"
+            releasePhase = new ru.cian.rustore.publish.ReleasePhaseExtension(
+                1.0
+            )
+            releaseNotes = [
+                new ru.cian.rustore.publish.ReleaseNote(
+                    "ru-RU",
+                    "$projectDir/release-notes-ru.txt"
+                ),
+            ]
+        }
+    }
+}
+
+android {
+    compileSdkVersion libs.versions.compileSdkVersion.get() as Integer
+    buildToolsVersion libs.versions.buildToolsVersion.get()
+
+    defaultConfig {
+        applicationId "ru.cian.rustore.sample_groovy"
+        minSdkVersion libs.versions.minSdkVersion.get() as Integer
+        targetSdkVersion libs.versions.targetSdkVersion.get() as Integer
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
+    }
+
+    flavorDimensions "version"
+    productFlavors {
+        demo {
+            dimension "version"
+            applicationIdSuffix ".demo"
+            versionNameSuffix "-demo"
+        }
+        full {
+            dimension "version"
+            applicationIdSuffix ".full"
+            versionNameSuffix "-full"
+        }
+    }
+}
+
+dependencies {
+    implementation libs.appcompat
+    implementation libs.kotlinStdlib
+}

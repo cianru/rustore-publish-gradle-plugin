@@ -1,0 +1,38 @@
+apply from: "$projectDir/config/publish-methods.gradle"
+
+bintray {
+
+    user = getBintrayUser()
+    key = getBintrayApiKey()
+    configurations = ['archives']
+    pkg {
+        repo = BINTRAY_REPO
+        name = BINTRAY_PKG
+        desc = POM_DESCRIPTION
+        websiteUrl = POM_URL
+        vcsUrl = POM_SCM_GITHUB_URL
+        licenses = ["Apache-2.0"]
+        dryRun = false
+        publish = true
+        override = true
+        publicDownloadNumbers = true
+        version {
+            name = getVersionName()
+            desc = POM_DESCRIPTION
+            released = new Date()
+            vcsTag = 'v' + getVersionName()
+        }
+    }
+}
+
+private String getBintrayApiKey() {
+    hasProperty('BINTRAY_APIKEY')
+            ? BINTRAY_APIKEY
+            : System.env.BINTRAY_APIKEY
+}
+
+private String getBintrayUser() {
+    hasProperty('BINTRAY_USER')
+            ? BINTRAY_USER
+            : System.env.BINTRAY_USER
+}
