@@ -27,10 +27,10 @@ private const val ARTIFACT_AAB_FILE_PATH = "$BUILD_DIRECTORY_PATH/file.aab"
 private const val ARTIFACT_AAB_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/file_second.aab"
 
 private const val CREDENTIALS_FILE_PATH = "$BUILD_DIRECTORY_PATH/credentials.json"
-private const val CREDENTIALS_JSON = "{\"client_id\": \"id\", \"client_secret\": \"secret\"}"
+private const val CREDENTIALS_JSON = "{\"company_id\": \"id\", \"client_secret\": \"secret\"}"
 
 private const val CREDENTIALS_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/credentials_second.json"
-private const val CREDENTIALS_SECOND_JSON = "{\"client_id\": \"no_id\", \"client_secret\": \"no_secret\"}"
+private const val CREDENTIALS_SECOND_JSON = "{\"company_id\": \"no_id\", \"client_secret\": \"no_secret\"}"
 
 private const val APP_BASIC_INFO_FILE_PATH = "$BUILD_DIRECTORY_PATH/app_info.json"
 private const val APP_BASIC_INFO_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/app_info_second.json"

@@ -45,7 +45,7 @@ open class RustorePublishTask
     @get:Internal
     @set:Option(
         option = "credentialsPath",
-        description = "File path with AppGallery credentials params ('client_id' and 'client_secret')"
+        description = "File path with AppGallery credentials params ('company_id' and 'client_secret')"
     )
     var credentialsPath: String? = null
 
@@ -141,52 +141,50 @@ open class RustorePublishTask
         logger.i("extension=$extension")
         logger.i("cli=$cli")
 
-        logger.v("1. Prepare input config")
-        val applicationId = variant.applicationId.get()
+        logger.v("1/6. Prepare input config")
         val buildFileProvider = BuildFileProvider(variant = variant, logger = logger)
         val config = ConfigProvider(
             extension = extension,
             cli = cli,
             buildFileProvider = buildFileProvider,
-            releaseNotesFileProvider = FileWrapper()
+            releaseNotesFileProvider = FileWrapper(),
+            applicationId = variant.applicationId.get(),
         ).getConfig()
         logger.i("config=$config")
 
         logger.v("Found build file: `${config.artifactFile.name}`")
 
-        logger.v("2. Get Access Token")
-
+        logger.v("2/6. Create signature")
         val timestamp = ZonedDateTime.now().format(DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601))
+        val salt = "${config.credentials.companyId}${timestamp}"
+        val signature = SignatureUtils.signData(salt, config.credentials.clientSecret)
 
-        val salt = "${companyId}${timestamp}"
-        val signature = SignatureUtils.signData(salt, clientSecret!!)
-
-        logger.v("3. Get Access Token")
+        logger.v("3/6. Get Access Token")
         val token = rustoreService.getToken(
-            companyId = companyId!!,
+            companyId = config.credentials.companyId,
             timestamp = timestamp,
             signature = signature,
         )
 
-        logger.v("4. Create App Draft")
+        logger.v("4/6. Create App Draft")
         val appVersionId = rustoreService.createDraft(
             token = token,
-            applicationId = applicationId,
+            applicationId = config.applicationId,
             whatsNew = config.releaseNotes?.first()?.newFeatures ?: "",
         )
 
-        logger.v("5. Upload build file '${config.artifactFile}'")
-        val fileInfoListResult = rustoreService.uploadBuildFile(
+        logger.v("5/6. Upload build file '${config.artifactFile}'")
+        rustoreService.uploadBuildFile(
             token = token,
-            applicationId = applicationId,
+            applicationId = config.applicationId,
             versionId = appVersionId,
             buildFile = config.artifactFile
         )
 
-        logger.v("6. Submit publication")
+        logger.v("6/6. Submit publication")
         val summitResult = rustoreService.submit(
             token = token,
-            applicationId = applicationId, // TODO
+            applicationId = config.applicationId,
             versionId = appVersionId,
             priorityUpdate = 5,
         )

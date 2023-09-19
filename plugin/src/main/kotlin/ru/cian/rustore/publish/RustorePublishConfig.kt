@@ -10,6 +10,7 @@ internal data class InputPluginConfig(
     val releaseTime: String?,
     val releasePhase: ReleasePhaseConfig?,
     val releaseNotes: List<ReleaseNotesConfig>?,
+    val applicationId: String,
 )
 
 internal data class ReleasePhaseConfig(

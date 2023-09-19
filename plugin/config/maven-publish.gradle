@@ -75,8 +75,8 @@ publishing {
             version = getVersionName()
 
             from components.java
-            artifact sourceJar
-            artifact javadocJar
+//            artifact sourceJar
+//            artifact javadocJar
 
             pom {
                 name = POM_NAME

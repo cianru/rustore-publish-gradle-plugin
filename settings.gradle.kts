@@ -2,18 +2,18 @@ include("plugin")
 
 include(
     ":sample-kotlin",
-//    ":sample-groovy",
+    ":sample-groovy",
 //    ":sample-aar" // For uncomment should get error at sync project time as well;
 )
 
 pluginManagement {
 
-    val rustorePublish = "1.0.0-SNAPSHOT"
+    val rustorePublish = "0.2.0-SNAPSHOT"
 
     resolutionStrategy {
         eachPlugin {
             if(requested.id.namespace == "ru.cian") {
-                useModule("ru.cian:rustore-publish-gradle-plugin:${rustorePublish}")
+                useModule("ru.cian.rustore-plugin:plugin:${rustorePublish}")
             }
         }
     }

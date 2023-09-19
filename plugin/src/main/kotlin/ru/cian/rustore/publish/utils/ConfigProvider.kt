@@ -15,6 +15,7 @@ internal class ConfigProvider(
     private val cli: InputPluginCliParam,
     private val buildFileProvider: BuildFileProvider,
     private val releaseNotesFileProvider: FileWrapper,
+    private val applicationId: String,
 ) {
 
     fun getConfig(): InputPluginConfig {
@@ -47,6 +48,7 @@ internal class ConfigProvider(
             releaseTime = releaseTime,
             releasePhase = releasePhase,
             releaseNotes = releaseNotes,
+            applicationId = applicationId,
         )
     }
 
@@ -93,14 +95,14 @@ internal class ConfigProvider(
             if (!credentialsFile.exists()) {
                 throw FileNotFoundException(
                     "$extension (File (${credentialsFile.absolutePath}) " +
-                            "with 'client_id' and 'client_secret' for access to Rustore Publish API is not found)"
+                            "with 'company_id' and 'client_secret' for access to Rustore Publish API is not found)"
                 )
             }
             CredentialHelper.getCredentials(credentialsFile)
         }
         val companyId = companyIdPriority ?: credentials.value.companyId.nullIfBlank()
         ?: throw IllegalArgumentException(
-            "(Rustore credential `clientId` param is null or empty). " +
+            "(Rustore credential `companyId` param is null or empty). " +
                     "Please check your credentials file content or as single parameter."
         )
         val clientSecret = clientSecretPriority ?: credentials.value.clientSecret.nullIfBlank()
