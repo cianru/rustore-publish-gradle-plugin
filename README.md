@@ -1,6 +1,6 @@
 # RuStore Publishing
 
-![Version](https://img.shields.io/badge/GradlePortal-0.2.0-green.svg)
+![Version](https://img.shields.io/badge/GradlePortal-0.2.1-green.svg)
 ![Version](https://img.shields.io/badge/Gradle-7.*-pink.svg)
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -202,12 +202,6 @@ android {
 
 ```bash
 ./gradlew assembleRelease publishRustoreRelease
-```
-
-or
-
-```bash
-./gradlew bundleRelease publishRustoreRelease
 ```
 
 You can apply or override each plugin extension parameter dynamically by using CLI params. For example:
