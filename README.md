@@ -204,12 +204,6 @@ android {
 ./gradlew assembleRelease publishRustoreRelease
 ```
 
-or
-
-```bash
-./gradlew bundleRelease publishRustoreRelease
-```
-
 You can apply or override each plugin extension parameter dynamically by using CLI params. For example:
 
 ```bash

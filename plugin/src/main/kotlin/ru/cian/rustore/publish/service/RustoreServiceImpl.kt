@@ -37,13 +37,14 @@ internal class RustoreServiceImpl constructor(
         )
 
         logger.i("""
-        curl --location --request POST $DOMAIN_URL/public/auth/ \
-        --header 'Content-Type: application/json' \
-        --data-raw '{
-            "companyId": "$companyId",
-            "timestamp": "$timestamp",
-            "signature": "$signature"
-        }'            
+            curl --location --request POST \
+            $DOMAIN_URL/public/auth/ \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "companyId": "$companyId",
+                "timestamp": "$timestamp",
+                "signature": "$signature"
+            }'            
         """.trimIndent())
 
         val response = httpClient.post<AccessTokenResponse>(
@@ -67,12 +68,13 @@ internal class RustoreServiceImpl constructor(
         )
 
         logger.i("""
-        curl --location --request POST $DOMAIN_URL/public/v1/application/$applicationId/version \
-        --header 'Content-Type: application/json' \
-        --header 'Public-Token: $token' \
-        --data-raw '{
-            "whatsNew": "$whatsNew"
-        }'            
+            curl --location --request POST \
+            $DOMAIN_URL/public/v1/application/$applicationId/version \
+            --header 'Content-Type: application/json' \
+            --header 'Public-Token: $token' \
+            --data-raw '{
+                "whatsNew": "$whatsNew"
+            }'            
         """.trimIndent())
 
         val response = httpClient.post<AppDraftResponse>(
@@ -160,8 +162,9 @@ internal class RustoreServiceImpl constructor(
         priorityUpdate: Int
     ): Boolean {
         logger.i("""
-        curl --location --request POST $DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/commit?priorityUpdate=$priorityUpdate \
-        --header 'Content-Type: application/json'
+            curl --location --request POST \
+            $DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/commit?priorityUpdate=$priorityUpdate \
+            --header 'Content-Type: application/json'
         """.trimIndent())
 
         val response = httpClient.post<SubmitPublicationResponse>(
@@ -183,9 +186,9 @@ internal class RustoreServiceImpl constructor(
     ): Boolean {
 
         logger.i("""
-        curl --location --request DELETE $DOMAIN_URL/public/v1/application/$packageName/version/$previousAppId \
-        --header 'Content-Type: application/json' \
-        --header 'Public-Token: $token'            
+            curl --location --request DELETE $DOMAIN_URL/public/v1/application/$packageName/version/$previousAppId \
+            --header 'Content-Type: application/json' \
+            --header 'Public-Token: $token'            
         """.trimIndent())
 
         val response = httpClient.delete<DeleteAppDraftResponse>(
