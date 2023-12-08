@@ -153,7 +153,7 @@ File `rustore-credentials.json` contains next json structure:
   "client_secret": "<CLIENT_SECRET>"
 }
 ```
-How to get credentials see [AppGallery Connect API Getting Started](https://developer.rustore.com/consumer/en/doc/development/AppGallery-connect-Guides/agcapi-getstarted).
+How to get credentials see [[RU] Rustore API Getting Started](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/authorization_rustore_api_1).
 
 ## Plugin params
 Where Priority(P), Required(R), Optional(O)
