@@ -1,3 +1,9 @@
+# 0.2.2
+
+Fix:
+* Add mustRunAfter assemble and bundle tasks without side effect on configuration cache 
+
+
 # 0.2.1
 
 Fix:

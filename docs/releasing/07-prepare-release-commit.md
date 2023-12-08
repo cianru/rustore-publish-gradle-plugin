@@ -7,7 +7,7 @@
    ```
 3. Make a *signed* tag (check existing tags for message format):
    ```bash
-   git tag -a "vX.Y.Z" -m "vX.Y.Z" 
+   git tag -a "X.Y.Z" -m "X.Y.Z" 
    ```
 4. Push all of our work to Github to make it official:
    ```bash
