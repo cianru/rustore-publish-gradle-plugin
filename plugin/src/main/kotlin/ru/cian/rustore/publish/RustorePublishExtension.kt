@@ -33,7 +33,6 @@ class RustorePublishExtensionConfig(
     var releaseTime: String? = null
     var releasePhase: ReleasePhaseExtension? = null
     var releaseNotes: List<ReleaseNote>? = null
-    var pluginSettings: PluginSettings = PluginSettings()
 
     init {
         if (name.isBlank()) {
@@ -41,11 +40,6 @@ class RustorePublishExtensionConfig(
         }
     }
 
-    fun pluginSettings(closure: Closure<PluginSettings>): PluginSettings {
-        pluginSettings = PluginSettings()
-        project.configure(pluginSettings, closure)
-        return pluginSettings
-    }
     fun releasePhase(closure: Closure<ReleasePhaseExtension>): ReleasePhaseExtension {
         releasePhase = ReleasePhaseExtension()
         project.configure(releasePhase!!, closure)
@@ -61,8 +55,7 @@ class RustorePublishExtensionConfig(
             "buildFile='$buildFile', " +
             "releaseTime='$releaseTime', " +
             "releasePhase='$releasePhase', " +
-            "releaseNotes='$releaseNotes', " +
-            "pluginSettings='$pluginSettings'" +
+            "releaseNotes='$releaseNotes'" +
             ")"
     }
 }
@@ -101,24 +94,6 @@ open class ReleaseNote {
                 "lang='$lang', " +
                 "filePath='$filePath'" +
                 ")"
-    }
-}
-
-open class PluginSettings {
-
-    var applyConfigureOptimization: Boolean = true
-
-    constructor() {
-        // nothing;
-    }
-    constructor(applyConfigureOptimization: Boolean) {
-        this.applyConfigureOptimization = applyConfigureOptimization
-    }
-
-    override fun toString(): String {
-        return "PluginSettings(" +
-            "applyConfigureOptimization='$applyConfigureOptimization'" +
-            ")"
     }
 }
 

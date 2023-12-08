@@ -14,9 +14,6 @@ rustorePublish {
                     filePath = "$projectDir/release-notes-ru.txt"
                 ),
             )
-            pluginSettings = ru.cian.rustore.publish.PluginSettings(
-                applyConfigureOptimization = true
-            )
         }
     }
 }
