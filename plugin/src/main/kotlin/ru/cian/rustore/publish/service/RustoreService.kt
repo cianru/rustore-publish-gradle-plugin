@@ -25,7 +25,7 @@ internal interface RustoreService {
         applicationId: String,
         versionId: Int,
         buildFile: File,
-    ): Boolean
+    )
 
     fun submit(
         token: String,

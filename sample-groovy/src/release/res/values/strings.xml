@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">Rustore Plugin Sample1</string>
-    <string name="hello_text">Hello World\nfrom Release Sample2 app</string>
+    <string name="app_name">Rustore Plugin Sample Release Groovy</string>
+    <string name="hello_text">Hello World\nfrom Sample Release Groovy app</string>
 </resources>

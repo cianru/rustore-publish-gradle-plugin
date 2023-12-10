@@ -15,7 +15,9 @@ import ru.cian.rustore.publish.utils.ConfigProvider
 import ru.cian.rustore.publish.utils.FileWrapper
 import ru.cian.rustore.publish.utils.Logger
 import ru.cian.rustore.publish.utils.RELEASE_DATE_TIME_FORMAT
-import ru.cian.rustore.publish.utils.SignatureUtils
+import ru.cian.rustore.publish.utils.signature.MockSignatureTools
+import ru.cian.rustore.publish.utils.signature.SignatureTools
+import ru.cian.rustore.publish.utils.signature.SignatureToolsImpl
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -105,7 +107,6 @@ open class RustorePublishTask
     @set:Option(option = "apiStub", description = "Use RestAPI stub instead of real RestAPI requests")
     var apiStub: Boolean? = false
 
-
     @Suppress("LongMethod")
     @TaskAction
     fun action() {
@@ -157,7 +158,8 @@ open class RustorePublishTask
         logger.v("2/6. Create signature")
         val timestamp = ZonedDateTime.now().format(DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601))
         val salt = "${config.credentials.companyId}${timestamp}"
-        val signature = SignatureUtils.signData(salt, config.credentials.clientSecret)
+        val signatureTools: SignatureTools = if (apiStub != true) SignatureToolsImpl() else MockSignatureTools()
+        val signature = signatureTools.signData(salt, config.credentials.clientSecret)
 
         logger.v("3/6. Get Access Token")
         val token = rustoreService.getToken(

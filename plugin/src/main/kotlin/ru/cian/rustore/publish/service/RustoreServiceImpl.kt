@@ -55,7 +55,6 @@ internal class RustoreServiceImpl constructor(
             ),
         )
         return response.body.jwe
-            ?: throw IllegalStateException("Can't get `accessToken`. Reason: '${response.code}, message=${response.message}'")
     }
 
     override fun createDraft(
@@ -86,38 +85,37 @@ internal class RustoreServiceImpl constructor(
             ),
         )
 
-        if (response.code == "ERROR") {
-            if (response.message != null) {
-                val searchString = "ID ="
-                val indexOf = response.message?.indexOf(searchString)
+        if (response.code == "ERROR" && response.message != null) {
 
-                if (indexOf > 0) {
-                    val previousAppId = response.message.substring(indexOf + searchString.length + 1)
-                    logger.v("previousAppId='$previousAppId'")
-                    val deletePreviousVersionIdResult = deletePreviousDraft(
-                        token = token,
-                        packageName = applicationId,
-                        previousAppId = previousAppId,
-                    )
+            val searchString = "ID ="
+            val indexOf = response.message.indexOf(searchString)
 
-                    if (!deletePreviousVersionIdResult) {
-                        throw IllegalStateException("Can't remove previous app versionId")
-                    }
-
-                    return createDraft(
-                        token = token,
-                        applicationId = applicationId,
-                        whatsNew = whatsNew,
-                    )
-                } else {
-                    throw IllegalStateException("Can't detect previous app versionId")
-                }
+            check(indexOf > 0) {
+                "Can't detect previous app versionId. " +
+                    "Server response message must contain '$searchString'"
             }
+
+            val previousAppId = response.message.substring(indexOf + searchString.length + 1)
+            logger.v("previousAppId='$previousAppId'")
+            val deletePreviousVersionIdResult = deletePreviousDraft(
+                token = token,
+                packageName = applicationId,
+                previousAppId = previousAppId,
+            )
+
+            check(deletePreviousVersionIdResult) {
+                "Can't remove previous app versionId on server side."
+            }
+
+            return createDraft(
+                token = token,
+                applicationId = applicationId,
+                whatsNew = whatsNew,
+            )
         }
 
         logger.v("response=$response")
         return response.body
-            ?: throw IllegalStateException("Can't get `accessToken`. Reason: '${response.code}, message=${response.message}'")
     }
 
     override fun uploadBuildFile(
@@ -125,7 +123,7 @@ internal class RustoreServiceImpl constructor(
         applicationId: String,
         versionId: Int,
         buildFile: File
-    ): Boolean {
+    ) {
 
         val fileBody = buildFile.asRequestBody(HttpClientHelper.MEDIA_TYPE_AAB)
         val requestBody = MultipartBody.Builder()
@@ -148,11 +146,11 @@ internal class RustoreServiceImpl constructor(
 
         logger.v("response=$response")
 
-        if (response.code != "OK") {
-            throw IllegalStateException("Build file uploading is failed!")
+        check (response.code == "OK") {
+            "Build file uploading is failed! " +
+                "Reason code: ${response.code}, " +
+                "message: ${response.message}"
         }
-
-        return true
     }
 
     override fun submit(
@@ -176,7 +174,6 @@ internal class RustoreServiceImpl constructor(
             ),
         )
         return response.code == "OK"
-            ?: throw IllegalStateException("Can't get `accessToken`. Reason: '${response.code}, message=${response.message}'")
     }
 
     private fun deletePreviousDraft(

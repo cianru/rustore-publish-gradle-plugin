@@ -24,8 +24,8 @@ internal class MockRustoreService : RustoreService {
         applicationId: String,
         versionId: Int,
         buildFile: File
-    ): Boolean {
-        return true
+    ) {
+        throw IllegalStateException("Test build file uploading is failed! It works as well")
     }
 
     override fun submit(

@@ -1,8 +1,8 @@
-package ru.cian.rustore.sample2
+package ru.cian.rustore.sample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import ru.cian.rustore.publish.sample2.R
+import ru.cian.rustore.sample.groovy.R
 
 class MainActivity : AppCompatActivity() {
 

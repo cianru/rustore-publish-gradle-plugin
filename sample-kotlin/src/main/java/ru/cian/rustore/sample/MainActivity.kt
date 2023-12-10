@@ -1,7 +1,8 @@
-package ru.cian.rustore.sample1
+package ru.cian.rustore.sample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import ru.cian.rustore.sample.kotlin.R
 
 class MainActivity : AppCompatActivity() {
 

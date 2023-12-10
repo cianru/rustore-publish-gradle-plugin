@@ -20,7 +20,8 @@ rustorePublish {
 
 android {
     compileSdk = libs.versions.compileSdkVersion.get().toInt()
-    buildToolsVersion = libs.versions.buildToolsVersion.get()
+
+    namespace = "ru.cian.rustore.sample.kotlin"
 
     defaultConfig {
         applicationId = "ru.cian.rustore.sample_kotlin"
@@ -45,8 +46,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.jvm.get())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.jvm.get())
+    }
+    kotlinOptions {
+        jvmTarget = libs.versions.jvm.get()
     }
 }
 

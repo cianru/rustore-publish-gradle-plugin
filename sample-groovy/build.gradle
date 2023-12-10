@@ -32,7 +32,8 @@ rustorePublish {
 
 android {
     compileSdkVersion libs.versions.compileSdkVersion.get() as Integer
-    buildToolsVersion libs.versions.buildToolsVersion.get()
+
+    namespace 'ru.cian.rustore.sample.groovy'
 
     defaultConfig {
         applicationId "ru.cian.rustore.sample_groovy"

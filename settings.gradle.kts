@@ -8,7 +8,7 @@ include(
 
 pluginManagement {
 
-    val rustorePublish = "0.2.2-SNAPSHOT"
+    val rustorePublish = "0.3.0-SNAPSHOT"
 
     resolutionStrategy {
         eachPlugin {
