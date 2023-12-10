@@ -75,8 +75,8 @@ publishing {
             version = getVersionName()
 
             from components.java
-//            artifact sourceJar
-//            artifact javadocJar
+            artifact sourceJar // Remove for `com.gradle.plugin-publish` > 1.0 version
+            artifact javadocJar // Remove for `com.gradle.plugin-publish` > 1.0 version
 
             pom {
                 name = POM_NAME

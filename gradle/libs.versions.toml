@@ -38,7 +38,7 @@ test-junitJupiterParams = "org.junit.jupiter:junit-jupiter-params:5.7.0"
 dokka = { id = "org.jetbrains.dokka", version = "1.8.10" }
 dcendents = { id = "com.github.dcendents", version = "plugin:2.1" }
 bintray = { id = "com.jfrog.bintray", version = "1.8.5" }
-pluginPublish = { id = "com.gradle.plugin-publish", version = "1.2.1" }
+pluginPublish = { id = "com.gradle.plugin-publish", version = "0.15.0" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 benManesVersions = { id = "com.github.ben-manes.versions", version = "0.46.0" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }

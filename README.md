@@ -1,14 +1,14 @@
 # RuStore Publishing
 
-![Version](https://img.shields.io/badge/GradlePortal-0.2.2-green.svg)
-![Version](https://img.shields.io/badge/Gradle-7.*-pink.svg)
+![Version](https://img.shields.io/badge/GradlePortal-0.3.0-green.svg)
+![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 The plugin allows you to publish the android release *.apk build file to the RuStore.
 
 For publication the plugin used [Rustore API](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/publish_RuStore_API)
 
-**Table of contents**
+# Table of contents
 <!-- TOC -->
 - [Features](#features)
 - [Support versions](#support-versions)
@@ -45,9 +45,10 @@ The following features are missing:
 The Android Gradle Plugin often changes the Variant API,
 so a different version of AGP corresponds to a specific version of the current plugin
 
-| AGP     | Plugin |
-|---------|--------|
-| 7.+     | latest |
+| AGP | Plugin |
+|-----|--------|
+| 7.+ | 0.2.2  |
+| 8.+ | 0.3.0  |
 
 # Adding the plugin to your project
 

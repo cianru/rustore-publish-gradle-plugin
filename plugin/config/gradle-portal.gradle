@@ -3,12 +3,12 @@ apply from: "$projectDir/config/publish-methods.gradle"
 group = GROUP
 version = getVersionName()
 
-//pluginBundle {
-//    description = GRADLE_PORTAL_DESCRIPTION
-//    website = GRADLE_PORTAL_URL
-//    vcsUrl = GRADLE_PORTAL_SCM_URL
-//    tags = ["android", "rustore", "publishing", "deployment", "apps", "mobile", "gradle", "plugin"]
-//}
+pluginBundle { // Remove for `com.gradle.plugin-publish` > 1.0 version
+    description = GRADLE_PORTAL_DESCRIPTION
+    website = GRADLE_PORTAL_URL
+    vcsUrl = GRADLE_PORTAL_SCM_URL
+    tags = ["android", "rustore", "publishing", "deployment", "mobile"]
+}
 
 gradlePlugin {
     website = POM_SCM_URL
@@ -18,7 +18,8 @@ gradlePlugin {
             id = GRADLE_PORTAL_ARTIFACT_ID
             displayName = GRADLE_PORTAL_NAME
             description = GRADLE_PORTAL_DESCRIPTION
-            tags.set(["android", "rustore", "publishing", "deployment"])
+// Uncomment for `com.gradle.plugin-publish` > 1.0 version
+//            tags.set(["android", "rustore", "publishing", "deployment"])
             implementationClass = GRADLE_PORTAL_IMPLEMENTATION_CLASS
         }
     }
