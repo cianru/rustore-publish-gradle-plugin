@@ -25,19 +25,22 @@ For publication the plugin used [Rustore API](https://help.rustore.ru/rustore/fo
 
 The following features are available:
 
-* Publish APK build file in RuStore
-* Submit the build on all users after getting store approve
-* Update Release Notes for publishing build (Release Notes)
-* Separated settings for different configurations build types and flavors
-* Support of Gradle Portal and Gradle DSL
-* Support of Gradle 7.+
-* Support of Configuration Cache
+- [x] :white_check_mark: Publish APK build file in RuStore
+- [x] :white_check_mark: Submit the build on all users after getting store approve
+- [x] :white_check_mark: Update Release Notes for publishing build (Release Notes)
+- [x] :white_check_mark: Separated settings for different configurations build types and flavors
+- [x] :white_check_mark: Support of Gradle Portal and Gradle DSL
+- [x] :white_check_mark: Support of Gradle 8.+
+- [x] :white_check_mark: Support of Configuration Cache
 
 The following features are missing:
 
-* Publish the build on a part of users (Release Phases)
-* Change App Store Information: description, app icon, screenshots and etc.
-* Rollout Holding
+- [ ] :children_crossing: Change App Store Information: description, app icon, screenshots and etc.
+
+The following features are not available on Rustore API side yet:
+
+- [ ] :no_entry: Publish the build on a part of users (Release Phases)
+- [ ] :no_entry: Rollout Holding
 
 !!! MORE INFORMATION COMING SOON !!!
 

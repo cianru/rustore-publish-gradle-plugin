@@ -1,6 +1,6 @@
 apply from: "$projectDir/config/publish-methods.gradle"
 
-group = GROUP
+group = GROUP_ID
 version = getVersionName()
 
 pluginBundle { // Remove for `com.gradle.plugin-publish` > 1.0 version
