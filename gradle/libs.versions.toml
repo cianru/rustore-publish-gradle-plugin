@@ -13,7 +13,7 @@ kotlin = "1.9.21"
 detekt = "1.23.4"
 junitJupiter = "5.7.0"
 androidGradlePlugin = "8.0.2"
-sampleRustorePlugin = "0.3.0-SNAPSHOT"
+sampleRustorePlugin = "0.3.1-SNAPSHOT"
 
 [libraries]
 appcompat = "androidx.appcompat:appcompat:1.3.1"

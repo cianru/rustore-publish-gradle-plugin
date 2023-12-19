@@ -1,7 +1,7 @@
-# 0.3.0
+# 0.3.1
 
 ##### Add
-* Support of Gradle 8+ and Android Gradle Plugin 8+.
+* Support of Gradle 8+, Android Gradle Plugin 8+ and JDK17+
 
 
 # 0.2.2

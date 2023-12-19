@@ -1,6 +1,6 @@
 # RuStore Publishing
 
-![Version](https://img.shields.io/badge/GradlePortal-0.3.0-green.svg)
+![Version](https://img.shields.io/badge/GradlePortal-0.3.1-green.svg)
 ![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -51,7 +51,7 @@ so a different version of AGP corresponds to a specific version of the current p
 | AGP | Plugin |
 |-----|--------|
 | 7.+ | 0.2.2  |
-| 8.+ | 0.3.0  |
+| 8.+ | 0.3.1  |
 
 # Adding the plugin to your project
 
