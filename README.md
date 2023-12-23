@@ -45,10 +45,11 @@ The following features are available:
 The following features are missing:
 
 - :children_crossing: Change App Store Information: description, app icon, screenshots and etc.
+- :children_crossing: Support of AppBundle
+- :children_crossing: Publish the build on a part of users (Release Phases)
 
 The following features are not available on Rustore API side yet:
 
-- :no_entry: Publish the build on a part of users (Release Phases)
 - :no_entry: Rollout Holding
 
 !!! MORE INFORMATION COMING SOON !!!
