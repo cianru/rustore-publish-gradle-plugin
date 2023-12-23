@@ -183,13 +183,6 @@ How to get credentials see [[RU] Rustore API Getting Started](https://help.rusto
 * **Type**: String (Optional), **Default** value: `null`
 * **CLI**: `--buildFile`
 
-### ReleaseNotes
-
-##### `descriptions`
-* **Description**: Release Notes by languages. For mote info see documentation below.
-* **Type**: List<ReleaseNote> (Required), **Default** value: `null`
-* **CLI**: (See `--releaseNotes` desc.)
-
 ##### `releaseNotes`
 * **Description**: Release Notes settings. For mote info see ReleaseNote param desc.
 * **Type**: List<ReleaseNote> (Optional), **Default** value: `null`
