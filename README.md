@@ -1,4 +1,13 @@
-# RuStore Publishing
+
+[comment]: # (Markdown formating https://docs.github.com/ru/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+
+<p align="center">
+  <img src="docs/screenshots/logo.png" width="400">
+</p>
+
+<h1 align="center">
+    RuStore Publishing
+</h1>
 
 ![Version](https://img.shields.io/badge/GradlePortal-0.3.1-green.svg)
 ![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
@@ -16,7 +25,7 @@ For publication the plugin used [Rustore API](https://help.rustore.ru/rustore/fo
     - [Using the Gradle plugin DSL](#using-the-gradle-plugin-dsl)
     - [Using the `apply` method](#using-the-apply-method)
     - [Configuring Plugin](#configuring-plugin)
-    - [Plugin params](#plugin-params)
+    - [Configuration params](#configuration-params)
 - [Plugin usage](#plugin-usage)
 
 <!-- /TOC -->
@@ -25,22 +34,22 @@ For publication the plugin used [Rustore API](https://help.rustore.ru/rustore/fo
 
 The following features are available:
 
-- [x] :white_check_mark: Publish APK build file in RuStore
-- [x] :white_check_mark: Submit the build on all users after getting store approve
-- [x] :white_check_mark: Update Release Notes for publishing build (Release Notes)
-- [x] :white_check_mark: Separated settings for different configurations build types and flavors
-- [x] :white_check_mark: Support of Gradle Portal and Gradle DSL
-- [x] :white_check_mark: Support of Gradle 8.+
-- [x] :white_check_mark: Support of Configuration Cache
+- :white_check_mark: Publish APK build file in RuStore
+- :white_check_mark: Submit the build on all users after getting store approve
+- :white_check_mark: Update Release Notes for publishing build (Release Notes)
+- :white_check_mark: Separated settings for different configurations build types and flavors
+- :white_check_mark: Support of Gradle Portal and Gradle DSL
+- :white_check_mark: Support of Gradle 8.+
+- :white_check_mark: Support of Configuration Cache
 
 The following features are missing:
 
-- [ ] :children_crossing: Change App Store Information: description, app icon, screenshots and etc.
+- :children_crossing: Change App Store Information: description, app icon, screenshots and etc.
 
 The following features are not available on Rustore API side yet:
 
-- [ ] :no_entry: Publish the build on a part of users (Release Phases)
-- [ ] :no_entry: Rollout Holding
+- :no_entry: Publish the build on a part of users (Release Phases)
+- :no_entry: Rollout Holding
 
 !!! MORE INFORMATION COMING SOON !!!
 
@@ -159,32 +168,48 @@ File `rustore-credentials.json` contains next json structure:
 ```
 How to get credentials see [[RU] Rustore API Getting Started](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/authorization_rustore_api_1).
 
-## Plugin params
-Where Priority(P), Required(R), Optional(O)
+## Configuration params
 
-| param              | P | type              | default value | cli                                            | description                                                                                                                                                                                   |
-|--------------------|---|-------------------|---------------|------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `credentialsPath`  | O | string            | null          | `--credentialsPath`                            | Path to json file with AppGallery credentials params (`company_id` and `client_secret`)                                                                                                        |
-| `buildFile`        | O | string            | null          | `--buildFile`                                  | Path to build file. "null" means use standard path for "apk" and "aab" files.                                                                                                                 |
-| `releaseNotes`     | O | List<ReleaseNote> | null          | `--releaseNotes` (see ReleaseNote param desc.) | Release Notes. For mote info see documentation below.                                                                                                                                         |
+### Base level params
 
-other params
+##### `credentialsPath`
+* **Description**: Path to json file with RuStore credentials params (`company_id` and `client_secret`)
+* **Type**: String (Optional), **Default** value: `null`
+* **CLI**: `--credentialsPath`
 
-| ReleaseNote(Object)  | P | type    | default value | cli                            | description                                                                                                           |
-|----------------------|---|---------|---------------|--------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `lang`               | R | string  | null          | (See `--releaseNotes` desc.)   | Support only `ru-RU` lang.                                                                                            |
-| `filePath`           | R | string  | null          | (See `--releaseNotes` desc.)   | Absolutely path to file with Release Notes for current `lang`. Release notes text must be less or equals to 500 sign. |
+##### `buildFile`
+* **Description**: Path to build file. "null" means use standard path for "apk" and "aab" files.
+* **Type**: String (Optional), **Default** value: `null`
+* **CLI**: `--buildFile`
 
-For CLI `--releaseNotes` use string type with format: `<lang>:<releaseNotes_FilePath>`.
+### ReleaseNotes
 
-<details>
-<summary>For example</summary>
+##### `descriptions`
+* **Description**: Release Notes by languages. For mote info see documentation below.
+* **Type**: List<ReleaseNote> (Required), **Default** value: `null`
+* **CLI**: (See `--releaseNotes` desc.)
 
+##### `releaseNotes`
+* **Description**: Release Notes settings. For mote info see ReleaseNote param desc.
+* **Type**: List<ReleaseNote> (Optional), **Default** value: `null`
+* **CLI**: (see ReleaseNotes param desc.)
+
+### ReleaseNote
+
+##### `lang`
+* **Description**: Support only `ru-RU` lang.
+* **Type**: String (Required), **Default** value: `null`
+* **CLI**: (See `--releaseNotes` desc.)
+
+##### `filePath`
+* **Description**: Absolutely path to file with Release Notes for current `lang`. Release notes text must be less or equals to 500 sign.
+* **Type**: String (Required), **Default** value: `null`
+* **CLI**: (See `--releaseNotes` desc.)
+
+For CLI `--releaseNotes` use string type with format: `<lang>:<releaseNotes_FilePath>`. For example:
 ```bash
 --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
 ```
-
-</details>
 
 # Plugin usage
 
@@ -214,6 +239,9 @@ You can apply or override each plugin extension parameter dynamically by using C
 ./gradlew assembleRelease publishRustoreRelease \
     --credentialsPath="/sample1/rustore-credentials.json"
 ```
+# Promotion
+
+Also consider our [Gradle Plugin for publishing to Huawei AppGallery] (https://github.com/cianru/huawei-appgallery-publish-gradle-plugin)
 
 # License
 
