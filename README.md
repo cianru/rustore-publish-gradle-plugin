@@ -1,9 +1,9 @@
 
 [comment]: # (Markdown formating https://docs.github.com/ru/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 
-<p align="center">
-  <img src="docs/screenshots/logo.png" width="400">
-</p>
+[//]: # (<p align="center">)
+[//]: # (  <img src="docs/screenshots/logo.png" width="400">)
+[//]: # (</p>)
 
 <h1 align="center">
     RuStore Publishing

@@ -62,5 +62,5 @@ configurations {
 
 dependencies {
     implementation(libs.appcompat)
-    implementation(libs.kotlinStdlib)
+    implementation(platform(libs.kotlinBom))
 }
