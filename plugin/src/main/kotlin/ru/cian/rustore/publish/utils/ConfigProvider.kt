@@ -20,6 +20,7 @@ internal class ConfigProvider(
 
     fun getConfig(): InputPluginConfig {
 
+        val mobileServicesType = cli.mobileServicesType ?: extension.mobileServicesType
         val deployType = cli.deployType ?: extension.deployType
         val artifactFormat = cli.buildFormat ?: extension.buildFormat
         val customBuildFilePath: String? = cli.buildFile ?: extension.buildFile
@@ -43,6 +44,7 @@ internal class ConfigProvider(
         return InputPluginConfig(
             credentials = credentialsConfig,
             deployType = deployType,
+            mobileServicesType = mobileServicesType,
             artifactFormat = actualArtifactFormat,
             artifactFile = artifactFile,
             releaseTime = releaseTime,
@@ -52,7 +54,7 @@ internal class ConfigProvider(
         )
     }
 
-    fun getBuildFile(
+    private fun getBuildFile(
         customBuildFilePath: String?,
         artifactFormat: BuildFormat
     ): File {
@@ -80,7 +82,7 @@ internal class ConfigProvider(
     }
 
     @Suppress("ThrowsCount")
-    fun getCredentialsConfig(): Credentials {
+    private fun getCredentialsConfig(): Credentials {
         val credentialsFilePath = cli.credentialsPath ?: extension.credentialsPath
         val companyIdPriority: String? = cli.companyId
         val clientSecretPriority: String? = cli.clientSecret
@@ -114,7 +116,7 @@ internal class ConfigProvider(
     }
 
     @Suppress("ThrowsCount")
-    fun getReleasePhaseConfig(): ReleasePhaseConfig? {
+    private fun getReleasePhaseConfig(): ReleasePhaseConfig? {
         val releasePhasePercent = cli.releasePhasePercent?.toDouble() ?: extension.releasePhase?.percent
 
         if (releasePhasePercent != null) {

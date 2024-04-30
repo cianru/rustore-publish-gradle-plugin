@@ -23,6 +23,7 @@ internal interface RustoreService {
     fun uploadBuildFile(
         token: String,
         applicationId: String,
+        mobileServicesType: String,
         versionId: Int,
         buildFile: File,
     )

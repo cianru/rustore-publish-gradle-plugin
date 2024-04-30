@@ -5,7 +5,7 @@ import com.android.build.api.variant.ApplicationVariant
 import ru.cian.rustore.publish.BuildFormat
 import java.io.File
 
-internal class BuildFileProvider constructor(
+internal class BuildFileProvider(
     private val variant: ApplicationVariant,
     private val logger: Logger,
 ) {

@@ -13,6 +13,17 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import ru.cian.rustore.publish.BuildFormat
+import ru.cian.rustore.publish.Credentials
+import ru.cian.rustore.publish.DeployType
+import ru.cian.rustore.publish.InputPluginCliParam
+import ru.cian.rustore.publish.InputPluginConfig
+import ru.cian.rustore.publish.MobileServicesType
+import ru.cian.rustore.publish.ReleaseNote
+import ru.cian.rustore.publish.ReleaseNotesConfig
+import ru.cian.rustore.publish.ReleasePhaseConfig
+import ru.cian.rustore.publish.ReleasePhaseExtension
+import ru.cian.rustore.publish.RustorePublishExtensionConfig
 import ru.cian.rustore.publish.models.Credential
 import java.io.File
 
@@ -38,14 +49,14 @@ private const val APP_BASIC_INFO_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/app_i
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ConfigProviderTest {
 
-    private val buildFileProvider = mockk<BuildFileProvider>()
     private val project = mockk<Project>()
+    private val buildFileProvider = mockk<BuildFileProvider>()
     private val releaseNotesFileProvider = mockk<FileWrapper>()
-
-    private val emptyCliConfig = ru.cian.rustore.publish.InputPluginCliParam()
+    private val applicationId = "applicationId_1234567890"
+    private val emptyCliConfig = InputPluginCliParam()
 
     private fun extensionConfigInstance() = run {
-        ru.cian.rustore.publish.RustorePublishExtensionConfig("any", project).apply {
+        RustorePublishExtensionConfig("any", project).apply {
             credentialsPath = CREDENTIALS_FILE_PATH
         }
     }
@@ -96,15 +107,15 @@ internal class ConfigProviderTest {
 
     @BeforeEach
     fun beforeEach() {
-        every { buildFileProvider.getBuildFile(ru.cian.rustore.publish.BuildFormat.APK) } returns File(ARTIFACT_APK_FILE_PATH)
-        every { buildFileProvider.getBuildFile(ru.cian.rustore.publish.BuildFormat.AAB) } returns File(ARTIFACT_AAB_FILE_PATH)
+        every { buildFileProvider.getBuildFile(BuildFormat.APK) } returns File(ARTIFACT_APK_FILE_PATH)
+        every { buildFileProvider.getBuildFile(BuildFormat.AAB) } returns File(ARTIFACT_AAB_FILE_PATH)
     }
 
     @Test
     fun `get error to build config for wrong artifact file`() = mockkObject(CredentialHelper) {
 
-        val cliConfig = ru.cian.rustore.publish.InputPluginCliParam(
-            buildFormat = ru.cian.rustore.publish.BuildFormat.APK,
+        val cliConfig = InputPluginCliParam(
+            buildFormat = BuildFormat.APK,
             buildFile = WRONG_ARTIFACT_FILE_PATH
         )
         val configProvider = ConfigProvider(
@@ -112,6 +123,7 @@ internal class ConfigProviderTest {
             cli = cliConfig,
             buildFileProvider = buildFileProvider,
             releaseNotesFileProvider = releaseNotesFileProvider,
+            applicationId = applicationId,
         )
 
         assertThat { configProvider.getConfig() }.hasException(IllegalArgumentException::class)
@@ -120,14 +132,16 @@ internal class ConfigProviderTest {
     @Test
     fun `correct config for default params`() = mockkObject(CredentialHelper) {
 
-        val expectedConfig = ru.cian.rustore.publish.InputPluginConfig(
-            credentials = ru.cian.rustore.publish.Credentials("id", "secret"),
-            deployType = ru.cian.rustore.publish.DeployType.PUBLISH,
-            artifactFormat = ru.cian.rustore.publish.BuildFormat.APK,
+        val expectedConfig = InputPluginConfig(
+            credentials = Credentials("id", "secret"),
+            deployType = DeployType.PUBLISH,
+            artifactFormat = BuildFormat.APK,
+            mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
+            applicationId = applicationId,
         )
 
         every {
@@ -142,17 +156,19 @@ internal class ConfigProviderTest {
                     cli = emptyCliConfig,
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .row(
                 expectedConfig,
                 ConfigProvider(
                     extension = extensionConfigInstance(),
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(
+                    cli = InputPluginCliParam(
                         credentialsPath = CREDENTIALS_FILE_PATH
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .forAll { expectedValue, actualValue ->
@@ -163,34 +179,36 @@ internal class ConfigProviderTest {
     @Test
     fun `correct config with overriding common values at cli params`() {
 
-        val expectedConfig = ru.cian.rustore.publish.InputPluginConfig(
-            credentials = ru.cian.rustore.publish.Credentials("id123", "secret123"),
-            deployType = ru.cian.rustore.publish.DeployType.DRAFT,
-            artifactFormat = ru.cian.rustore.publish.BuildFormat.AAB,
+        val expectedConfig = InputPluginConfig(
+            credentials = Credentials("id123", "secret123"),
+            deployType = DeployType.DRAFT,
+            artifactFormat = BuildFormat.AAB,
             artifactFile = File(ARTIFACT_AAB_FILE_SECOND_PATH),
+            mobileServicesType = MobileServicesType.UNKNOWN,
             releaseTime = "2019-10-18T21:00:00+0300",
-            releasePhase = ru.cian.rustore.publish.ReleasePhaseConfig(
+            releasePhase = ReleasePhaseConfig(
                 percent = 10.05
             ),
             releaseNotes = null,
+            applicationId = applicationId,
         )
 
         val inputExtensionConfig = extensionConfigInstance().apply {
             credentialsPath = CREDENTIALS_FILE_PATH
-            deployType = ru.cian.rustore.publish.DeployType.PUBLISH
-            buildFormat = ru.cian.rustore.publish.BuildFormat.APK
+            deployType = DeployType.PUBLISH
+            buildFormat = BuildFormat.APK
             buildFile = ARTIFACT_APK_FILE_PATH
             releaseTime = "2000-10-18T21:00:00+0300"
-            releasePhase = ru.cian.rustore.publish.ReleasePhaseExtension().apply {
+            releasePhase = ReleasePhaseExtension().apply {
                 percent = 99.7
             }
         }
-        val inputCliConfig = ru.cian.rustore.publish.InputPluginCliParam(
-            deployType = ru.cian.rustore.publish.DeployType.DRAFT,
+        val inputCliConfig = InputPluginCliParam(
+            deployType = DeployType.DRAFT,
             credentialsPath = CREDENTIALS_FILE_SECOND_PATH,
             companyId = "id123",
             clientSecret = "secret123",
-            buildFormat = ru.cian.rustore.publish.BuildFormat.AAB,
+            buildFormat = BuildFormat.AAB,
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,
             releaseTime = "2019-10-18T21:00:00+0300",
             releasePhasePercent = "10.05",
@@ -200,6 +218,7 @@ internal class ConfigProviderTest {
             cli = inputCliConfig,
             buildFileProvider = buildFileProvider,
             releaseNotesFileProvider = releaseNotesFileProvider,
+            applicationId = applicationId,
         )
 
         val actualValue = configProvider.getConfig()
@@ -211,72 +230,79 @@ internal class ConfigProviderTest {
     @Test
     fun `correct config with overriding of publish param`() {
 
-        val expectedConfig = ru.cian.rustore.publish.InputPluginConfig(
-            credentials = ru.cian.rustore.publish.Credentials("id", "secret"),
-            deployType = ru.cian.rustore.publish.DeployType.PUBLISH,
-            artifactFormat = ru.cian.rustore.publish.BuildFormat.APK,
+        val expectedConfig = InputPluginConfig(
+            credentials = Credentials("id", "secret"),
+            deployType = DeployType.PUBLISH,
+            artifactFormat = BuildFormat.APK,
+            mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
+            applicationId = applicationId,
         )
 
         tableOf("expectedValue", "actualValue")
             .row(
-                expectedConfig.copy(deployType = ru.cian.rustore.publish.DeployType.PUBLISH),
+                expectedConfig.copy(deployType = DeployType.PUBLISH),
                 ConfigProvider(
                     extension = extensionConfigInstance(),
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(),
+                    cli = InputPluginCliParam(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .row(
-                expectedConfig.copy(deployType = ru.cian.rustore.publish.DeployType.DRAFT),
+                expectedConfig.copy(deployType = DeployType.DRAFT),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        deployType = ru.cian.rustore.publish.DeployType.DRAFT
+                        deployType = DeployType.DRAFT
                     },
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(),
+                    cli = InputPluginCliParam(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .row(
-                expectedConfig.copy(deployType = ru.cian.rustore.publish.DeployType.UPLOAD_ONLY),
+                expectedConfig.copy(deployType = DeployType.UPLOAD_ONLY),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        deployType = ru.cian.rustore.publish.DeployType.UPLOAD_ONLY
+                        deployType = DeployType.UPLOAD_ONLY
                     },
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(),
+                    cli = InputPluginCliParam(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .row(
-                expectedConfig.copy(deployType = ru.cian.rustore.publish.DeployType.DRAFT),
+                expectedConfig.copy(deployType = DeployType.DRAFT),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        deployType = ru.cian.rustore.publish.DeployType.DRAFT
+                        deployType = DeployType.DRAFT
                     },
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(
+                    cli = InputPluginCliParam(
                         deployType = null
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .row(
-                expectedConfig.copy(deployType = ru.cian.rustore.publish.DeployType.UPLOAD_ONLY),
+                expectedConfig.copy(deployType = DeployType.UPLOAD_ONLY),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        deployType = ru.cian.rustore.publish.DeployType.DRAFT
+                        deployType = DeployType.DRAFT
                     },
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(
-                        deployType = ru.cian.rustore.publish.DeployType.UPLOAD_ONLY
+                    cli = InputPluginCliParam(
+                        deployType = DeployType.UPLOAD_ONLY
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .forAll { expectedValue, actualValue ->
@@ -287,14 +313,16 @@ internal class ConfigProviderTest {
     @Suppress("LongMethod")
     @Test
     fun `correct config with overriding release notes`() {
-        val expectedConfig = ru.cian.rustore.publish.InputPluginConfig(
-            credentials = ru.cian.rustore.publish.Credentials("id", "secret"),
-            deployType = ru.cian.rustore.publish.DeployType.PUBLISH,
-            artifactFormat = ru.cian.rustore.publish.BuildFormat.APK,
+        val expectedConfig = InputPluginConfig(
+            credentials = Credentials("id", "secret"),
+            deployType = DeployType.PUBLISH,
+            artifactFormat = BuildFormat.APK,
+            mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
+            applicationId = applicationId,
         )
         val langRu = "lang_ru_RU"
         val releaseNotesRu = "Some release notes for ru_RU"
@@ -318,7 +346,7 @@ internal class ConfigProviderTest {
         tableOf("expectedValue", "actualValue")
             .row(
                 expectedConfig.copy(releaseNotes = listOf(
-                    ru.cian.rustore.publish.ReleaseNotesConfig(
+                    ReleaseNotesConfig(
                         lang = langRu,
                         newFeatures = releaseNotesRu
                     )
@@ -326,36 +354,38 @@ internal class ConfigProviderTest {
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
                         releaseNotes = listOf(
-                            ru.cian.rustore.publish.ReleaseNote(
+                            ReleaseNote(
                                 lang = langRu,
                                 filePath = releaseNotesRuFilePath
                             )
                         )
                     },
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(),
+                    cli = InputPluginCliParam(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .row(
                 expectedConfig.copy(releaseNotes = listOf(
-                    ru.cian.rustore.publish.ReleaseNotesConfig(
+                    ReleaseNotesConfig(
                         lang = langRu,
                         newFeatures = releaseNotesRu
                     )
                 )),
                 ConfigProvider(
                     extension = extensionConfigInstance(),
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(
+                    cli = InputPluginCliParam(
                         releaseNotes = "$langRu:$releaseNotesRuFilePath"
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .row(
                 expectedConfig.copy(releaseNotes = listOf(
-                    ru.cian.rustore.publish.ReleaseNotesConfig(
+                    ReleaseNotesConfig(
                         lang = langEn,
                         newFeatures = releaseNotesEn
                     )
@@ -363,17 +393,18 @@ internal class ConfigProviderTest {
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
                         releaseNotes = listOf(
-                            ru.cian.rustore.publish.ReleaseNote(
+                            ReleaseNote(
                                 lang = langRu,
                                 filePath = releaseNotesRuFilePath
                             )
                         )
                     },
-                    cli = ru.cian.rustore.publish.InputPluginCliParam(
+                    cli = InputPluginCliParam(
                         releaseNotes = "$langEn:$releaseNotesEnFilePath"
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
                 )
             )
             .forAll { expectedValue, actualValue ->

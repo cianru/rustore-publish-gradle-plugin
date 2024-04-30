@@ -8,6 +8,7 @@ rustorePublish {
     instances {
         create("release") {
             credentialsPath = "$projectDir/rustore-credentials.json"
+            mobileServicesType = ru.cian.rustore.publish.MobileServicesType.HMS
             releaseNotes = listOf(
                 ru.cian.rustore.publish.ReleaseNote(
                     lang = "ru-RU",
@@ -62,5 +63,5 @@ configurations {
 
 dependencies {
     implementation(libs.appcompat)
-    implementation(libs.kotlinStdlib)
+    implementation(platform(libs.kotlinBom))
 }

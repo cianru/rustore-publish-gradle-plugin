@@ -76,6 +76,15 @@ open class RustorePublishTask
 
     @get:Internal
     @set:Option(
+        option = "mobileServicesType",
+        description = "Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"]. " +
+            "For more details see param `servicesType` in documentation " +
+            "https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk/"
+    )
+    var mobileServicesType: MobileServicesType? = null
+
+    @get:Internal
+    @set:Option(
         option = "buildFile",
         description = "Path to build file. 'null' means use standard path for 'apk' and 'aab' files."
     )
@@ -131,6 +140,7 @@ open class RustorePublishTask
             credentialsPath = credentialsPath,
             companyId = companyId,
             clientSecret = clientSecret,
+            mobileServicesType = mobileServicesType,
             buildFormat = buildFormat,
             buildFile = buildFile,
             releaseTime = releaseTime,
@@ -179,6 +189,7 @@ open class RustorePublishTask
         rustoreService.uploadBuildFile(
             token = token,
             applicationId = config.applicationId,
+            mobileServicesType = config.mobileServicesType.value,
             versionId = appVersionId,
             buildFile = config.artifactFile
         )
