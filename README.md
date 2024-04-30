@@ -1,21 +1,22 @@
 
 [comment]: # (Markdown formating https://docs.github.com/ru/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
 
+[//]: # (<p align="center">)
+[//]: # (  <img src="docs/screenshots/logo.png" width="400">)
+[//]: # (</p>)
+
 <p align="center">
-  <img src="docs/screenshots/logo.png" width="400">
+  <img src="docs/screenshots/header_cian_rustore.png">
+  <h1 align="center">
+    RuStore Publishing
+  </h1>
 </p>
 
-<h1 align="center">
-    RuStore Publishing
-</h1>
-
-![Version](https://img.shields.io/badge/GradlePortal-0.3.1-green.svg)
+![Version](https://img.shields.io/badge/GradlePortal-0.3.2-green.svg)
 ![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-The plugin allows you to publish the android release *.apk build file to the RuStore.
-
-For publication the plugin used [Rustore API](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/publish_RuStore_API)
+The plugin use [Rustore API](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/publish_RuStore_API) to publish Android *.apk build file to the [RuStore](https://rustore.ru). 
 
 # Table of contents
 <!-- TOC -->
@@ -25,9 +26,7 @@ For publication the plugin used [Rustore API](https://help.rustore.ru/rustore/fo
     - [Using the Gradle plugin DSL](#using-the-gradle-plugin-dsl)
     - [Using the `apply` method](#using-the-apply-method)
     - [Configuring Plugin](#configuring-plugin)
-    - [Configuration params](#configuration-params)
 - [Plugin usage](#plugin-usage)
-
 <!-- /TOC -->
 
 # Features
@@ -45,10 +44,11 @@ The following features are available:
 The following features are missing:
 
 - :children_crossing: Change App Store Information: description, app icon, screenshots and etc.
+- :children_crossing: Support of AppBundle
+- :children_crossing: Publish the build on a part of users (Release Phases)
 
 The following features are not available on Rustore API side yet:
 
-- :no_entry: Publish the build on a part of users (Release Phases)
 - :no_entry: Rollout Holding
 
 !!! MORE INFORMATION COMING SOON !!!
@@ -60,7 +60,7 @@ so a different version of AGP corresponds to a specific version of the current p
 | AGP | Plugin |
 |-----|--------|
 | 7.+ | 0.2.2  |
-| 8.+ | 0.3.1  |
+| 8.+ | 0.3.2  |
 
 # Adding the plugin to your project
 
@@ -68,16 +68,49 @@ in application module `./app/build.gradle`
 
 ## Using the Gradle plugin DSL
 
-```
+```kotlin
 plugins {
     id("com.android.application")
     id("ru.cian.rustore-publish-gradle-plugin")
 }
 ```
 
+<details>
+<summary>Snapshot builds are also available</summary>
+___
+
+You'll need to add the Sonatype snapshots repository.
+Look for the actual version of the snapshot in the name of the opened `snapshot-<VERSION>` repository branch.
+
+For general integration add next snippet in `./settings.gradle`
+
+```kotlin
+pluginManagement {
+
+  resolutionStrategy {
+    eachPlugin {
+      if(requested.id.namespace == "ru.cian") {
+        useModule("ru.cian.rustore-plugin:plugin:<SNAPSHOT-VERSION>")
+      }
+    }
+  }
+
+  plugins {
+    id("ru.cian.rustore-publish-gradle-plugin") version rustorePublish apply false
+  }
+
+  repositories {
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+  }
+}
+```
+___
+
+</details>
+
 ## Using the `apply` method
 
-```
+```groovy
 buildscript {
     repositories {
         gradlePluginPortal()
@@ -92,9 +125,111 @@ apply plugin: 'com.android.application'
 apply plugin: 'ru.cian.rustore-publish-gradle-plugin'
 ```
 
+<details>
+<summary>Snapshot builds are also available</summary>
+___
+
+You'll need to add the Sonatype snapshots repository.
+Look for the actual version of the snapshot in the name of the opened `snapshot-<VERSION>` repository branch.
+
+```groovy
+buildscript {
+    repositories {
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+
+    dependencies {
+        classpath "ru.cian.rustore-plugin:plugin::<VERSION>-SNAPSHOT"
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: "ru.cian.rustore-publish-gradle-plugin"
+```
+___
+
+</details>
+
 ## Configuring Plugin
 
 <details open>
+<summary>Kotlin</summary>
+
+```kotlin
+rustorePublish {
+  instances {
+    create("release") {
+      /**
+       * Path to json file with RuStore credentials params (`company_id` and `client_secret`).
+       * How to get credentials see [[RU] Rustore API Getting Started](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/authorization_rustore_api_1).
+       * Plugin credential json example:
+       * {
+       *   "company_id": "<COMPANY_ID>",
+       *   "client_secret": "<CLIENT_SECRET>"
+       * }
+       *
+       * Type: String (Optional)
+       * Default value: `null` (but plugin wait that you provide credentials by CLI params)
+       * CLI: `--credentialsPath`
+       */
+      credentialsPath = "$rootDir/rustore-credentials-release.json"
+
+      /**
+       * Path to build file if you would like to change default path. "null" means use standard path for "apk" and "aab" files.
+       * Type: String (Optional)
+       * Default value: `null`
+       * CLI: `--buildFile`
+       */
+      buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+
+      /**
+       * Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"].
+       * For more details see param `servicesType` in documentation " +
+       * https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk/
+       * Type: ru.cian.rustore.publish.MobileServicesType (Optional)
+       * Default value: UNKNOWN
+       * CLI: `--mobileServicesType`
+       */
+      mobileServicesType = ru.cian.rustore.publish.MobileServicesType.UNKNOWN
+
+      /**
+       * Release Notes settings. For mote info see ReleaseNote param desc.
+       * Type: List<ReleaseNote> (Optional)
+       * Default value: `null`
+       * CLI: (see ReleaseNotes param desc.)
+       */
+      releaseNotes = listOf(
+        /**
+         * Release Note list item.
+         */
+        ru.cian.rustore.publish.ReleaseNote(
+          /**
+           * Description: Support only `ru-RU` lang.
+           * Type: String (Required)
+           * Default value: `null`
+           * CLI: (See `--releaseNotes` desc.)
+           */
+          lang = "ru-RU",
+
+          /**
+           * Absolutely path to file with Release Notes for current `lang`. Release notes text must be less or equals to 500 sign.
+           * Type: String (Required)
+           * Default value: `null`
+           * CLI: (See `--releaseNotes` desc.)
+           */
+          filePath = "$projectDir/release-notes-ru.txt"
+        ),
+      )
+    }
+    create("debug") {
+      ...
+    }
+  }
+}
+```
+</details>
+
+<details>
 <summary>Groovy</summary>
 
 ```groovy
@@ -102,13 +237,14 @@ rustorePublish {
     instances {
         release {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
+            buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+            mobileServicesType = "Unknown"
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
                     "ru-RU",
                     "$projectDir/release-notes-ru.txt"
                 ),
             ]
-            ...
         }
         debug {
             ...
@@ -118,97 +254,35 @@ rustorePublish {
 ```
 </details>
 
-<details>
-<summary>Kotlin</summary>
-
-```kotlin
-rustorePublish {
-    instances {
-        create("release") {
-            credentialsPath = "$rootDir/rustore-credentials-release.json"
-            releaseNotes = listOf(
-                ru.cian.rustore.publish.ReleaseNote(
-                    lang = "ru-RU",
-                    filePath = "$projectDir/release-notes-ru.txt"
-                ),
-            )
-            ...
-        }
-        create("debug") {
-            ...
-        }
-    }
-}
-```
-</details>
-
-Plugin supports different settings for different buildType and flavors.
-For example, for `demo` and `full` flavors and `release` buildType just change instances like that:
-```kotlin
-rustorePublish {
-    instances {
-        demoRelease {
-            credentialsPath = "$rootDir/rustore-credentials-demo-release.json"
-            ...
-        }
-        fullRelease {
-            credentialsPath = "$rootDir/rustore-credentials-full-release.json"
-            ...
-        }
-    }
-}
-```
-
-File `rustore-credentials.json` contains next json structure:
-```json
-{
-  "company_id": "<COMPANY_ID>",
-  "client_secret": "<CLIENT_SECRET>"
-}
-```
-How to get credentials see [[RU] Rustore API Getting Started](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/authorization_rustore_api_1).
-
-## Configuration params
-
-### Base level params
-
-##### `credentialsPath`
-* **Description**: Path to json file with RuStore credentials params (`company_id` and `client_secret`)
-* **Type**: String (Optional), **Default** value: `null`
-* **CLI**: `--credentialsPath`
-
-##### `buildFile`
-* **Description**: Path to build file. "null" means use standard path for "apk" and "aab" files.
-* **Type**: String (Optional), **Default** value: `null`
-* **CLI**: `--buildFile`
-
-### ReleaseNotes
-
-##### `descriptions`
-* **Description**: Release Notes by languages. For mote info see documentation below.
-* **Type**: List<ReleaseNote> (Required), **Default** value: `null`
-* **CLI**: (See `--releaseNotes` desc.)
-
-##### `releaseNotes`
-* **Description**: Release Notes settings. For mote info see ReleaseNote param desc.
-* **Type**: List<ReleaseNote> (Optional), **Default** value: `null`
-* **CLI**: (see ReleaseNotes param desc.)
-
-### ReleaseNote
-
-##### `lang`
-* **Description**: Support only `ru-RU` lang.
-* **Type**: String (Required), **Default** value: `null`
-* **CLI**: (See `--releaseNotes` desc.)
-
-##### `filePath`
-* **Description**: Absolutely path to file with Release Notes for current `lang`. Release notes text must be less or equals to 500 sign.
-* **Type**: String (Required), **Default** value: `null`
-* **CLI**: (See `--releaseNotes` desc.)
-
-For CLI `--releaseNotes` use string type with format: `<lang>:<releaseNotes_FilePath>`. For example:
+the same by CLI
 ```bash
---releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
+./gradlew assembleRelease publishRustoreRelease \
+    --credentialsPath="/sample-kotlin/rustore-credentials.json" \
+    --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
+    --mobileServicesType="Unknown" \
+    --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
+```
+CLI params are more priority than Plugin configuration params.
+
+Also the plugin support different buildType and flavors.
+So for `demo` and `full` flavors and `release` buildType just change instances like that:
+```kotlin
+rustorePublish {
+    instances {
+      create("release") {
+          credentialsPath = "$rootDir/rustore-credentials-release.json"
+          ...
+      }
+      create("demoRelease") {
+          credentialsPath = "$rootDir/rustore-credentials-demo-release.json"
+          ...
+      }
+      create("fullRelease") {
+          credentialsPath = "$rootDir/rustore-credentials-full-release.json"
+          ...
+      }
+    }
+}
 ```
 
 # Plugin usage
@@ -227,21 +301,21 @@ android {
 }
 ```
 
-**Note!** Before uploading build file you should build it. Be careful. Don't publish old build file.
+**Note!** The plugin will publish already existed build file. Before uploading you should build it yourself. Be careful. Don't publish old build file.
 
 ```bash
 ./gradlew assembleRelease publishRustoreRelease
 ```
 
-You can apply or override each plugin extension parameter dynamically by using CLI params. For example:
+You can apply or override each plugin extension parameter dynamically by using CLI params.
 
-```bash
-./gradlew assembleRelease publishRustoreRelease \
-    --credentialsPath="/sample1/rustore-credentials.json"
-```
 # Promotion
 
-Also consider our [Gradle Plugin for publishing to Huawei AppGallery] (https://github.com/cianru/huawei-appgallery-publish-gradle-plugin)
+<p align="left">
+  <img src="docs/screenshots/huawei_appgallery_icon.png" width="64">
+</p>
+
+Also consider our [Gradle Plugin for publishing to Huawei AppGallery](https://github.com/cianru/huawei-appgallery-publish-gradle-plugin)
 
 # License
 
