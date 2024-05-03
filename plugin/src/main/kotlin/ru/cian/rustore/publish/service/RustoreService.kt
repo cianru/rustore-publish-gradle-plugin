@@ -20,6 +20,7 @@ internal interface RustoreService {
         whatsNew: String,
     ): Int
 
+    @Suppress("LongParameterList")
     fun uploadBuildFile(
         token: String,
         applicationId: String,
@@ -34,5 +35,4 @@ internal interface RustoreService {
         versionId: Int,
         priorityUpdate: Int,
     ): Boolean
-
 }

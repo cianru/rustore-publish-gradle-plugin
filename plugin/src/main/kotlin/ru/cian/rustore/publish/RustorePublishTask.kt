@@ -74,6 +74,7 @@ open class RustorePublishTask
     )
     var buildFormat: BuildFormat? = null
 
+    @Suppress("MaxLineLength")
     @get:Internal
     @set:Option(
         option = "mobileServicesType",
@@ -166,8 +167,9 @@ open class RustorePublishTask
         logger.v("Found build file: `${config.artifactFile.name}`")
 
         logger.v("2/6. Create signature")
-        val timestamp = ZonedDateTime.now().format(DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601))
-        val salt = "${config.credentials.companyId}${timestamp}"
+        val datetimeFormatPattern = DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601)
+        val timestamp = ZonedDateTime.now().format(datetimeFormatPattern)
+        val salt = "${config.credentials.companyId}$timestamp"
         val signatureTools: SignatureTools = if (apiStub != true) SignatureToolsImpl() else MockSignatureTools()
         val signature = signatureTools.signData(salt, config.credentials.clientSecret)
 

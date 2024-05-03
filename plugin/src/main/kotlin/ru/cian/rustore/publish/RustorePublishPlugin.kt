@@ -32,7 +32,7 @@ class RustorePublishPlugin : Plugin<Project> {
         }
     }
 
-    @Suppress("DefaultLocale")
+    @Suppress("DefaultLocale", "UnusedPrivateProperty")
     private fun createTask(
         project: Project,
         variant: ApplicationVariant,

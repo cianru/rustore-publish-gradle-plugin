@@ -23,6 +23,9 @@ gson = "com.google.code.gson:gson:2.8.6"
 okHttp = "com.squareup.okhttp3:okhttp:4.12.0"
 androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 
+detektFormating = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+detektRules = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detekt" }
+
 test-assertk = "com.willowtreeapps.assertk:assertk-jvm:0.23"
 test-hamcreast = "org.hamcrest:hamcrest:2.2"
 test-mockk = "io.mockk:mockk:1.13.5"
@@ -34,7 +37,6 @@ test-junitJupiterParams = { group = "org.junit.jupiter", name = "junit-jupiter-p
 
 [plugins]
 dokka = { id = "org.jetbrains.dokka", version = "1.8.10" }
-dcendents = { id = "com.github.dcendents", version = "plugin:2.1" }
 bintray = { id = "com.jfrog.bintray", version = "1.8.5" }
 pluginPublish = { id = "com.gradle.plugin-publish", version = "0.15.0" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

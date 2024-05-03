@@ -4,7 +4,7 @@ import java.util.concurrent.TimeoutException
 
 internal class ServerPollingExecutor {
 
-    @Suppress("TooGenericExceptionCaught")
+    @Suppress("TooGenericExceptionCaught", "LongParameterList")
     fun run(
         periodTimeInMs: Long,
         timeoutInMs: Long,

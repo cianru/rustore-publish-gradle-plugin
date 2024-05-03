@@ -157,7 +157,7 @@ internal class RustoreServiceImpl constructor(
 
         logger.v("response=$response")
 
-        check (response.code == "OK") {
+        check(response.code == "OK") {
             "Build file uploading is failed! " +
                 "Reason code: ${response.code}, " +
                 "message: ${response.message}"
@@ -177,7 +177,8 @@ internal class RustoreServiceImpl constructor(
         """.trimIndent())
 
         val response = httpClient.post<SubmitPublicationResponse>(
-            url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/commit?priorityUpdate=$priorityUpdate",
+            url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/commit" +
+                "?priorityUpdate=$priorityUpdate",
             body = "".toRequestBody(),
             headers = mapOf(
                 "Content-Type" to "application/json",

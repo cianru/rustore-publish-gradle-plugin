@@ -36,8 +36,8 @@ class RustorePublishExtensionConfig(
     var releaseNotes: List<ReleaseNote>? = null
 
     init {
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Name must not be blank nor empty")
+        require(name.isNotBlank()) {
+            "Name must not be blank nor empty"
         }
     }
 
@@ -93,9 +93,9 @@ open class ReleaseNote {
 
     override fun toString(): String {
         return "ReleaseNote(" +
-                "lang='$lang', " +
-                "filePath='$filePath'" +
-                ")"
+            "lang='$lang', " +
+            "filePath='$filePath'" +
+            ")"
     }
 }
 

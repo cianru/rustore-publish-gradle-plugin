@@ -2,8 +2,6 @@ package ru.cian.rustore.publish.service
 
 import java.io.File
 
-private const val REQUEST_RETRIES = 5
-
 @SuppressWarnings("StringLiteralDuplication", "TooManyFunctions")
 internal class MockRustoreService : RustoreService {
 
@@ -15,7 +13,7 @@ internal class MockRustoreService : RustoreService {
         token: String,
         applicationId: String,
         whatsNew: String,
-        ): Int {
+    ): Int {
         return -1
     }
 
