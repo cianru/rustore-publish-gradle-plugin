@@ -13,7 +13,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             if(requested.id.namespace == "ru.cian") {
-                useModule("ru.cian.rustore-plugin:plugin:${rustorePublish}")
+                useModule("ru.cian.rustore-plugin:rustore-publish-gradle-plugin:${rustorePublish}")
             }
         }
     }

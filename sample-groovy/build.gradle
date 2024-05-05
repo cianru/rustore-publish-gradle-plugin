@@ -6,7 +6,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "ru.cian.rustore-plugin:plugin:" + libs.versions.sampleRustorePlugin.get()
+        classpath "ru.cian.rustore-plugin:rustore-publish-gradle-plugin:" + libs.versions.sampleRustorePlugin.get()
     }
 }
 

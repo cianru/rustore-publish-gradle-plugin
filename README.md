@@ -90,7 +90,7 @@ pluginManagement {
   resolutionStrategy {
     eachPlugin {
       if(requested.id.namespace == "ru.cian") {
-        useModule("ru.cian.rustore-plugin:plugin:<SNAPSHOT-VERSION>")
+        useModule("ru.cian.rustore-plugin:rustore-publish-gradle-plugin:<SNAPSHOT-VERSION>")
       }
     }
   }
@@ -139,7 +139,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "ru.cian.rustore-plugin:plugin::<VERSION>-SNAPSHOT"
+        classpath "ru.cian.rustore-plugin:rustore-publish-gradle-plugin::<VERSION>-SNAPSHOT"
     }
 }
 
