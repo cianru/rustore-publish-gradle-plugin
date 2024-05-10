@@ -20,10 +20,10 @@
    ```
 1. Upload binaries to Sonatype:
    ```bash
-   ./gradlew publishRustorePublicationToMavenRepository
+   ./gradlew :plugin:publishRustorePublicationToMavenRepository
    ```
 1. Check uploaded files and version Sonatype site: [search.maven.org](https://search.maven.org/search?q=ru.cian)
-   and [repo1.maven.org](https://repo1.maven.org/maven2/ru/cian/rustore-publish-gradle-plugin/)
+   and [repo1.maven.org](https://repo1.maven.org/maven2/ru/cian/rustore-plugin/rustore-publish-gradle-plugin/)
 1. Go to [oss.sonatype.org](https://oss.sonatype.org), log in with your credentials
 1. Click "Staging Repositories"
 1. Find the "ru.cian" repo, usually at the bottom of the list

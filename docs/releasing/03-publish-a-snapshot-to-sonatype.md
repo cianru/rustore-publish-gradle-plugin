@@ -10,6 +10,6 @@
    ```
 3. Upload binaries to Sonatype:
    ```bash
-   ./gradlew publishRustoreToMavenRepository
+   ./gradlew :plugin:publishRustoreToMavenRepository
    ```
 4. Check snapshot: [nexus-search](https://oss.sonatype.org/#nexus-search;quick~ru.cian)
