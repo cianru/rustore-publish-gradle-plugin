@@ -74,6 +74,16 @@ open class RustorePublishTask
     )
     var buildFormat: BuildFormat? = null
 
+    @Suppress("MaxLineLength")
+    @get:Internal
+    @set:Option(
+        option = "mobileServicesType",
+        description = "Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"]. " +
+            "For more details see param `servicesType` in documentation " +
+            "https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk/"
+    )
+    var mobileServicesType: MobileServicesType? = null
+
     @get:Internal
     @set:Option(
         option = "buildFile",
@@ -131,6 +141,7 @@ open class RustorePublishTask
             credentialsPath = credentialsPath,
             companyId = companyId,
             clientSecret = clientSecret,
+            mobileServicesType = mobileServicesType,
             buildFormat = buildFormat,
             buildFile = buildFile,
             releaseTime = releaseTime,
@@ -156,8 +167,9 @@ open class RustorePublishTask
         logger.v("Found build file: `${config.artifactFile.name}`")
 
         logger.v("2/6. Create signature")
-        val timestamp = ZonedDateTime.now().format(DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601))
-        val salt = "${config.credentials.companyId}${timestamp}"
+        val datetimeFormatPattern = DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601)
+        val timestamp = ZonedDateTime.now().format(datetimeFormatPattern)
+        val salt = "${config.credentials.companyId}$timestamp"
         val signatureTools: SignatureTools = if (apiStub != true) SignatureToolsImpl() else MockSignatureTools()
         val signature = signatureTools.signData(salt, config.credentials.clientSecret)
 
@@ -179,6 +191,7 @@ open class RustorePublishTask
         rustoreService.uploadBuildFile(
             token = token,
             applicationId = config.applicationId,
+            mobileServicesType = config.mobileServicesType.value,
             versionId = appVersionId,
             buildFile = config.artifactFile
         )

@@ -2,30 +2,46 @@ config:
   # is automatically ignored when custom-checks.jar is on the classpath
   # however other CI checks use the argsfile where our plugin is not applied
   # we need to care take of this by explicitly allowing this properties
-  excludes: 'custom-checks.*'
+  validation: true
+  excludes: 'custom-detekt-rules'
 
-custom-checks:
-  active: true
-  SpekTestDiscovery:
+custom-detekt-rules:
+  RxLazyMethodRule:
     active: true
-    includes: ['**/test/**/*Spec.kt']
+  JupiterTestAnnotationRule:
+    active: true
+  UnintendedCyrillicSymbolsRule:
+    active: true
+  DoesNotExistOutFlakySafelyRule:
+    active: true
+
+libraries:
+  active: true
+  ForbiddenPublicDataClass:
+    active: false
+  LibraryEntitiesShouldNotBePublic:
+    active: false
+  LibraryCodeMustSpecifyReturnType:
+    active: true
+    excludes: [ '**/*.kt' ]
+    includes: [ '**/detekt-api/src/main/**/api/*.kt' ]
 
 comments:
   CommentOverPrivateProperty:
-    active: true
+    active: false
   UndocumentedPublicClass:
     active: true
-    excludes: ['**/*.kt']
-    includes: ['**/detekt-api/src/main/**/api/*.kt']
+    excludes: [ '**/*.kt' ]
+    includes: [ '**/detekt-api/src/main/**/api/*.kt' ]
   UndocumentedPublicFunction:
     active: true
-    excludes: ['**/*.kt']
-    includes: ['**/detekt-api/src/main/**/api/*.kt']
+    excludes: [ '**/*.kt' ]
+    includes: [ '**/detekt-api/src/main/**/api/*.kt' ]
 
 complexity:
   StringLiteralDuplication:
     active: true
-    excludes: ['**/test/**', '**/*Test.kt', '**/*Spec.kt']
+    excludes: [ '**/test/**', '**/*Test.kt' ]
     threshold: 5
     ignoreAnnotation: true
     excludeStringsWithLessThan5Characters: true
@@ -35,21 +51,33 @@ complexity:
     threshold: 10
     includeStaticDeclarations: false
     includePrivateDeclarations: false
-  ComplexMethod:
+    excludes: [ '**/*View.*','**/*Binder.*','**/*Module.*','**/*Component.*','**/*Dependencies.*' ]
+  CyclomaticComplexMethod:
     active: true
     threshold: 15
     ignoreSingleWhenExpression: true
   LargeClass:
-    active: true
-    excludes: ['**/test/**', '**/*.Test.kt', '**/*.Spec.kt']
+    active: false
   MethodOverloading:
     active: true
+    threshold: 10
+    excludes: [ '**/*Component.*' ]
   LongParameterList:
     active: true
-    functionThreshold: 7
-    constructorThreshold: 7
+    functionThreshold: 5
+    constructorThreshold: 30
     ignoreDefaultParameters: false
     ignoreDataClasses: true
+    excludes: [ '**/*Presenter.*', '**/*Analytics.*', '**/*Builder.*', '**/*StructureProvider.*', '**/*Module.*', '**/src/test/**', '**/*Mapper.*', '**/*Dependencies.*' ]
+    ignoreAnnotated: ['Composable']
+  LongMethod:
+    active: false
+    excludes: [ '**/*StructureProvider.*' ]
+  TooManyFunctions:
+    active: false
+  NestedBlockDepth:
+    active: true
+    threshold: 5
 
 coroutines:
   active: true
@@ -81,6 +109,10 @@ exceptions:
     active: true
   ThrowingNewInstanceOfSameException:
     active: true
+  SwallowedException:
+    active: false
+  TooGenericExceptionCaught:
+    active: false
 
 formatting:
   active: true
@@ -90,17 +122,34 @@ formatting:
     active: true
   EnumEntryNameCase:
     active: true
+  ChainWrapping:
+    active: false
+  CommentSpacing:
+    active: false
+  ImportOrdering:
+    active: false
+  Indentation:
+    active: true
+  FinalNewline:
+    active: false
   MaximumLineLength:
     active: true
     maxLineLength: 120
+    excludes: [ '**/test/**', '**/*Test.kt' ]
   MultiLineIfElse:
     active: true
+  NoBlankLineBeforeRbrace:
+    active: true
   NoEmptyFirstLineInMethodBlock:
+    active: false
+  NoSemicolons:
     active: false
   NoTrailingSpaces:
     active: false
   PackageName:
     active: true
+  SpacingAroundColon:
+    active: false
   SpacingAroundAngleBrackets:
     active: true
   SpacingAroundDoubleColon:
@@ -108,14 +157,20 @@ formatting:
   SpacingAroundUnaryOperator:
     active: true
   SpacingBetweenDeclarationsWithAnnotations:
-    active: true
+    active: false
   SpacingBetweenDeclarationsWithComments:
-    active: true
+    active: false
+  Wrapping:
+    active: false
+  ArgumentListWrapping:
+    active: false
+  Filename:
+    active: false
 
 naming:
   InvalidPackageDeclaration:
     active: true
-    excludes: ['**/build-logic/**/*.kt', '**/*.kts']
+    excludes: [ '**/build-logic/**/*.kt', '**/*.kts' ]
   NoNameShadowing:
     active: true
   NonBooleanPropertyPrefixedWithIs:
@@ -124,6 +179,12 @@ naming:
     active: true
   VariableMinLength:
     active: true
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+
+performance:
+  SpreadOperator:
+    active: false
 
 potential-bugs:
   AvoidReferentialEquality:
@@ -140,6 +201,8 @@ potential-bugs:
     active: true
   ImplicitUnitReturnType:
     active: true
+  ImplicitDefaultLocale:
+    active: false
   MapGetWithNotNullAssertionOperator:
     active: true
   UnconditionalJumpStatementInLoop:
@@ -148,17 +211,19 @@ potential-bugs:
     active: true
   UnsafeCast:
     active: true
-    excludes: ['**/test/**', '**/*.Test.kt', '**/*.Spec.kt']
+    excludes: [ '**/test/**', '**/*Test.kt', ]
   UselessPostfixExpression:
     active: true
 
 style:
   ClassOrdering:
     active: true
+    excludes: [ '**/*Fragment.kt','**/*DialogFragment.kt','**/*Activity.kt' ]
   CollapsibleIfStatements:
     active: true
   DestructuringDeclarationWithTooManyEntries:
     active: true
+    maxDestructuringEntries: 5
   EqualsOnSignatureLine:
     active: true
   ExplicitCollectionElementAccessMethod:
@@ -167,22 +232,17 @@ style:
     active: true
   ForbiddenComment:
     active: true
-    values:
-      - 'TODO:'
-      - 'FIXME:'
+    comments:
+      - '^(?i)\b(todo)\b'
       - 'STOPSHIP:'
       - '@author'
       - '@requiresTypeResolution'
-    excludes: ['**/detekt-rules-style/**/ForbiddenComment.kt']
+    excludes: [ '**/detekt-rules-style/**/ForbiddenComment.kt' ]
   ForbiddenVoid:
     active: true
-  LibraryCodeMustSpecifyReturnType:
-    active: true
-    excludes: ['**/*.kt']
-    includes: ['**/detekt-api/src/main/**/api/*.kt']
   MagicNumber:
-    excludes: ['**/test/**', '**/*Test.kt', '**/*Spec.kt']
-    ignoreNumbers: ['-1', '0', '1', '2', '100', '100.0', '1000']
+    excludes: [ '**/test/**', '**/*Test.kt', '**/*RealmMigrationProvider*' ]
+    ignoreNumbers: [ '-1', '0', '1', '2','3','4','5','6','7','8','9', '100', '100.0', '1000' ]
     ignorePropertyDeclaration: true
     ignoreAnnotation: true
     ignoreEnums: true
@@ -193,11 +253,12 @@ style:
     ignoreNamedArgument: true
     ignoreRanges: false
     ignoreExtensionFunctions: true
+    ignoreAnnotated: ['Composable']
   MandatoryBracesLoops:
     active: true
   MaxLineLength:
     active: true
-    excludes: ['**/test/**', '**/*Test.kt', '**/*Spec.kt']
+    excludes: [ '**/test/**', '**/*Test.kt' ]
     excludeCommentStatements: true
   NestedClassesVisibility:
     active: true
@@ -218,9 +279,11 @@ style:
     excludeGuardClauses: true
   SpacingBetweenPackageAndImports:
     active: true
+  SerialVersionUIDInSerializableClass:
+    active: false
   ThrowsCount:
-    active: true
     max: 3
+    excludeGuardClauses: false
   UnderscoresInNumericLiterals:
     active: false
   UnnecessaryAnnotationUseSiteTarget:
@@ -236,6 +299,15 @@ style:
   UnusedPrivateMember:
     active: true
     allowedNames: '(_|ignored|expected)'
+    excludes: [ '**/*Request.kt' ]
+    ignoreAnnotated:
+      - 'Preview'
+  UnusedPrivateProperty:
+    active: true
+    allowedNames: '(_|ignored|expected)'
+    excludes: [ '**/*Request.kt' ]
+    ignoreAnnotated:
+      - 'Preview'
   UseCheckOrError:
     active: false
   UseDataClass:
@@ -253,6 +325,13 @@ style:
   UseRequireNotNull:
     active: true
   UtilityClassWithPublicConstructor:
-    active: false
+    active: true
+  UnnecessaryAbstractClass:
+    active: true
   WildcardImport:
     active: true
+
+empty-blocks:
+  EmptyFunctionBlock:
+    active: true
+    ignoreOverridden: true

@@ -6,13 +6,13 @@
 [//]: # (</p>)
 
 <p align="center">
-  <img src="docs/screenshots/rustore_logo.png" width="128">
+  <img src="docs/screenshots/header_cian_rustore.png">
   <h1 align="center">
     RuStore Publishing
   </h1>
 </p>
 
-![Version](https://img.shields.io/badge/GradlePortal-0.3.1-green.svg)
+![Version](https://img.shields.io/badge/GradlePortal-0.3.2-green.svg)
 ![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -27,7 +27,6 @@ The plugin use [Rustore API](https://help.rustore.ru/rustore/for_developers/work
     - [Using the `apply` method](#using-the-apply-method)
     - [Configuring Plugin](#configuring-plugin)
 - [Plugin usage](#plugin-usage)
-
 <!-- /TOC -->
 
 # Features
@@ -58,10 +57,10 @@ The following features are not available on Rustore API side yet:
 The Android Gradle Plugin often changes the Variant API,
 so a different version of AGP corresponds to a specific version of the current plugin
 
-| AGP | Plugin |
-|-----|--------|
-| 7.+ | 0.2.2  |
-| 8.+ | 0.3.1  |
+| AGP | Plugin                                                                     |
+|-----|----------------------------------------------------------------------------|
+| 7.+ | 0.2.2                                                                      |
+| 8.+ | [latest](https://github.com/cianru/rustore-publish-gradle-plugin/releases) |
 
 # Adding the plugin to your project
 
@@ -75,6 +74,39 @@ plugins {
     id("ru.cian.rustore-publish-gradle-plugin")
 }
 ```
+
+<details>
+<summary>Snapshot builds are also available</summary>
+___
+
+You'll need to add the Sonatype snapshots repository.
+Look for the actual version of the snapshot in the name of the opened `snapshot-<VERSION>` repository branch.
+
+For general integration add next snippet in `./settings.gradle`
+
+```kotlin
+pluginManagement {
+
+  resolutionStrategy {
+    eachPlugin {
+      if(requested.id.namespace == "ru.cian") {
+        useModule("ru.cian.rustore-plugin:rustore-publish-gradle-plugin:<SNAPSHOT-VERSION>")
+      }
+    }
+  }
+
+  plugins {
+    id("ru.cian.rustore-publish-gradle-plugin") version rustorePublish apply false
+  }
+
+  repositories {
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+  }
+}
+```
+___
+
+</details>
 
 ## Using the `apply` method
 
@@ -93,7 +125,65 @@ apply plugin: 'com.android.application'
 apply plugin: 'ru.cian.rustore-publish-gradle-plugin'
 ```
 
-## Configuring Plugin
+<details>
+<summary>Snapshot builds are also available</summary>
+___
+
+You'll need to add the Sonatype snapshots repository.
+Look for the actual version of the snapshot in the name of the opened `snapshot-<VERSION>` repository branch.
+
+```groovy
+buildscript {
+    repositories {
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    }
+
+    dependencies {
+        classpath "ru.cian.rustore-plugin:rustore-publish-gradle-plugin::<VERSION>-SNAPSHOT"
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: "ru.cian.rustore-publish-gradle-plugin"
+```
+___
+
+</details>
+
+## Quickstart Plugin Configuration
+
+```kotlin
+rustorePublish {
+  instances {
+    create("release") {
+      /**
+       * Path to json file with RuStore credentials params (`company_id` and `client_secret`).
+       * How to get credentials see [[RU] Rustore API Getting Started](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/authorization_rustore_api_1).
+       * Plugin credential json example:
+       * {
+       *   "company_id": "<COMPANY_ID>",
+       *   "client_secret": "<CLIENT_SECRET>"
+       * }
+       *
+       * Type: String (Optional)
+       * Default value: `null` (but plugin wait that you provide credentials by CLI params)
+       * CLI: `--credentialsPath`
+       */
+      credentialsPath = "$rootDir/rustore-credentials-release.json"
+
+      /**
+       * Path to build file if you would like to change default path. "null" means use standard path for "apk" and "aab" files.
+       * Type: String (Optional)
+       * Default value: `null`
+       * CLI: `--buildFile`
+       */
+      buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+    }
+  }
+}
+```
+
+## Full Plugin Configuration
 
 <details open>
 <summary>Kotlin</summary>
@@ -124,6 +214,16 @@ rustorePublish {
        * CLI: `--buildFile`
        */
       buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+
+      /**
+       * Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"].
+       * For more details see param `servicesType` in documentation " +
+       * https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk/
+       * Type: ru.cian.rustore.publish.MobileServicesType (Optional)
+       * Default value: UNKNOWN
+       * CLI: `--mobileServicesType`
+       */
+      mobileServicesType = ru.cian.rustore.publish.MobileServicesType.UNKNOWN
 
       /**
        * Release Notes settings. For mote info see ReleaseNote param desc.
@@ -171,6 +271,7 @@ rustorePublish {
         release {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
             buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+            mobileServicesType = "Unknown"
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
                     "ru-RU",
@@ -191,6 +292,7 @@ the same by CLI
 ./gradlew assembleRelease publishRustoreRelease \
     --credentialsPath="/sample-kotlin/rustore-credentials.json" \
     --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
+    --mobileServicesType="Unknown" \
     --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
 ```
 CLI params are more priority than Plugin configuration params.

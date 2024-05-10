@@ -121,6 +121,7 @@ internal class RustoreServiceImpl constructor(
     override fun uploadBuildFile(
         token: String,
         applicationId: String,
+        mobileServicesType: String,
         versionId: Int,
         buildFile: File
     ) {
@@ -129,7 +130,7 @@ internal class RustoreServiceImpl constructor(
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("file", buildFile.name, fileBody)
-            .addFormDataPart("servicesType", "Unknown")
+            .addFormDataPart("servicesType", mobileServicesType)
             .addFormDataPart("isMainApk", "true")
             .build()
 
@@ -137,6 +138,16 @@ internal class RustoreServiceImpl constructor(
             "accept" to "application/json",
             "Public-Token" to token,
         )
+
+        logger.i("""
+            curl --location --request POST \
+            --header 'Content-Type: application/json' \
+            --header 'Public-Token: $token' \            
+            --form servicesType=$mobileServicesType \
+            --form isMainApk=true \
+            --form file='@${buildFile.absolutePath}' \
+            $DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/apk
+        """.trimIndent())
 
         val response = httpClient.post<UploadAppFileResponse>(
             url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/apk",
@@ -146,7 +157,7 @@ internal class RustoreServiceImpl constructor(
 
         logger.v("response=$response")
 
-        check (response.code == "OK") {
+        check(response.code == "OK") {
             "Build file uploading is failed! " +
                 "Reason code: ${response.code}, " +
                 "message: ${response.message}"
@@ -166,7 +177,8 @@ internal class RustoreServiceImpl constructor(
         """.trimIndent())
 
         val response = httpClient.post<SubmitPublicationResponse>(
-            url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/commit?priorityUpdate=$priorityUpdate",
+            url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/commit" +
+                "?priorityUpdate=$priorityUpdate",
             body = "".toRequestBody(),
             headers = mapOf(
                 "Content-Type" to "application/json",

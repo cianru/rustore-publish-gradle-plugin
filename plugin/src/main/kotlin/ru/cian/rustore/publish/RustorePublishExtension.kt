@@ -28,6 +28,7 @@ class RustorePublishExtensionConfig(
      */
     var credentialsPath: String? = null
     var deployType = DeployType.PUBLISH
+    var mobileServicesType: MobileServicesType = MobileServicesType.UNKNOWN
     var buildFormat: BuildFormat = BuildFormat.APK
     var buildFile: String? = null
     var releaseTime: String? = null
@@ -35,8 +36,8 @@ class RustorePublishExtensionConfig(
     var releaseNotes: List<ReleaseNote>? = null
 
     init {
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Name must not be blank nor empty")
+        require(name.isNotBlank()) {
+            "Name must not be blank nor empty"
         }
     }
 
@@ -51,6 +52,7 @@ class RustorePublishExtensionConfig(
             "name='$name', " +
             "credentialsPath='$credentialsPath', " +
             "deployType='$deployType', " +
+            "mobileServicesType='$mobileServicesType', " +
             "buildFormat='$buildFormat', " +
             "buildFile='$buildFile', " +
             "releaseTime='$releaseTime', " +
@@ -91,15 +93,20 @@ open class ReleaseNote {
 
     override fun toString(): String {
         return "ReleaseNote(" +
-                "lang='$lang', " +
-                "filePath='$filePath'" +
-                ")"
+            "lang='$lang', " +
+            "filePath='$filePath'" +
+            ")"
     }
 }
 
 enum class BuildFormat(val fileExtension: String) {
     APK("apk"),
     AAB("aab"),
+}
+
+enum class MobileServicesType(val value: String) {
+    HMS("HMS"),
+    UNKNOWN("Unknown"),
 }
 
 enum class DeployType {

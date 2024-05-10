@@ -5,7 +5,7 @@ import com.android.build.api.variant.ApplicationVariant
 import ru.cian.rustore.publish.BuildFormat
 import java.io.File
 
-internal class BuildFileProvider constructor(
+internal class BuildFileProvider(
     private val variant: ApplicationVariant,
     private val logger: Logger,
 ) {
@@ -17,8 +17,8 @@ internal class BuildFileProvider constructor(
         }
     }
 
-    // TODO(a.mirko): Remove after https://github.com/gradle/gradle/issues/16777
-    // TODO(a.mirko): Remove after https://github.com/gradle/gradle/issues/16775
+    // FIXME(a.mirko): Remove after https://github.com/gradle/gradle/issues/16777
+    // FIXME(a.mirko): Remove after https://github.com/gradle/gradle/issues/16775
     private fun getFinalApkArtifactCompat(variant: ApplicationVariant): List<File> {
         val apkDirectory = variant.artifacts.get(SingleArtifact.APK).get()
         logger.v("Build File Directory: $apkDirectory")

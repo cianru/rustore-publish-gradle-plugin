@@ -8,14 +8,18 @@ include(
 
 pluginManagement {
 
-    val rustorePublish = "0.3.1-SNAPSHOT"
+    val rustorePublish = "0.3.2-SNAPSHOT"
 
     resolutionStrategy {
         eachPlugin {
             if(requested.id.namespace == "ru.cian") {
-                useModule("ru.cian.rustore-plugin:plugin:${rustorePublish}")
+                useModule("ru.cian.rustore-plugin:rustore-publish-gradle-plugin:${rustorePublish}")
             }
         }
+    }
+
+    plugins {
+        id("ru.cian.rustore-publish-gradle-plugin") version rustorePublish apply false
     }
 
     repositories {

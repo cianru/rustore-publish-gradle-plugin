@@ -17,7 +17,11 @@ detekt {
 
     // The directories where detekt looks for source files.
     // Defaults to `files("src/main/java", "src/test/java", "src/main/kotlin", "src/test/kotlin")`.
-    source = files("src/main/java", "src/main/kotlin")
+    source.setFrom("src/main/java", "src/main/kotlin")
+
+    // Specifying a baseline file. All findings stored in this file in subsequent runs of detekt.
+    // A way of suppressing issues before introducing detekt.
+    baseline = file("$projectDir/config/detekt/detekt-baseline.xml")
 
     // Builds the AST in parallel. Rules are always executed in parallel.
     // Can lead to speedups in larger projects. `false` by default.
@@ -25,19 +29,13 @@ detekt {
 
     // Define the detekt configuration(s) you want to use.
     // Defaults to the default detekt configuration.
-    config = files("$projectDir/config/detekt/detekt-config.yml")
-
-    // A way of suppressing issues before introducing detekt.
-    baseline = file("$projectDir/config/detekt/detekt-baseline.xml")
+    config.setFrom("$projectDir/config/detekt/detekt-config.yml")
 
     // Applies the config files on top of detekt's default config file. `false` by default.
     buildUponDefaultConfig = true
 
     // Turns on all the rules. `false` by default.
     allRules = false
-
-    // Specifying a baseline file. All findings stored in this file in subsequent runs of detekt.
-//    baseline = file("$projectDir/config/baseline.xml")
 
     // Disables all default detekt rulesets and will only run detekt with custom rules
     // defined in plugins passed in with `detektPlugins` configuration. `false` by default.
@@ -90,6 +88,8 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.okHttp)
     compileOnly(libs.androidGradlePlugin)
+    detektPlugins(libs.detektFormating)
+    detektPlugins(libs.detektRules)
 
     testImplementation(libs.test.junitJupiterApi)
     testImplementation(libs.test.junitJupiterEngine)

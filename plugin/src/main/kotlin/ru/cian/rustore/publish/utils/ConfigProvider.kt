@@ -20,6 +20,7 @@ internal class ConfigProvider(
 
     fun getConfig(): InputPluginConfig {
 
+        val mobileServicesType = cli.mobileServicesType ?: extension.mobileServicesType
         val deployType = cli.deployType ?: extension.deployType
         val artifactFormat = cli.buildFormat ?: extension.buildFormat
         val customBuildFilePath: String? = cli.buildFile ?: extension.buildFile
@@ -43,6 +44,7 @@ internal class ConfigProvider(
         return InputPluginConfig(
             credentials = credentialsConfig,
             deployType = deployType,
+            mobileServicesType = mobileServicesType,
             artifactFormat = actualArtifactFormat,
             artifactFile = artifactFile,
             releaseTime = releaseTime,
@@ -52,7 +54,7 @@ internal class ConfigProvider(
         )
     }
 
-    fun getBuildFile(
+    private fun getBuildFile(
         customBuildFilePath: String?,
         artifactFormat: BuildFormat
     ): File {
@@ -66,21 +68,21 @@ internal class ConfigProvider(
         if (artifactFile == null || !artifactFile.exists()) {
             throw FileNotFoundException(
                 "$artifactFile (No such file or directory). Application build file is not found. " +
-                        "Please run `assemble` or `bundle` task to build the application file before current task."
+                    "Please run `assemble` or `bundle` task to build the application file before current task."
             )
         }
 
         if (artifactFormat.fileExtension != artifactFile.extension) {
             throw IllegalArgumentException(
                 "Build file ${artifactFile.absolutePath} has wrong file extension " +
-                        "that doesn't match with announced buildFormat($artifactFormat) plugin extension param."
+                    "that doesn't match with announced buildFormat($artifactFormat) plugin extension param."
             )
         }
         return artifactFile
     }
 
     @Suppress("ThrowsCount")
-    fun getCredentialsConfig(): Credentials {
+    private fun getCredentialsConfig(): Credentials {
         val credentialsFilePath = cli.credentialsPath ?: extension.credentialsPath
         val companyIdPriority: String? = cli.companyId
         val clientSecretPriority: String? = cli.clientSecret
@@ -88,33 +90,35 @@ internal class ConfigProvider(
             if (credentialsFilePath.isNullOrBlank()) {
                 throw FileNotFoundException(
                     "$extension (File path for credentials is null or empty. " +
-                            "See the `credentialsPath` param description."
+                        "See the `credentialsPath` param description."
                 )
             }
             val credentialsFile = File(credentialsFilePath)
             if (!credentialsFile.exists()) {
                 throw FileNotFoundException(
                     "$extension (File (${credentialsFile.absolutePath}) " +
-                            "with 'company_id' and 'client_secret' for access to Rustore Publish API is not found)"
+                        "with 'company_id' and 'client_secret' for access to Rustore Publish API is not found)"
                 )
             }
             CredentialHelper.getCredentials(credentialsFile)
         }
-        val companyId = companyIdPriority ?: credentials.value.companyId.nullIfBlank()
-        ?: throw IllegalArgumentException(
-            "(Rustore credential `companyId` param is null or empty). " +
+        val companyId = companyIdPriority
+            ?: credentials.value.companyId.nullIfBlank()
+            ?: throw IllegalArgumentException(
+                "(Rustore credential `companyId` param is null or empty). " +
                     "Please check your credentials file content or as single parameter."
-        )
-        val clientSecret = clientSecretPriority ?: credentials.value.clientSecret.nullIfBlank()
-        ?: throw IllegalArgumentException(
-            "(Rustore credential `clientSecret` param is null or empty). " +
+            )
+        val clientSecret = clientSecretPriority
+            ?: credentials.value.clientSecret.nullIfBlank()
+            ?: throw IllegalArgumentException(
+                "(Rustore credential `clientSecret` param is null or empty). " +
                     "Please check your credentials file content or as single parameter."
-        )
+            )
         return Credentials(companyId, clientSecret)
     }
 
     @Suppress("ThrowsCount")
-    fun getReleasePhaseConfig(): ReleasePhaseConfig? {
+    private fun getReleasePhaseConfig(): ReleasePhaseConfig? {
         val releasePhasePercent = cli.releasePhasePercent?.toDouble() ?: extension.releasePhase?.percent
 
         if (releasePhasePercent != null) {
@@ -149,29 +153,20 @@ internal class ConfigProvider(
         return releaseNotePairs?.map {
 
             val lang = it.first
-            val filePath = it.second
-
-            if (lang.isBlank()) {
-                throw IllegalArgumentException(
-                    "'lang' param must not be empty."
-                )
+            require(lang.isNotBlank()) {
+                "'lang' param must not be empty."
             }
 
+            val filePath = it.second
             val file = releaseNotesFileProvider.getFile(filePath)
-
-            if (!file.exists()) {
-                throw IllegalArgumentException(
-                    "File '$filePath' with Release Notes for '$lang' language is not exist."
-                )
+            require(file.exists()) {
+                "File '$filePath' with Release Notes for '$lang' language is not exist."
             }
 
             val newFeatures = file.readText(Charsets.UTF_8)
-
-            if (newFeatures.length > RELEASE_NOTES_MAX_LENGTH) {
-                throw IllegalArgumentException(
-                    "Release notes from '$filePath' for '$lang' language " +
-                            "must be less or equals to $RELEASE_NOTES_MAX_LENGTH sign."
-                )
+            require(newFeatures.length <= RELEASE_NOTES_MAX_LENGTH) {
+                "Release notes from '$filePath' for '$lang' language " +
+                    "must be less or equals to $RELEASE_NOTES_MAX_LENGTH sign."
             }
 
             ReleaseNotesConfig(

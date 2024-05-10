@@ -11,30 +11,32 @@ minSdkVersion     = "21"
 jvm = "17"
 kotlin = "1.9.21"
 detekt = "1.23.4"
-junitJupiter = "5.7.0"
+junitJupiter = "5.9.3"
 androidGradlePlugin = "8.0.2"
-sampleRustorePlugin = "0.3.1-SNAPSHOT"
+sampleRustorePlugin = "0.3.2-SNAPSHOT"
 
 [libraries]
 appcompat = "androidx.appcompat:appcompat:1.6.1"
 kotlinBom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
-kotlinDateTime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
+kotlinDateTime = "org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"
 gson = "com.google.code.gson:gson:2.8.6"
-okHttp = "com.squareup.okhttp3:okhttp:4.9.1"
+okHttp = "com.squareup.okhttp3:okhttp:4.12.0"
 androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 
+detektFormating = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
+detektRules = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detekt" }
+
 test-assertk = "com.willowtreeapps.assertk:assertk-jvm:0.23"
-test-hamcreast = "org.hamcrest:hamcrest:2.1"
-test-mockk = "io.mockk:mockk:1.10.3-jdk8"
+test-hamcreast = "org.hamcrest:hamcrest:2.2"
+test-mockk = "io.mockk:mockk:1.13.5"
 test-mockito = "org.mockito:mockito-core:2.23.4"
 test-mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
-test-junitJupiterApi = "org.junit.jupiter:junit-jupiter-api:5.7.0"
-test-junitJupiterEngine = "org.junit.jupiter:junit-jupiter-engine:5.7.0"
-test-junitJupiterParams = "org.junit.jupiter:junit-jupiter-params:5.7.0"
+test-junitJupiterApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junitJupiter" }
+test-junitJupiterEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitJupiter" }
+test-junitJupiterParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junitJupiter" }
 
 [plugins]
 dokka = { id = "org.jetbrains.dokka", version = "1.8.10" }
-dcendents = { id = "com.github.dcendents", version = "plugin:2.1" }
 bintray = { id = "com.jfrog.bintray", version = "1.8.5" }
 pluginPublish = { id = "com.gradle.plugin-publish", version = "0.15.0" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

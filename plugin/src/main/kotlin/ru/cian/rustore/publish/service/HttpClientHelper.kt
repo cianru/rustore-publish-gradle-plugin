@@ -41,12 +41,6 @@ internal class HttpClientHelper constructor(
                 .build()
 
             return client.newCall(request).execute().use { httpResponse ->
-                val statusCode = httpResponse.code
-
-//                if (!httpResponse.isSuccessful) { // TODO handle and remove;
-//                    throw IllegalStateException("Request failed. statusCode=$statusCode, httpResponse=$httpResponse")
-//                }
-
                 gson.fromJson(httpResponse.body?.charStream(), T::class.java)
                     ?: throw IllegalStateException("http request result must not be null")
             }
@@ -59,6 +53,6 @@ internal class HttpClientHelper constructor(
     companion object {
         val MEDIA_TYPE_JSON = "application/json;charset=utf-8".toMediaType()
         val MEDIA_TYPE_AAB = "application/octet-stream".toMediaType()
-        private val REQUEST_TIMEOUT = 60L
+        private const val REQUEST_TIMEOUT = 60L
     }
 }
