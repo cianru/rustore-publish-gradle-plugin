@@ -57,10 +57,10 @@ The following features are not available on Rustore API side yet:
 The Android Gradle Plugin often changes the Variant API,
 so a different version of AGP corresponds to a specific version of the current plugin
 
-| AGP | Plugin |
-|-----|--------|
-| 7.+ | 0.2.2  |
-| 8.+ | 0.3.2  |
+| AGP | Plugin                                                                     |
+|-----|----------------------------------------------------------------------------|
+| 7.+ | 0.2.2                                                                      |
+| 8.+ | [latest](https://github.com/cianru/rustore-publish-gradle-plugin/releases) |
 
 # Adding the plugin to your project
 
@@ -150,7 +150,40 @@ ___
 
 </details>
 
-## Configuring Plugin
+## Quickstart Plugin Configuration
+
+```kotlin
+rustorePublish {
+  instances {
+    create("release") {
+      /**
+       * Path to json file with RuStore credentials params (`company_id` and `client_secret`).
+       * How to get credentials see [[RU] Rustore API Getting Started](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/authorization_rustore_api_1).
+       * Plugin credential json example:
+       * {
+       *   "company_id": "<COMPANY_ID>",
+       *   "client_secret": "<CLIENT_SECRET>"
+       * }
+       *
+       * Type: String (Optional)
+       * Default value: `null` (but plugin wait that you provide credentials by CLI params)
+       * CLI: `--credentialsPath`
+       */
+      credentialsPath = "$rootDir/rustore-credentials-release.json"
+
+      /**
+       * Path to build file if you would like to change default path. "null" means use standard path for "apk" and "aab" files.
+       * Type: String (Optional)
+       * Default value: `null`
+       * CLI: `--buildFile`
+       */
+      buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+    }
+  }
+}
+```
+
+## Full Plugin Configuration
 
 <details open>
 <summary>Kotlin</summary>

@@ -1,3 +1,8 @@
+# 0.3.2
+
+##### Add
+* [issue#5](https://github.com/cianru/rustore-publish-gradle-plugin/issues/5) Support of serviceType plugin param.
+
 # 0.3.1
 
 ##### Add
