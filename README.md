@@ -18,15 +18,21 @@
 
 The plugin use [Rustore API](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/publish_RuStore_API) to publish Android *.apk build file to the [RuStore](https://rustore.ru). 
 
+:construction: _That's unofficial plugin. We made it for ourselves and are sharing it for you._
+
 # Table of contents
 <!-- TOC -->
 - [Features](#features)
-- [Support versions](#support-versions)
+- [Compatibility](#compatibility)
 - [Adding the plugin to your project](#adding-the-plugin-to-your-project)
     - [Using the Gradle plugin DSL](#using-the-gradle-plugin-dsl)
     - [Using the `apply` method](#using-the-apply-method)
-    - [Configuring Plugin](#configuring-plugin)
+    - [Quickstart Plugin Configuration](#quickstart-plugin-configuration)
+    - [Full Plugin Configuration](#full-plugin-configuration)
 - [Plugin usage](#plugin-usage)
+- [CLI Plugin Configuration](#cli-plugin-configuration)
+- [Promotion](#promotion)
+- [License](#license)
 <!-- /TOC -->
 
 # Features
@@ -44,14 +50,12 @@ The following features are available:
 The following features are missing:
 
 - :children_crossing: Change App Store Information: description, app icon, screenshots and etc.
-- :children_crossing: Support of AppBundle
 - :children_crossing: Publish the build on a part of users (Release Phases)
 
 The following features are not available on Rustore API side yet:
 
+- :no_entry: Support of AppBundle
 - :no_entry: Rollout Holding
-
-!!! MORE INFORMATION COMING SOON !!!
 
 # Compatibility
 The Android Gradle Plugin often changes the Variant API,
@@ -183,6 +187,21 @@ rustorePublish {
 }
 ```
 
+<details>
+<summary>Groovy</summary>
+
+```groovy
+rustorePublish {
+    instances {
+        release {
+            credentialsPath = "$rootDir/rustore-credentials-release.json"
+            buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+        }
+    }
+}
+```
+</details>
+
 ## Full Plugin Configuration
 
 <details open>
@@ -287,16 +306,6 @@ rustorePublish {
 ```
 </details>
 
-the same by CLI
-```bash
-./gradlew assembleRelease publishRustoreRelease \
-    --credentialsPath="/sample-kotlin/rustore-credentials.json" \
-    --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
-    --mobileServicesType="Unknown" \
-    --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
-```
-CLI params are more priority than Plugin configuration params.
-
 Also the plugin support different buildType and flavors.
 So for `demo` and `full` flavors and `release` buildType just change instances like that:
 ```kotlin
@@ -320,19 +329,7 @@ rustorePublish {
 
 # Plugin usage
 
-Gradle generate `publishRustore*` task for all buildType and flavor configurations
-```groovy
-android {
-    buildTypes {
-        release {
-            ...
-        }
-        debug {
-            ...
-        }
-    }
-}
-```
+Gradle generate `publishRustore*` task for all buildType and flavor configurations.
 
 **Note!** The plugin will publish already existed build file. Before uploading you should build it yourself. Be careful. Don't publish old build file.
 
@@ -340,7 +337,24 @@ android {
 ./gradlew assembleRelease publishRustoreRelease
 ```
 
+or 
+
+```bash
+./gradlew bundleRelease publishRustoreRelease
+```
+
+# CLI Plugin Configuration
+
 You can apply or override each plugin extension parameter dynamically by using CLI params.
+CLI params are more priority than gradle configuration params.
+
+```bash
+./gradlew assembleRelease publishRustoreRelease \
+    --credentialsPath="/sample-kotlin/rustore-credentials.json" \
+    --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
+    --mobileServicesType="Unknown" \
+    --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
+```
 
 # Promotion
 
