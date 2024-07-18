@@ -51,10 +51,10 @@ The following features are missing:
 
 - :children_crossing: Change App Store Information: description, app icon, screenshots and etc.
 - :children_crossing: Publish the build on a part of users (Release Phases)
+- :children_crossing: Support of AppBundle
 
 The following features are not available on Rustore API side yet:
 
-- :no_entry: Support of AppBundle
 - :no_entry: Rollout Holding
 
 # Compatibility
@@ -174,14 +174,6 @@ rustorePublish {
        * CLI: `--credentialsPath`
        */
       credentialsPath = "$rootDir/rustore-credentials-release.json"
-
-      /**
-       * Path to build file if you would like to change default path. "null" means use standard path for "apk" and "aab" files.
-       * Type: String (Optional)
-       * Default value: `null`
-       * CLI: `--buildFile`
-       */
-      buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
     }
   }
 }
@@ -195,7 +187,6 @@ rustorePublish {
     instances {
         release {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
-            buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
         }
     }
 }
