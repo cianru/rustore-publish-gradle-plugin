@@ -84,7 +84,7 @@ internal class ConfigProvider(
     @Suppress("ThrowsCount")
     private fun getCredentialsConfig(): Credentials {
         val credentialsFilePath = cli.credentialsPath ?: extension.credentialsPath
-        val companyIdPriority: String? = cli.companyId
+        val keyIdPriority: String? = cli.keyId
         val clientSecretPriority: String? = cli.clientSecret
         val credentials = lazy {
             if (credentialsFilePath.isNullOrBlank()) {
@@ -102,10 +102,10 @@ internal class ConfigProvider(
             }
             CredentialHelper.getCredentials(credentialsFile)
         }
-        val companyId = companyIdPriority
-            ?: credentials.value.companyId.nullIfBlank()
+        val keyId = keyIdPriority
+            ?: credentials.value.keyId.nullIfBlank()
             ?: throw IllegalArgumentException(
-                "(Rustore credential `companyId` param is null or empty). " +
+                "(Rustore credential `keyId` param is null or empty). " +
                     "Please check your credentials file content or as single parameter."
             )
         val clientSecret = clientSecretPriority
@@ -114,7 +114,7 @@ internal class ConfigProvider(
                 "(Rustore credential `clientSecret` param is null or empty). " +
                     "Please check your credentials file content or as single parameter."
             )
-        return Credentials(companyId, clientSecret)
+        return Credentials(keyId, clientSecret)
     }
 
     @Suppress("ThrowsCount")

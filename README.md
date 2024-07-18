@@ -12,7 +12,7 @@
   </h1>
 </p>
 
-![Version](https://img.shields.io/badge/GradlePortal-0.3.2-green.svg)
+![Version](https://img.shields.io/badge/GradlePortal-0.4.0-green.svg)
 ![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -143,7 +143,7 @@ buildscript {
     }
 
     dependencies {
-        classpath "ru.cian.rustore-plugin:rustore-publish-gradle-plugin::<VERSION>-SNAPSHOT"
+        classpath "ru.cian.rustore-plugin:rustore-publish-gradle-plugin:<VERSION>-SNAPSHOT"
     }
 }
 
@@ -161,11 +161,11 @@ rustorePublish {
   instances {
     create("release") {
       /**
-       * Path to json file with RuStore credentials params (`company_id` and `client_secret`).
-       * How to get credentials see [[RU] Rustore API Getting Started](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/authorization_rustore_api_1).
+       * Path to json file with RuStore credentials params (`key_id` and `client_secret`).
+       * How to get credentials see [[RU] Rustore API Getting Started](https://www.rustore.ru/help/work-with-rustore-api/api-authorization-process/).
        * Plugin credential json example:
        * {
-       *   "company_id": "<COMPANY_ID>",
+       *   "key_id": "<KEY_ID>",
        *   "client_secret": "<CLIENT_SECRET>"
        * }
        *
@@ -212,11 +212,11 @@ rustorePublish {
   instances {
     create("release") {
       /**
-       * Path to json file with RuStore credentials params (`company_id` and `client_secret`).
-       * How to get credentials see [[RU] Rustore API Getting Started](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/authorization_rustore_api_1).
+       * Path to json file with RuStore credentials params (`key_id` and `client_secret`).
+       * How to get credentials see [[RU] Rustore API Getting Started](https://www.rustore.ru/help/work-with-rustore-api/api-authorization-process/).
        * Plugin credential json example:
        * {
-       *   "company_id": "<COMPANY_ID>",
+       *   "key_id": "<KEY_ID>",
        *   "client_secret": "<CLIENT_SECRET>"
        * }
        *

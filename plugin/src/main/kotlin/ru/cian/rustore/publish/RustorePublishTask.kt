@@ -53,11 +53,11 @@ open class RustorePublishTask
 
     @get:Internal
     @set:Option(
-        option = "companyId",
-        description = "'company_id' param from AppGallery credentials. " +
+        option = "keyId",
+        description = "'keyId' param from AppGallery credentials. " +
             "The key more priority than value from 'credentialsPath'"
     )
-    var companyId: String? = null
+    var keyId: String? = null
 
     @get:Internal
     @set:Option(
@@ -139,7 +139,7 @@ open class RustorePublishTask
         val cli = InputPluginCliParam(
             deployType = deployType,
             credentialsPath = credentialsPath,
-            companyId = companyId,
+            keyId = keyId,
             clientSecret = clientSecret,
             mobileServicesType = mobileServicesType,
             buildFormat = buildFormat,
@@ -169,13 +169,13 @@ open class RustorePublishTask
         logger.v("2/6. Create signature")
         val datetimeFormatPattern = DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601)
         val timestamp = ZonedDateTime.now().format(datetimeFormatPattern)
-        val salt = "${config.credentials.companyId}$timestamp"
+        val salt = "${config.credentials.keyId}$timestamp"
         val signatureTools: SignatureTools = if (apiStub != true) SignatureToolsImpl() else MockSignatureTools()
         val signature = signatureTools.signData(salt, config.credentials.clientSecret)
 
         logger.v("3/6. Get Access Token")
         val token = rustoreService.getToken(
-            companyId = config.credentials.companyId,
+            keyId = config.credentials.keyId,
             timestamp = timestamp,
             signature = signature,
         )

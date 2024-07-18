@@ -206,7 +206,7 @@ internal class ConfigProviderTest {
         val inputCliConfig = InputPluginCliParam(
             deployType = DeployType.DRAFT,
             credentialsPath = CREDENTIALS_FILE_SECOND_PATH,
-            companyId = "id123",
+            keyId = "id123",
             clientSecret = "secret123",
             buildFormat = BuildFormat.AAB,
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,

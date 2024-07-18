@@ -5,7 +5,7 @@ import java.io.File
 @SuppressWarnings("StringLiteralDuplication", "TooManyFunctions")
 internal class MockRustoreService : RustoreService {
 
-    override fun getToken(companyId: String, timestamp: String, signature: String): String {
+    override fun getToken(keyId: String, timestamp: String, signature: String): String {
         return "MockToken"
     }
 

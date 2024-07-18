@@ -19,14 +19,14 @@ internal data class ReleasePhaseConfig(
 )
 
 internal data class Credentials(
-    var companyId: String,
+    var keyId: String,
     var clientSecret: String,
 )
 
 internal data class InputPluginCliParam(
     val deployType: DeployType? = null,
     val credentialsPath: String? = null,
-    val companyId: String? = null,
+    val keyId: String? = null,
     val clientSecret: String? = null,
     val mobileServicesType: MobileServicesType? = null,
     val buildFormat: BuildFormat? = null,
