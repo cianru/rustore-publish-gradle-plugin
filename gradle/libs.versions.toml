@@ -37,7 +37,6 @@ test-junitJupiterParams = { group = "org.junit.jupiter", name = "junit-jupiter-p
 
 [plugins]
 dokka = { id = "org.jetbrains.dokka", version = "1.9.10" }
-bintray = { id = "com.jfrog.bintray", version = "1.8.5" }
 pluginPublish = { id = "com.gradle.plugin-publish", version = "0.15.0" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 benManesVersions = { id = "com.github.ben-manes.versions", version = "0.47.0" }
