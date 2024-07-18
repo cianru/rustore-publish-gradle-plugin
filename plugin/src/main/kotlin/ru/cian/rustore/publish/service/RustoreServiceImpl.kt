@@ -25,13 +25,13 @@ internal class RustoreServiceImpl constructor(
     private val httpClient = HttpClientHelper(logger)
 
     override fun getToken(
-        companyId: String,
+        keyId: String,
         timestamp: String,
         signature: String,
     ): String {
 
         val bodyRequest = AccessTokenRustoreRequest(
-            companyId = companyId,
+            keyId = keyId,
             timestamp = timestamp,
             signature = signature,
         )
@@ -41,7 +41,7 @@ internal class RustoreServiceImpl constructor(
             $DOMAIN_URL/public/auth/ \
             --header 'Content-Type: application/json' \
             --data-raw '{
-                "companyId": "$companyId",
+                "keyId": "$keyId",
                 "timestamp": "$timestamp",
                 "signature": "$signature"
             }'            

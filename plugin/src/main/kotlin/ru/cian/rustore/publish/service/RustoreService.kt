@@ -9,7 +9,7 @@ import java.io.File
 internal interface RustoreService {
 
     fun getToken(
-        companyId: String,
+        keyId: String,
         timestamp: String,
         signature: String,
     ): String
