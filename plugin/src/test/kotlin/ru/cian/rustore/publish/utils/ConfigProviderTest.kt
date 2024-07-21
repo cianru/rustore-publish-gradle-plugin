@@ -38,10 +38,10 @@ private const val ARTIFACT_AAB_FILE_PATH = "$BUILD_DIRECTORY_PATH/file.aab"
 private const val ARTIFACT_AAB_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/file_second.aab"
 
 private const val CREDENTIALS_FILE_PATH = "$BUILD_DIRECTORY_PATH/credentials.json"
-private const val CREDENTIALS_JSON = "{\"company_id\": \"id\", \"client_secret\": \"secret\"}"
+private const val CREDENTIALS_JSON = "{\"key_id\": \"id\", \"client_secret\": \"secret\"}"
 
 private const val CREDENTIALS_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/credentials_second.json"
-private const val CREDENTIALS_SECOND_JSON = "{\"company_id\": \"no_id\", \"client_secret\": \"no_secret\"}"
+private const val CREDENTIALS_SECOND_JSON = "{\"key_id\": \"no_id\", \"client_secret\": \"no_secret\"}"
 
 private const val APP_BASIC_INFO_FILE_PATH = "$BUILD_DIRECTORY_PATH/app_info.json"
 private const val APP_BASIC_INFO_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/app_info_second.json"
@@ -146,7 +146,7 @@ internal class ConfigProviderTest {
 
         every {
             CredentialHelper.getCredentials(match { it.absolutePath == CREDENTIALS_FILE_PATH })
-        } returns Credential(companyId = "id", clientSecret = "secret")
+        } returns Credential(keyId = "id", clientSecret = "secret")
 
         tableOf("expectedValue", "actualValue")
             .row(
@@ -314,7 +314,7 @@ internal class ConfigProviderTest {
     @Test
     fun `correct config with overriding release notes`() {
         val expectedConfig = InputPluginConfig(
-            credentials = Credentials("id", "secret"),
+            credentials = Credentials(keyId = "id", clientSecret = "secret"),
             deployType = DeployType.PUBLISH,
             artifactFormat = BuildFormat.APK,
             mobileServicesType = MobileServicesType.UNKNOWN,

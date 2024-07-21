@@ -12,7 +12,7 @@
   </h1>
 </p>
 
-![Version](https://img.shields.io/badge/GradlePortal-0.4.0-green.svg)
+![Version](https://img.shields.io/badge/GradlePortal-0.5.0-green.svg)
 ![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
@@ -46,12 +46,12 @@ The following features are available:
 - :white_check_mark: Support of Gradle Portal and Gradle DSL
 - :white_check_mark: Support of Gradle 8.+
 - :white_check_mark: Support of Configuration Cache
+- :white_check_mark: Support of AppBundle
 
 The following features are missing:
 
 - :children_crossing: Change App Store Information: description, app icon, screenshots and etc.
 - :children_crossing: Publish the build on a part of users (Release Phases)
-- :children_crossing: Support of AppBundle
 
 The following features are not available on Rustore API side yet:
 
@@ -174,6 +174,15 @@ rustorePublish {
        * CLI: `--credentialsPath`
        */
       credentialsPath = "$rootDir/rustore-credentials-release.json"
+
+      /**
+       * 'apk' or 'aab' for corresponding build format.
+       * See https://www.rustore.ru/help/developers/publishing-and-verifying-apps/app-publication/upload-aab how to prepare project for loading of aab files.
+       * Type: String (Optional)
+       * Default value: `apk`
+       * CLI: `--buildFormat`
+       */
+      buildFormat = ru.cian.rustore.publish.BuildFormat.APK      
     }
   }
 }
@@ -187,6 +196,7 @@ rustorePublish {
     instances {
         release {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
+            buildFormat = "apk"
         }
     }
 }
@@ -224,6 +234,15 @@ rustorePublish {
        * CLI: `--buildFile`
        */
       buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+
+      /**
+       * 'apk' or 'aab' for corresponding build format.
+       * See https://www.rustore.ru/help/developers/publishing-and-verifying-apps/app-publication/upload-aab how to prepare project for loading of aab files.
+       * Type: String (Optional)
+       * Default value: `apk`
+       * CLI: `--buildFormat`
+       */
+      buildFormat = ru.cian.rustore.publish.BuildFormat.APK      
 
       /**
        * Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"].
@@ -280,6 +299,7 @@ rustorePublish {
     instances {
         release {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
+            buildFormat = "apk"
             buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
             mobileServicesType = "Unknown"
             releaseNotes = [
@@ -342,6 +362,7 @@ CLI params are more priority than gradle configuration params.
 ```bash
 ./gradlew assembleRelease publishRustoreRelease \
     --credentialsPath="/sample-kotlin/rustore-credentials.json" \
+    --buildFormat=apk \
     --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
     --mobileServicesType="Unknown" \
     --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"

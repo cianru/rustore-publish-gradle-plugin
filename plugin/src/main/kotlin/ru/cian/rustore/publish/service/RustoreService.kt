@@ -1,5 +1,6 @@
 package ru.cian.rustore.publish.service
 
+import ru.cian.rustore.publish.BuildFormat
 import java.io.File
 
 /**
@@ -21,11 +22,12 @@ internal interface RustoreService {
     ): Int
 
     @Suppress("LongParameterList")
-    fun uploadBuildFile(
+    fun uploadApkBuildFile(
         token: String,
         applicationId: String,
         mobileServicesType: String,
         versionId: Int,
+        artifactFormat: BuildFormat,
         buildFile: File,
     )
 

@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.models.request.AccessTokenRustoreRequest
 import ru.cian.rustore.publish.models.request.AppDraftRequest
 import ru.cian.rustore.publish.models.response.AccessTokenResponse
@@ -118,21 +119,33 @@ internal class RustoreServiceImpl constructor(
         return response.body
     }
 
-    override fun uploadBuildFile(
+    override fun uploadApkBuildFile(
         token: String,
         applicationId: String,
         mobileServicesType: String,
         versionId: Int,
-        buildFile: File
+        artifactFormat: BuildFormat,
+        buildFile: File,
     ) {
 
         val fileBody = buildFile.asRequestBody(HttpClientHelper.MEDIA_TYPE_AAB)
-        val requestBody = MultipartBody.Builder()
+        val multipartBuilder = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart("file", buildFile.name, fileBody)
-            .addFormDataPart("servicesType", mobileServicesType)
-            .addFormDataPart("isMainApk", "true")
+
+        if (artifactFormat == BuildFormat.APK) {
+            multipartBuilder
+                .addFormDataPart("servicesType", mobileServicesType)
+                .addFormDataPart("isMainApk", "true")
+        }
+
+        val requestBody = multipartBuilder
             .build()
+
+        val requestFormArgument = when (artifactFormat) {
+            BuildFormat.APK -> "apk"
+            BuildFormat.AAB -> "aab"
+        }
 
         val headers = mutableMapOf(
             "accept" to "application/json",
@@ -146,11 +159,11 @@ internal class RustoreServiceImpl constructor(
             --form servicesType=$mobileServicesType \
             --form isMainApk=true \
             --form file='@${buildFile.absolutePath}' \
-            $DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/apk
+            $DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/$requestFormArgument
         """.trimIndent())
 
         val response = httpClient.post<UploadAppFileResponse>(
-            url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/apk",
+            url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/$requestFormArgument",
             body = requestBody,
             headers = headers
         )

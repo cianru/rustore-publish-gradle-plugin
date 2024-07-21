@@ -97,7 +97,7 @@ internal class ConfigProvider(
             if (!credentialsFile.exists()) {
                 throw FileNotFoundException(
                     "$extension (File (${credentialsFile.absolutePath}) " +
-                        "with 'company_id' and 'client_secret' for access to Rustore Publish API is not found)"
+                        "with 'key_id' and 'client_secret' for access to Rustore Publish API is not found)"
                 )
             }
             CredentialHelper.getCredentials(credentialsFile)

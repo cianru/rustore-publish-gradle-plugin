@@ -8,6 +8,14 @@
    ```bash
    IS_SNAPSHOT=false
    ```
+1. Verify that the everything works:
+   ```bash
+   ./gradlew clean check
+   ```
+1. Verify that the code style is correct:
+   ```bash
+   ./gradlew detekt
+   ``` 
 1. Upload binaries to Gradle's plugin portal:
    ```bash
    ./gradlew :plugin:publishPlugins

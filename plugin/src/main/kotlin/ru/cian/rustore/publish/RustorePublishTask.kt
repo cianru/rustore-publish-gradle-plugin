@@ -47,7 +47,7 @@ open class RustorePublishTask
     @get:Internal
     @set:Option(
         option = "credentialsPath",
-        description = "File path with AppGallery credentials params ('company_id' and 'client_secret')"
+        description = "File path with AppGallery credentials params ('key_id' and 'client_secret')"
     )
     var credentialsPath: String? = null
 
@@ -70,7 +70,9 @@ open class RustorePublishTask
     @get:Internal
     @set:Option(
         option = "buildFormat",
-        description = "'apk' or 'aab' for corresponding build format"
+        description = "'apk' or 'aab' for corresponding build format. " +
+            "See https://www.rustore.ru/help/developers/publishing-and-verifying-apps/app-publication/upload-aab " +
+            "how to prepare project for loading of aab files."
     )
     var buildFormat: BuildFormat? = null
 
@@ -188,11 +190,12 @@ open class RustorePublishTask
         )
 
         logger.v("5/6. Upload build file '${config.artifactFile}'")
-        rustoreService.uploadBuildFile(
+        rustoreService.uploadApkBuildFile(
             token = token,
             applicationId = config.applicationId,
             mobileServicesType = config.mobileServicesType.value,
             versionId = appVersionId,
+            artifactFormat = config.artifactFormat,
             buildFile = config.artifactFile
         )
 

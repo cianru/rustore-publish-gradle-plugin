@@ -1,5 +1,6 @@
 package ru.cian.rustore.publish.service
 
+import ru.cian.rustore.publish.BuildFormat
 import java.io.File
 
 @SuppressWarnings("StringLiteralDuplication", "TooManyFunctions")
@@ -17,12 +18,13 @@ internal class MockRustoreService : RustoreService {
         return -1
     }
 
-    override fun uploadBuildFile(
+    override fun uploadApkBuildFile(
         token: String,
         applicationId: String,
         mobileServicesType: String,
         versionId: Int,
-        buildFile: File
+        artifactFormat: BuildFormat,
+        buildFile: File,
     ) {
         throw IllegalStateException("Test build file uploading is failed! It works as well")
     }
