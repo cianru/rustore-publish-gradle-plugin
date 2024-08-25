@@ -8,7 +8,11 @@ include(
 
 pluginManagement {
 
-    val rustorePublish = "0.4.0-SNAPSHOT"
+    val libsVersionFile = file("gradle/libs.versions.toml")
+    val properties = java.util.Properties().apply {
+        libsVersionFile.reader().use { load(it) }
+    }
+    val rustorePublish = properties.getProperty("sampleRustorePlugin").replace("\"", "")
 
     resolutionStrategy {
         eachPlugin {
