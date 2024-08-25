@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.models.request.AccessTokenRustoreRequest
 import ru.cian.rustore.publish.models.request.AppDraftRequest
 import ru.cian.rustore.publish.models.response.AccessTokenResponse
@@ -15,11 +14,10 @@ import ru.cian.rustore.publish.models.response.UploadAppFileResponse
 import ru.cian.rustore.publish.utils.Logger
 import java.io.File
 
-private const val DOMAIN_URL = "https://public-api.rustore.ru"
-
 @SuppressWarnings("StringLiteralDuplication", "TooManyFunctions")
-internal class RustoreServiceImpl constructor(
-    private val logger: Logger
+internal class RustoreServiceImpl(
+    private val logger: Logger,
+    private val baseEntryPoint: String,
 ) : RustoreService {
 
     private val gson = Gson()
@@ -39,7 +37,7 @@ internal class RustoreServiceImpl constructor(
 
         logger.i("""
             curl --location --request POST \
-            $DOMAIN_URL/public/auth/ \
+            $baseEntryPoint/public/auth/ \
             --header 'Content-Type: application/json' \
             --data-raw '{
                 "keyId": "$keyId",
@@ -49,7 +47,7 @@ internal class RustoreServiceImpl constructor(
         """.trimIndent())
 
         val response = httpClient.post<AccessTokenResponse>(
-            url = "$DOMAIN_URL/public/auth/",
+            url = "$baseEntryPoint/public/auth/",
             body = gson.toJson(bodyRequest).toRequestBody(),
             headers = mapOf(
                 "Content-Type" to "application/json",
@@ -69,7 +67,7 @@ internal class RustoreServiceImpl constructor(
 
         logger.i("""
             curl --location --request POST \
-            $DOMAIN_URL/public/v1/application/$applicationId/version \
+            $baseEntryPoint/public/v1/application/$applicationId/version \
             --header 'Content-Type: application/json' \
             --header 'Public-Token: $token' \
             --data-raw '{
@@ -78,7 +76,7 @@ internal class RustoreServiceImpl constructor(
         """.trimIndent())
 
         val response = httpClient.post<AppDraftResponse>(
-            url = "$DOMAIN_URL/public/v1/application/$applicationId/version",
+            url = "$baseEntryPoint/public/v1/application/$applicationId/version",
             body = gson.toJson(bodyRequest).toRequestBody(),
             headers = mapOf(
                 "Content-Type" to "application/json",
@@ -124,7 +122,7 @@ internal class RustoreServiceImpl constructor(
         applicationId: String,
         mobileServicesType: String,
         versionId: Int,
-        artifactFormat: BuildFormat,
+        artifactFormat: RustoreBuildFormat,
         buildFile: File,
     ) {
 
@@ -133,7 +131,7 @@ internal class RustoreServiceImpl constructor(
             .setType(MultipartBody.FORM)
             .addFormDataPart("file", buildFile.name, fileBody)
 
-        if (artifactFormat == BuildFormat.APK) {
+        if (artifactFormat == RustoreBuildFormat.APK) {
             multipartBuilder
                 .addFormDataPart("servicesType", mobileServicesType)
                 .addFormDataPart("isMainApk", "true")
@@ -142,10 +140,7 @@ internal class RustoreServiceImpl constructor(
         val requestBody = multipartBuilder
             .build()
 
-        val requestFormArgument = when (artifactFormat) {
-            BuildFormat.APK -> "apk"
-            BuildFormat.AAB -> "aab"
-        }
+        val requestFormArgument = artifactFormat.fileExtension
 
         val headers = mutableMapOf(
             "accept" to "application/json",
@@ -159,11 +154,11 @@ internal class RustoreServiceImpl constructor(
             --form servicesType=$mobileServicesType \
             --form isMainApk=true \
             --form file='@${buildFile.absolutePath}' \
-            $DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/$requestFormArgument
+            $baseEntryPoint/public/v1/application/$applicationId/version/$versionId/$requestFormArgument
         """.trimIndent())
 
         val response = httpClient.post<UploadAppFileResponse>(
-            url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/$requestFormArgument",
+            url = "$baseEntryPoint/public/v1/application/$applicationId/version/$versionId/$requestFormArgument",
             body = requestBody,
             headers = headers
         )
@@ -177,6 +172,7 @@ internal class RustoreServiceImpl constructor(
         }
     }
 
+    @SuppressWarnings("MaxLineLength")
     override fun submit(
         token: String,
         applicationId: String,
@@ -185,13 +181,12 @@ internal class RustoreServiceImpl constructor(
     ): Boolean {
         logger.i("""
             curl --location --request POST \
-            $DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/commit?priorityUpdate=$priorityUpdate \
+            $baseEntryPoint/public/v1/application/$applicationId/version/$versionId/commit?priorityUpdate=$priorityUpdate \
             --header 'Content-Type: application/json'
         """.trimIndent())
 
         val response = httpClient.post<SubmitPublicationResponse>(
-            url = "$DOMAIN_URL/public/v1/application/$applicationId/version/$versionId/commit" +
-                "?priorityUpdate=$priorityUpdate",
+            url = "$baseEntryPoint/public/v1/application/$applicationId/version/$versionId/commit?priorityUpdate=$priorityUpdate",
             body = "".toRequestBody(),
             headers = mapOf(
                 "Content-Type" to "application/json",
@@ -208,13 +203,13 @@ internal class RustoreServiceImpl constructor(
     ): Boolean {
 
         logger.i("""
-            curl --location --request DELETE $DOMAIN_URL/public/v1/application/$packageName/version/$previousAppId \
+            curl --location --request DELETE $baseEntryPoint/public/v1/application/$packageName/version/$previousAppId \
             --header 'Content-Type: application/json' \
             --header 'Public-Token: $token'            
         """.trimIndent())
 
         val response = httpClient.delete<DeleteAppDraftResponse>(
-            url = "$DOMAIN_URL/public/v1/application/$packageName/version/$previousAppId",
+            url = "$baseEntryPoint/public/v1/application/$packageName/version/$previousAppId",
             body = "".toRequestBody(),
             headers = mapOf(
                 "Content-Type" to "application/json",
@@ -225,5 +220,9 @@ internal class RustoreServiceImpl constructor(
         logger.v("response=$response")
 
         return response.code == "OK"
+    }
+
+    companion object {
+        const val DOMAIN_URL = "https://public-api.rustore.ru"
     }
 }

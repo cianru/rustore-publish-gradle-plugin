@@ -7,11 +7,14 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
-import ru.cian.rustore.publish.service.MockRustoreService
-import ru.cian.rustore.publish.service.RustoreService
+import ru.cian.rustore.publish.service.RustoreBuildFormat
+import ru.cian.rustore.publish.service.mock.MockServerWrapperImpl
+import ru.cian.rustore.publish.service.mock.MockServerWrapperStub
 import ru.cian.rustore.publish.service.RustoreServiceImpl
+import ru.cian.rustore.publish.service.mock.MockServerWrapper
 import ru.cian.rustore.publish.utils.BuildFileProvider
 import ru.cian.rustore.publish.utils.ConfigProvider
+import ru.cian.rustore.publish.utils.DATETIME_FORMAT_ISO8601
 import ru.cian.rustore.publish.utils.FileWrapper
 import ru.cian.rustore.publish.utils.Logger
 import ru.cian.rustore.publish.utils.RELEASE_DATE_TIME_FORMAT
@@ -123,7 +126,6 @@ open class RustorePublishTask
     @TaskAction
     fun action() {
 
-        val rustoreService: RustoreService = if (apiStub == true) MockRustoreService() else RustoreServiceImpl(logger)
         val rustorePublishExtension = project.extensions
             .findByName(RustorePublishExtension.MAIN_EXTENSION_NAME) as? RustorePublishExtension
             ?: throw IllegalArgumentException(
@@ -166,6 +168,18 @@ open class RustorePublishTask
         ).getConfig()
         logger.i("config=$config")
 
+        val artifactFormat = when (config.artifactFormat) {
+            BuildFormat.APK -> RustoreBuildFormat.APK
+            BuildFormat.AAB -> RustoreBuildFormat.AAB
+        }
+        val mockServerWrapper = getMockServerWrapper(config, artifactFormat)
+        mockServerWrapper.start()
+
+        val rustoreService = RustoreServiceImpl(
+            logger = logger,
+            baseEntryPoint = mockServerWrapper.getBaseUrl(),
+        )
+
         logger.v("Found build file: `${config.artifactFile.name}`")
 
         logger.v("2/6. Create signature")
@@ -195,7 +209,7 @@ open class RustorePublishTask
             applicationId = config.applicationId,
             mobileServicesType = config.mobileServicesType.value,
             versionId = appVersionId,
-            artifactFormat = config.artifactFormat,
+            artifactFormat = artifactFormat,
             buildFile = config.artifactFile
         )
 
@@ -212,6 +226,23 @@ open class RustorePublishTask
         } else {
             logger.v("Upload and submit build file - Failed!")
         }
+
+        mockServerWrapper.shutdown()
+    }
+
+    private fun getMockServerWrapper(
+        config: InputPluginConfig,
+        artifactFormat: RustoreBuildFormat
+    ): MockServerWrapper {
+        return if (apiStub == true) {
+            MockServerWrapperImpl(
+                logger = logger,
+                applicationId = config.applicationId,
+                requestFormArgument = artifactFormat.fileExtension,
+            )
+        } else {
+            MockServerWrapperStub()
+        }
     }
 
     internal enum class ReleaseType(val type: Int) {
@@ -221,6 +252,5 @@ open class RustorePublishTask
 
     companion object {
         const val TASK_NAME = "publishRustore"
-        private const val DATETIME_FORMAT_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX"
     }
 }

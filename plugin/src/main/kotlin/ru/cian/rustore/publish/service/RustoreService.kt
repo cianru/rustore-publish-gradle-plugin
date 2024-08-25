@@ -1,6 +1,5 @@
 package ru.cian.rustore.publish.service
 
-import ru.cian.rustore.publish.BuildFormat
 import java.io.File
 
 /**
@@ -27,7 +26,7 @@ internal interface RustoreService {
         applicationId: String,
         mobileServicesType: String,
         versionId: Int,
-        artifactFormat: BuildFormat,
+        artifactFormat: RustoreBuildFormat,
         buildFile: File,
     )
 

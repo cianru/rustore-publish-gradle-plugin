@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.kotlinDateTime)
     implementation(libs.gson)
     implementation(libs.okHttp)
+    implementation(libs.mockServer)
     compileOnly(libs.androidGradlePlugin)
     detektPlugins(libs.detektFormating)
     detektPlugins(libs.detektRules)
