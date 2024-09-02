@@ -79,6 +79,14 @@ open class RustorePublishTask
     )
     var buildFormat: BuildFormat? = null
 
+    @get:Internal
+    @set:Option(
+        option = "requestTimeout",
+        description = "The time in seconds to wait for the publication to complete. " +
+            "Increase it if you build is large. Default value is 60 seconds."
+    )
+    var requestTimeout: String? = null
+
     @Suppress("MaxLineLength")
     @get:Internal
     @set:Option(
@@ -140,11 +148,12 @@ open class RustorePublishTask
                     "instance with name '$buildTypeName' is not available"
             )
 
-        val cli = InputPluginCliParam(
+        val cli = RustorePublishCli(
             deployType = deployType,
             credentialsPath = credentialsPath,
             keyId = keyId,
             clientSecret = clientSecret,
+            requestTimeout = requestTimeout,
             mobileServicesType = mobileServicesType,
             buildFormat = buildFormat,
             buildFile = buildFile,
@@ -178,6 +187,7 @@ open class RustorePublishTask
         val rustoreService = RustoreServiceImpl(
             logger = logger,
             baseEntryPoint = mockServerWrapper.getBaseUrl(),
+            requestTimeout = config.requestTimeout,
         )
 
         logger.v("Found build file: `${config.artifactFile.name}`")
@@ -190,6 +200,7 @@ open class RustorePublishTask
         val signature = signatureTools.signData(salt, config.credentials.clientSecret)
 
         logger.v("3/6. Get Access Token")
+
         val token = rustoreService.getToken(
             keyId = config.credentials.keyId,
             timestamp = timestamp,
@@ -231,7 +242,7 @@ open class RustorePublishTask
     }
 
     private fun getMockServerWrapper(
-        config: InputPluginConfig,
+        config: PluginConfig,
         artifactFormat: RustoreBuildFormat
     ): MockServerWrapper {
         return if (apiStub == true) {

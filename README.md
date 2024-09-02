@@ -242,8 +242,16 @@ rustorePublish {
        * Default value: `apk`
        * CLI: `--buildFormat`
        */
-      buildFormat = ru.cian.rustore.publish.BuildFormat.APK      
+      buildFormat = ru.cian.rustore.publish.BuildFormat.APK
 
+      /**
+       * The time in seconds to wait for the publication to complete. Increase it if you build is large. 
+       * Type: Long (Optional)
+       * Default value: `60` // (1min)
+       * CLI: `--publishTimeoutMs`
+       */
+      requestTimeout = 60
+      
       /**
        * Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"].
        * For more details see param `servicesType` in documentation " +
@@ -301,6 +309,7 @@ rustorePublish {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
             buildFormat = "apk"
             buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+            requestTimeout = 60
             mobileServicesType = "Unknown"
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(

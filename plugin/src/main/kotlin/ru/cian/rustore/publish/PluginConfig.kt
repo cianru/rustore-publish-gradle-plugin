@@ -2,10 +2,11 @@ package ru.cian.rustore.publish
 
 import java.io.File
 
-internal data class InputPluginConfig(
+internal data class PluginConfig(
     val credentials: Credentials,
     val deployType: DeployType,
     val artifactFormat: BuildFormat,
+    val requestTimeout: Long,
     val mobileServicesType: MobileServicesType,
     val artifactFile: File,
     val releaseTime: String?,
@@ -21,20 +22,6 @@ internal data class ReleasePhaseConfig(
 internal data class Credentials(
     var keyId: String,
     var clientSecret: String,
-)
-
-internal data class InputPluginCliParam(
-    val deployType: DeployType? = null,
-    val credentialsPath: String? = null,
-    val keyId: String? = null,
-    val clientSecret: String? = null,
-    val mobileServicesType: MobileServicesType? = null,
-    val buildFormat: BuildFormat? = null,
-    val buildFile: String? = null,
-    val releaseTime: String? = null,
-    val releasePhasePercent: String? = null,
-    val releaseNotes: String? = null,
-    val apiStub: Boolean? = null,
 )
 
 internal data class ReleaseNotesConfig(

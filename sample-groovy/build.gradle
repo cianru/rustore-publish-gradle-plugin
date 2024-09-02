@@ -20,6 +20,8 @@ rustorePublish {
         }
         fullRelease {
             credentialsPath = "$projectDir/rustore-credentials-2.json"
+            buildFormat = "apk"
+            requestTimeout = 120
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
                     "ru-RU",
@@ -31,7 +33,7 @@ rustorePublish {
 }
 
 android {
-    compileSdkVersion libs.versions.compileSdkVersion.get() as Integer
+    compileSdk libs.versions.compileSdkVersion.get() as Integer
 
     namespace 'ru.cian.rustore.sample.groovy'
 

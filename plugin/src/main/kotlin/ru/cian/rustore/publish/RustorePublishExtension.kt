@@ -3,6 +3,8 @@ package ru.cian.rustore.publish
 import groovy.lang.Closure
 import org.gradle.api.Project
 
+private const val DEFAULT_REQUEST_TIMEOUT_SEC = 60L
+
 open class RustorePublishExtension(
     project: Project
 ) {
@@ -28,6 +30,7 @@ class RustorePublishExtensionConfig(
      */
     var credentialsPath: String? = null
     var deployType = DeployType.PUBLISH
+    var requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT_SEC
     var mobileServicesType: MobileServicesType = MobileServicesType.UNKNOWN
     var buildFormat: BuildFormat = BuildFormat.APK
     var buildFile: String? = null
@@ -52,6 +55,7 @@ class RustorePublishExtensionConfig(
             "name='$name', " +
             "credentialsPath='$credentialsPath', " +
             "deployType='$deployType', " +
+            "requestTimeout='$requestTimeout', " +
             "mobileServicesType='$mobileServicesType', " +
             "buildFormat='$buildFormat', " +
             "buildFile='$buildFile', " +

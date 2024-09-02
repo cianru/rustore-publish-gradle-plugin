@@ -18,10 +18,11 @@ import java.io.File
 internal class RustoreServiceImpl(
     private val logger: Logger,
     private val baseEntryPoint: String,
+    private val requestTimeout: Long?,
 ) : RustoreService {
 
     private val gson = Gson()
-    private val httpClient = HttpClientHelper(logger)
+    private val httpClient = HttpClientHelper(logger, requestTimeout)
 
     override fun getToken(
         keyId: String,
@@ -131,15 +132,6 @@ internal class RustoreServiceImpl(
             .setType(MultipartBody.FORM)
             .addFormDataPart("file", buildFile.name, fileBody)
 
-        if (artifactFormat == RustoreBuildFormat.APK) {
-            multipartBuilder
-                .addFormDataPart("servicesType", mobileServicesType)
-                .addFormDataPart("isMainApk", "true")
-        }
-
-        val requestBody = multipartBuilder
-            .build()
-
         val requestFormArgument = artifactFormat.fileExtension
 
         val headers = mutableMapOf(
@@ -147,15 +139,40 @@ internal class RustoreServiceImpl(
             "Public-Token" to token,
         )
 
-        logger.i("""
-            curl --location --request POST \
-            --header 'Content-Type: application/json' \
-            --header 'Public-Token: $token' \            
-            --form servicesType=$mobileServicesType \
-            --form isMainApk=true \
-            --form file='@${buildFile.absolutePath}' \
-            $baseEntryPoint/public/v1/application/$applicationId/version/$versionId/$requestFormArgument
-        """.trimIndent())
+        when (artifactFormat) {
+            RustoreBuildFormat.APK -> {
+
+                multipartBuilder
+                    .addFormDataPart("servicesType", mobileServicesType)
+                    .addFormDataPart("isMainApk", "true")
+
+                logger.i(
+                    """
+                    curl --location --request POST \
+                    --header 'Content-Type: application/json' \
+                    --header 'Public-Token: $token' \            
+                    --form servicesType=$mobileServicesType \
+                    --form isMainApk=true \
+                    --form file='@${buildFile.absolutePath}' \
+                    $baseEntryPoint/public/v1/application/$applicationId/version/$versionId/$requestFormArgument
+                    """.trimIndent()
+                )
+            }
+            RustoreBuildFormat.AAB -> {
+                logger.i(
+                    """
+                    curl --location --request POST \
+                    --header 'Content-Type: application/json' \
+                    --header 'Public-Token: $token' \            
+                    --form file='@${buildFile.absolutePath}' \
+                    $baseEntryPoint/public/v1/application/$applicationId/version/$versionId/$requestFormArgument
+                    """.trimIndent()
+                )
+            }
+        }
+
+        val requestBody = multipartBuilder
+            .build()
 
         val response = httpClient.post<UploadAppFileResponse>(
             url = "$baseEntryPoint/public/v1/application/$applicationId/version/$versionId/$requestFormArgument",
