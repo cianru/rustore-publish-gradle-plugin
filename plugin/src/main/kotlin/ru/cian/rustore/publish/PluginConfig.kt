@@ -6,7 +6,7 @@ internal data class PluginConfig(
     val credentials: Credentials,
     val deployType: DeployType,
     val artifactFormat: BuildFormat,
-    val requestTimeout: Long,
+    val requestTimeout: Long?,
     val mobileServicesType: MobileServicesType,
     val artifactFile: File,
     val releaseTime: String?,

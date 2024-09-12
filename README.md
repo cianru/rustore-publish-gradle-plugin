@@ -247,10 +247,10 @@ rustorePublish {
       /**
        * The time in seconds to wait for the publication to complete. Increase it if you build is large. 
        * Type: Long (Optional)
-       * Default value: `60` // (1min)
+       * Default value: `300` // (5min)
        * CLI: `--publishTimeoutMs`
        */
-      requestTimeout = 60
+      requestTimeout = 300
       
       /**
        * Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"].

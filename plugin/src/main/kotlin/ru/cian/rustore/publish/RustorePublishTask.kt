@@ -83,7 +83,7 @@ open class RustorePublishTask
     @set:Option(
         option = "requestTimeout",
         description = "The time in seconds to wait for the publication to complete. " +
-            "Increase it if you build is large. Default value is 60 seconds."
+            "Increase it if you build is a large. Default value is 300 seconds."
     )
     var requestTimeout: String? = null
 

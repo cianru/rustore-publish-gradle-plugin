@@ -136,6 +136,7 @@ internal class ConfigProviderTest {
             credentials = Credentials("id", "secret"),
             deployType = DeployType.PUBLISH,
             artifactFormat = BuildFormat.APK,
+            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
@@ -184,6 +185,7 @@ internal class ConfigProviderTest {
             deployType = DeployType.DRAFT,
             artifactFormat = BuildFormat.AAB,
             artifactFile = File(ARTIFACT_AAB_FILE_SECOND_PATH),
+            requestTimeout = 234_567L,
             mobileServicesType = MobileServicesType.UNKNOWN,
             releaseTime = "2019-10-18T21:00:00+0300",
             releasePhase = ReleasePhaseConfig(
@@ -197,6 +199,7 @@ internal class ConfigProviderTest {
             credentialsPath = CREDENTIALS_FILE_PATH
             deployType = DeployType.PUBLISH
             buildFormat = BuildFormat.APK
+            requestTimeout = 123_456L
             buildFile = ARTIFACT_APK_FILE_PATH
             releaseTime = "2000-10-18T21:00:00+0300"
             releasePhase = ReleasePhaseExtension().apply {
@@ -209,6 +212,7 @@ internal class ConfigProviderTest {
             keyId = "id123",
             clientSecret = "secret123",
             buildFormat = BuildFormat.AAB,
+            requestTimeout = "234567",
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,
             releaseTime = "2019-10-18T21:00:00+0300",
             releasePhasePercent = "10.05",
@@ -234,6 +238,7 @@ internal class ConfigProviderTest {
             credentials = Credentials("id", "secret"),
             deployType = DeployType.PUBLISH,
             artifactFormat = BuildFormat.APK,
+            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
@@ -305,6 +310,20 @@ internal class ConfigProviderTest {
                     applicationId = applicationId,
                 )
             )
+            .row(
+                expectedConfig.copy(requestTimeout = 123_456L),
+                ConfigProvider(
+                    extension = extensionConfigInstance().apply {
+                        requestTimeout = 123_456L
+                    },
+                    cli = RustorePublishCli(
+                        requestTimeout = null
+                    ),
+                    buildFileProvider = buildFileProvider,
+                    releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
+                )
+            )
             .forAll { expectedValue, actualValue ->
                 assertThat(actualValue.getConfig()).isEqualTo(expectedValue)
             }
@@ -317,6 +336,7 @@ internal class ConfigProviderTest {
             credentials = Credentials(keyId = "id", clientSecret = "secret"),
             deployType = DeployType.PUBLISH,
             artifactFormat = BuildFormat.APK,
+            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
