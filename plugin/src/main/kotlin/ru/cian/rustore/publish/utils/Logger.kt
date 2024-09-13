@@ -5,7 +5,7 @@ import org.gradle.api.Project
 
 private const val LOG_TAG = "Rustore Publishing API"
 
-internal class Logger constructor(
+class Logger(
     private val project: Project
 ) {
 

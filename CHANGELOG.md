@@ -1,3 +1,43 @@
+# 0.5.0
+
+##### Add
+* [issue#9](https://github.com/cianru/rustore-publish-gradle-plugin/issues/9) Support of AAB files. Now you can publish AAB files to Rustore.
+Just use a new parameter `buildFormat` in your configuration:
+```kotlin
+configure<ru.cian.rustore.publish.RustorePublishExtension> {
+    instances {
+        register("release") {
+            buildFormat = ru.cian.rustore.publish.BuildFormat.AAB 
+        }
+    }
+}
+```
+if your file is large, you can increase the timeout by a new parameter `requestTimeout` in seconds:
+```kotlin
+configure<ru.cian.rustore.publish.RustorePublishExtension> {
+    instances {
+        register("release") {
+            ...
+            buildFormat = ru.cian.rustore.publish.BuildFormat.AAB 
+            requestTimeout = 1800 // seconds;
+            ....
+        }
+    }
+}
+```
+
+##### Breaking Changes
+* Remove support of Sonatype. It means that you can't use the plugin from Maven Central. You must to use the Gradle Portal. 
+  To do this, you need to add the following code to your `settings.gradle.kts`:
+  ```kotlin
+  pluginManagement {
+      repositories {
+          gradlePluginPortal()
+      }
+  }
+  ```
+  
+
 # 0.4.0
 
 ##### Breaking Changes

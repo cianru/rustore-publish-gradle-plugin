@@ -7,11 +7,14 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
-import ru.cian.rustore.publish.service.MockRustoreService
-import ru.cian.rustore.publish.service.RustoreService
+import ru.cian.rustore.publish.service.RustoreBuildFormat
+import ru.cian.rustore.publish.service.mock.MockServerWrapperImpl
+import ru.cian.rustore.publish.service.mock.MockServerWrapperStub
 import ru.cian.rustore.publish.service.RustoreServiceImpl
+import ru.cian.rustore.publish.service.mock.MockServerWrapper
 import ru.cian.rustore.publish.utils.BuildFileProvider
 import ru.cian.rustore.publish.utils.ConfigProvider
+import ru.cian.rustore.publish.utils.DATETIME_FORMAT_ISO8601
 import ru.cian.rustore.publish.utils.FileWrapper
 import ru.cian.rustore.publish.utils.Logger
 import ru.cian.rustore.publish.utils.RELEASE_DATE_TIME_FORMAT
@@ -47,7 +50,7 @@ open class RustorePublishTask
     @get:Internal
     @set:Option(
         option = "credentialsPath",
-        description = "File path with AppGallery credentials params ('company_id' and 'client_secret')"
+        description = "File path with AppGallery credentials params ('key_id' and 'client_secret')"
     )
     var credentialsPath: String? = null
 
@@ -70,9 +73,19 @@ open class RustorePublishTask
     @get:Internal
     @set:Option(
         option = "buildFormat",
-        description = "'apk' or 'aab' for corresponding build format"
+        description = "'apk' or 'aab' for corresponding build format. " +
+            "See https://www.rustore.ru/help/developers/publishing-and-verifying-apps/app-publication/upload-aab " +
+            "how to prepare project for loading of aab files."
     )
     var buildFormat: BuildFormat? = null
+
+    @get:Internal
+    @set:Option(
+        option = "requestTimeout",
+        description = "The time in seconds to wait for the publication to complete. " +
+            "Increase it if you build is a large. Default value is 300 seconds."
+    )
+    var requestTimeout: String? = null
 
     @Suppress("MaxLineLength")
     @get:Internal
@@ -121,7 +134,6 @@ open class RustorePublishTask
     @TaskAction
     fun action() {
 
-        val rustoreService: RustoreService = if (apiStub == true) MockRustoreService() else RustoreServiceImpl(logger)
         val rustorePublishExtension = project.extensions
             .findByName(RustorePublishExtension.MAIN_EXTENSION_NAME) as? RustorePublishExtension
             ?: throw IllegalArgumentException(
@@ -136,11 +148,12 @@ open class RustorePublishTask
                     "instance with name '$buildTypeName' is not available"
             )
 
-        val cli = InputPluginCliParam(
+        val cli = RustorePublishCli(
             deployType = deployType,
             credentialsPath = credentialsPath,
             keyId = keyId,
             clientSecret = clientSecret,
+            requestTimeout = requestTimeout,
             mobileServicesType = mobileServicesType,
             buildFormat = buildFormat,
             buildFile = buildFile,
@@ -164,6 +177,19 @@ open class RustorePublishTask
         ).getConfig()
         logger.i("config=$config")
 
+        val artifactFormat = when (config.artifactFormat) {
+            BuildFormat.APK -> RustoreBuildFormat.APK
+            BuildFormat.AAB -> RustoreBuildFormat.AAB
+        }
+        val mockServerWrapper = getMockServerWrapper(config, artifactFormat)
+        mockServerWrapper.start()
+
+        val rustoreService = RustoreServiceImpl(
+            logger = logger,
+            baseEntryPoint = mockServerWrapper.getBaseUrl(),
+            requestTimeout = config.requestTimeout,
+        )
+
         logger.v("Found build file: `${config.artifactFile.name}`")
 
         logger.v("2/6. Create signature")
@@ -174,6 +200,7 @@ open class RustorePublishTask
         val signature = signatureTools.signData(salt, config.credentials.clientSecret)
 
         logger.v("3/6. Get Access Token")
+
         val token = rustoreService.getToken(
             keyId = config.credentials.keyId,
             timestamp = timestamp,
@@ -188,11 +215,12 @@ open class RustorePublishTask
         )
 
         logger.v("5/6. Upload build file '${config.artifactFile}'")
-        rustoreService.uploadBuildFile(
+        rustoreService.uploadApkBuildFile(
             token = token,
             applicationId = config.applicationId,
             mobileServicesType = config.mobileServicesType.value,
             versionId = appVersionId,
+            artifactFormat = artifactFormat,
             buildFile = config.artifactFile
         )
 
@@ -209,6 +237,23 @@ open class RustorePublishTask
         } else {
             logger.v("Upload and submit build file - Failed!")
         }
+
+        mockServerWrapper.shutdown()
+    }
+
+    private fun getMockServerWrapper(
+        config: PluginConfig,
+        artifactFormat: RustoreBuildFormat
+    ): MockServerWrapper {
+        return if (apiStub == true) {
+            MockServerWrapperImpl(
+                logger = logger,
+                applicationId = config.applicationId,
+                requestFormArgument = artifactFormat.fileExtension,
+            )
+        } else {
+            MockServerWrapperStub()
+        }
     }
 
     internal enum class ReleaseType(val type: Int) {
@@ -218,6 +263,5 @@ open class RustorePublishTask
 
     companion object {
         const val TASK_NAME = "publishRustore"
-        private const val DATETIME_FORMAT_ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX"
     }
 }

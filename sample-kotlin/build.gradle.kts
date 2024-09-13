@@ -9,6 +9,8 @@ rustorePublish {
         create("release") {
             credentialsPath = "$projectDir/rustore-credentials.json"
             mobileServicesType = ru.cian.rustore.publish.MobileServicesType.HMS
+            buildFormat = ru.cian.rustore.publish.BuildFormat.AAB
+            requestTimeout = 60
             releaseNotes = listOf(
                 ru.cian.rustore.publish.ReleaseNote(
                     lang = "ru-RU",

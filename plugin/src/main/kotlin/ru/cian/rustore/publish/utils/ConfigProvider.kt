@@ -2,8 +2,8 @@ package ru.cian.rustore.publish.utils
 
 import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.Credentials
-import ru.cian.rustore.publish.InputPluginCliParam
-import ru.cian.rustore.publish.InputPluginConfig
+import ru.cian.rustore.publish.RustorePublishCli
+import ru.cian.rustore.publish.PluginConfig
 import ru.cian.rustore.publish.ReleaseNotesConfig
 import ru.cian.rustore.publish.ReleasePhaseConfig
 import ru.cian.rustore.publish.RustorePublishExtensionConfig
@@ -12,14 +12,15 @@ import java.io.FileNotFoundException
 
 internal class ConfigProvider(
     private val extension: RustorePublishExtensionConfig,
-    private val cli: InputPluginCliParam,
+    private val cli: RustorePublishCli,
     private val buildFileProvider: BuildFileProvider,
     private val releaseNotesFileProvider: FileWrapper,
     private val applicationId: String,
 ) {
 
-    fun getConfig(): InputPluginConfig {
+    fun getConfig(): PluginConfig {
 
+        val requestTimeout = cli.requestTimeout?.toLongOrNull() ?: extension.requestTimeout
         val mobileServicesType = cli.mobileServicesType ?: extension.mobileServicesType
         val deployType = cli.deployType ?: extension.deployType
         val artifactFormat = cli.buildFormat ?: extension.buildFormat
@@ -41,9 +42,10 @@ internal class ConfigProvider(
             )
         }
 
-        return InputPluginConfig(
+        return PluginConfig(
             credentials = credentialsConfig,
             deployType = deployType,
+            requestTimeout = requestTimeout,
             mobileServicesType = mobileServicesType,
             artifactFormat = actualArtifactFormat,
             artifactFile = artifactFile,
@@ -97,7 +99,7 @@ internal class ConfigProvider(
             if (!credentialsFile.exists()) {
                 throw FileNotFoundException(
                     "$extension (File (${credentialsFile.absolutePath}) " +
-                        "with 'company_id' and 'client_secret' for access to Rustore Publish API is not found)"
+                        "with 'key_id' and 'client_secret' for access to Rustore Publish API is not found)"
                 )
             }
             CredentialHelper.getCredentials(credentialsFile)

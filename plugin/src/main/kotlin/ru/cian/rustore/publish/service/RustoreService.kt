@@ -21,11 +21,12 @@ internal interface RustoreService {
     ): Int
 
     @Suppress("LongParameterList")
-    fun uploadBuildFile(
+    fun uploadApkBuildFile(
         token: String,
         applicationId: String,
         mobileServicesType: String,
         versionId: Int,
+        artifactFormat: RustoreBuildFormat,
         buildFile: File,
     )
 

@@ -28,6 +28,7 @@ class RustorePublishExtensionConfig(
      */
     var credentialsPath: String? = null
     var deployType = DeployType.PUBLISH
+    var requestTimeout: Long? = null
     var mobileServicesType: MobileServicesType = MobileServicesType.UNKNOWN
     var buildFormat: BuildFormat = BuildFormat.APK
     var buildFile: String? = null
@@ -52,6 +53,7 @@ class RustorePublishExtensionConfig(
             "name='$name', " +
             "credentialsPath='$credentialsPath', " +
             "deployType='$deployType', " +
+            "requestTimeout='$requestTimeout', " +
             "mobileServicesType='$mobileServicesType', " +
             "buildFormat='$buildFormat', " +
             "buildFile='$buildFile', " +

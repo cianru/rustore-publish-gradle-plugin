@@ -16,8 +16,8 @@ import org.junit.jupiter.api.TestInstance
 import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.Credentials
 import ru.cian.rustore.publish.DeployType
-import ru.cian.rustore.publish.InputPluginCliParam
-import ru.cian.rustore.publish.InputPluginConfig
+import ru.cian.rustore.publish.RustorePublishCli
+import ru.cian.rustore.publish.PluginConfig
 import ru.cian.rustore.publish.MobileServicesType
 import ru.cian.rustore.publish.ReleaseNote
 import ru.cian.rustore.publish.ReleaseNotesConfig
@@ -38,10 +38,10 @@ private const val ARTIFACT_AAB_FILE_PATH = "$BUILD_DIRECTORY_PATH/file.aab"
 private const val ARTIFACT_AAB_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/file_second.aab"
 
 private const val CREDENTIALS_FILE_PATH = "$BUILD_DIRECTORY_PATH/credentials.json"
-private const val CREDENTIALS_JSON = "{\"company_id\": \"id\", \"client_secret\": \"secret\"}"
+private const val CREDENTIALS_JSON = "{\"key_id\": \"id\", \"client_secret\": \"secret\"}"
 
 private const val CREDENTIALS_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/credentials_second.json"
-private const val CREDENTIALS_SECOND_JSON = "{\"company_id\": \"no_id\", \"client_secret\": \"no_secret\"}"
+private const val CREDENTIALS_SECOND_JSON = "{\"key_id\": \"no_id\", \"client_secret\": \"no_secret\"}"
 
 private const val APP_BASIC_INFO_FILE_PATH = "$BUILD_DIRECTORY_PATH/app_info.json"
 private const val APP_BASIC_INFO_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/app_info_second.json"
@@ -53,7 +53,7 @@ internal class ConfigProviderTest {
     private val buildFileProvider = mockk<BuildFileProvider>()
     private val releaseNotesFileProvider = mockk<FileWrapper>()
     private val applicationId = "applicationId_1234567890"
-    private val emptyCliConfig = InputPluginCliParam()
+    private val emptyCliConfig = RustorePublishCli()
 
     private fun extensionConfigInstance() = run {
         RustorePublishExtensionConfig("any", project).apply {
@@ -114,7 +114,7 @@ internal class ConfigProviderTest {
     @Test
     fun `get error to build config for wrong artifact file`() = mockkObject(CredentialHelper) {
 
-        val cliConfig = InputPluginCliParam(
+        val cliConfig = RustorePublishCli(
             buildFormat = BuildFormat.APK,
             buildFile = WRONG_ARTIFACT_FILE_PATH
         )
@@ -132,10 +132,11 @@ internal class ConfigProviderTest {
     @Test
     fun `correct config for default params`() = mockkObject(CredentialHelper) {
 
-        val expectedConfig = InputPluginConfig(
+        val expectedConfig = PluginConfig(
             credentials = Credentials("id", "secret"),
             deployType = DeployType.PUBLISH,
             artifactFormat = BuildFormat.APK,
+            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
@@ -146,7 +147,7 @@ internal class ConfigProviderTest {
 
         every {
             CredentialHelper.getCredentials(match { it.absolutePath == CREDENTIALS_FILE_PATH })
-        } returns Credential(companyId = "id", clientSecret = "secret")
+        } returns Credential(keyId = "id", clientSecret = "secret")
 
         tableOf("expectedValue", "actualValue")
             .row(
@@ -163,7 +164,7 @@ internal class ConfigProviderTest {
                 expectedConfig,
                 ConfigProvider(
                     extension = extensionConfigInstance(),
-                    cli = InputPluginCliParam(
+                    cli = RustorePublishCli(
                         credentialsPath = CREDENTIALS_FILE_PATH
                     ),
                     buildFileProvider = buildFileProvider,
@@ -179,11 +180,12 @@ internal class ConfigProviderTest {
     @Test
     fun `correct config with overriding common values at cli params`() {
 
-        val expectedConfig = InputPluginConfig(
+        val expectedConfig = PluginConfig(
             credentials = Credentials("id123", "secret123"),
             deployType = DeployType.DRAFT,
             artifactFormat = BuildFormat.AAB,
             artifactFile = File(ARTIFACT_AAB_FILE_SECOND_PATH),
+            requestTimeout = 234_567L,
             mobileServicesType = MobileServicesType.UNKNOWN,
             releaseTime = "2019-10-18T21:00:00+0300",
             releasePhase = ReleasePhaseConfig(
@@ -197,18 +199,20 @@ internal class ConfigProviderTest {
             credentialsPath = CREDENTIALS_FILE_PATH
             deployType = DeployType.PUBLISH
             buildFormat = BuildFormat.APK
+            requestTimeout = 123_456L
             buildFile = ARTIFACT_APK_FILE_PATH
             releaseTime = "2000-10-18T21:00:00+0300"
             releasePhase = ReleasePhaseExtension().apply {
                 percent = 99.7
             }
         }
-        val inputCliConfig = InputPluginCliParam(
+        val inputCliConfig = RustorePublishCli(
             deployType = DeployType.DRAFT,
             credentialsPath = CREDENTIALS_FILE_SECOND_PATH,
             keyId = "id123",
             clientSecret = "secret123",
             buildFormat = BuildFormat.AAB,
+            requestTimeout = "234567",
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,
             releaseTime = "2019-10-18T21:00:00+0300",
             releasePhasePercent = "10.05",
@@ -230,10 +234,11 @@ internal class ConfigProviderTest {
     @Test
     fun `correct config with overriding of publish param`() {
 
-        val expectedConfig = InputPluginConfig(
+        val expectedConfig = PluginConfig(
             credentials = Credentials("id", "secret"),
             deployType = DeployType.PUBLISH,
             artifactFormat = BuildFormat.APK,
+            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
@@ -247,7 +252,7 @@ internal class ConfigProviderTest {
                 expectedConfig.copy(deployType = DeployType.PUBLISH),
                 ConfigProvider(
                     extension = extensionConfigInstance(),
-                    cli = InputPluginCliParam(),
+                    cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
                     applicationId = applicationId,
@@ -259,7 +264,7 @@ internal class ConfigProviderTest {
                     extension = extensionConfigInstance().apply {
                         deployType = DeployType.DRAFT
                     },
-                    cli = InputPluginCliParam(),
+                    cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
                     applicationId = applicationId,
@@ -271,7 +276,7 @@ internal class ConfigProviderTest {
                     extension = extensionConfigInstance().apply {
                         deployType = DeployType.UPLOAD_ONLY
                     },
-                    cli = InputPluginCliParam(),
+                    cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
                     applicationId = applicationId,
@@ -283,7 +288,7 @@ internal class ConfigProviderTest {
                     extension = extensionConfigInstance().apply {
                         deployType = DeployType.DRAFT
                     },
-                    cli = InputPluginCliParam(
+                    cli = RustorePublishCli(
                         deployType = null
                     ),
                     buildFileProvider = buildFileProvider,
@@ -297,8 +302,22 @@ internal class ConfigProviderTest {
                     extension = extensionConfigInstance().apply {
                         deployType = DeployType.DRAFT
                     },
-                    cli = InputPluginCliParam(
+                    cli = RustorePublishCli(
                         deployType = DeployType.UPLOAD_ONLY
+                    ),
+                    buildFileProvider = buildFileProvider,
+                    releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
+                )
+            )
+            .row(
+                expectedConfig.copy(requestTimeout = 123_456L),
+                ConfigProvider(
+                    extension = extensionConfigInstance().apply {
+                        requestTimeout = 123_456L
+                    },
+                    cli = RustorePublishCli(
+                        requestTimeout = null
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -313,10 +332,11 @@ internal class ConfigProviderTest {
     @Suppress("LongMethod")
     @Test
     fun `correct config with overriding release notes`() {
-        val expectedConfig = InputPluginConfig(
-            credentials = Credentials("id", "secret"),
+        val expectedConfig = PluginConfig(
+            credentials = Credentials(keyId = "id", clientSecret = "secret"),
             deployType = DeployType.PUBLISH,
             artifactFormat = BuildFormat.APK,
+            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releaseTime = null,
@@ -360,7 +380,7 @@ internal class ConfigProviderTest {
                             )
                         )
                     },
-                    cli = InputPluginCliParam(),
+                    cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
                     applicationId = applicationId,
@@ -375,7 +395,7 @@ internal class ConfigProviderTest {
                 )),
                 ConfigProvider(
                     extension = extensionConfigInstance(),
-                    cli = InputPluginCliParam(
+                    cli = RustorePublishCli(
                         releaseNotes = "$langRu:$releaseNotesRuFilePath"
                     ),
                     buildFileProvider = buildFileProvider,
@@ -399,7 +419,7 @@ internal class ConfigProviderTest {
                             )
                         )
                     },
-                    cli = InputPluginCliParam(
+                    cli = RustorePublishCli(
                         releaseNotes = "$langEn:$releaseNotesEnFilePath"
                     ),
                     buildFileProvider = buildFileProvider,

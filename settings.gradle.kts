@@ -8,26 +8,28 @@ include(
 
 pluginManagement {
 
-    val rustorePublish = "0.4.0-SNAPSHOT"
+    val libsVersionFile = file("gradle/libs.versions.toml")
+    val properties = java.util.Properties().apply {
+        libsVersionFile.reader().use { load(it) }
+    }
+    val samplePublishVersion = properties.getProperty("sampleRustorePlugin").replace("\"", "")
 
     resolutionStrategy {
         eachPlugin {
             if(requested.id.namespace == "ru.cian") {
-                useModule("ru.cian.rustore-plugin:rustore-publish-gradle-plugin:${rustorePublish}")
+                useModule("ru.cian.rustore-plugin:plugin:${samplePublishVersion}")
             }
         }
     }
 
     plugins {
-        id("ru.cian.rustore-publish-gradle-plugin") version rustorePublish apply false
+        id("ru.cian.rustore-publish-gradle-plugin") version samplePublishVersion apply false
     }
 
     repositories {
-        mavenLocal()
-        maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots") }
-        google()
         gradlePluginPortal()
-        mavenCentral()
+        mavenLocal()
+        google()
         maven { url = uri("https://plugins.gradle.org/m2/") }
     }
 }

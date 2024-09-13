@@ -76,6 +76,4 @@ configurations.all {
 
 dependencies {
     implementation(platform(libs.kotlinBom))
-    implementation(libs.gson)
-    implementation(libs.okHttp)
 }

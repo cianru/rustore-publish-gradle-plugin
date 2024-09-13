@@ -11,9 +11,9 @@ class SignatureToolsImpl : SignatureTools {
     /**
      * https://github.com/stfbee/fastlane-plugin-rustore/blob/d58746d9f351b78ca236db41ea22f3956381b8a0/lib/fastlane/plugin/rustore/helper/rustore_helper.rb#L32
      * ------------------
-     * def self.rsa_sign(timestamp, company_id, private_key)
+     * def self.rsa_sign(timestamp, key_id, private_key)
      *     key = OpenSSL::PKey::RSA.new("-----BEGIN RSA PRIVATE KEY-----\n#{private_key}\n-----END RSA PRIVATE KEY-----")
-     *     signature = key.sign(OpenSSL::Digest.new('SHA512'), company_id + timestamp)
+     *     signature = key.sign(OpenSSL::Digest.new('SHA512'), key_id + timestamp)
      *     Base64.encode64(signature)
      * end
      */

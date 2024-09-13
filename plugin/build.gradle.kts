@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.kotlinJvm)
 }
 
-apply(from = "$projectDir/config/maven-publish.gradle")
 apply(from = "$projectDir/config/gradle-portal.gradle")
 
 detekt {
@@ -85,6 +84,7 @@ dependencies {
     implementation(libs.kotlinDateTime)
     implementation(libs.gson)
     implementation(libs.okHttp)
+    implementation(libs.mockServer)
     compileOnly(libs.androidGradlePlugin)
     detektPlugins(libs.detektFormating)
     detektPlugins(libs.detektRules)

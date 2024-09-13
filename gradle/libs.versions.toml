@@ -13,7 +13,7 @@ kotlin = "1.9.23"
 detekt = "1.23.4"
 junitJupiter = "5.9.3"
 androidGradlePlugin = "8.0.2"
-sampleRustorePlugin = "0.4.0-SNAPSHOT"
+sampleRustorePlugin = "0.5.0-alpha02"
 
 [libraries]
 appcompat = "androidx.appcompat:appcompat:1.6.1"
@@ -21,6 +21,7 @@ kotlinBom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref =
 kotlinDateTime = "org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"
 gson = "com.google.code.gson:gson:2.8.6"
 okHttp = "com.squareup.okhttp3:okhttp:4.12.0"
+mockServer = "com.squareup.okhttp3:mockwebserver:4.9.3"
 androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
 
 detektFormating = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
