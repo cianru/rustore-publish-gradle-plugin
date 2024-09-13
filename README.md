@@ -79,39 +79,6 @@ plugins {
 }
 ```
 
-<details>
-<summary>Snapshot builds are also available</summary>
-___
-
-You'll need to add the Sonatype snapshots repository.
-Look for the actual version of the snapshot in the name of the opened `snapshot-<VERSION>` repository branch.
-
-For general integration add next snippet in `./settings.gradle`
-
-```kotlin
-pluginManagement {
-
-  resolutionStrategy {
-    eachPlugin {
-      if(requested.id.namespace == "ru.cian") {
-        useModule("ru.cian.rustore-plugin:rustore-publish-gradle-plugin:<SNAPSHOT-VERSION>")
-      }
-    }
-  }
-
-  plugins {
-    id("ru.cian.rustore-publish-gradle-plugin") version rustorePublish apply false
-  }
-
-  repositories {
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-  }
-}
-```
-___
-
-</details>
-
 ## Using the `apply` method
 
 ```groovy
@@ -128,31 +95,6 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'ru.cian.rustore-publish-gradle-plugin'
 ```
-
-<details>
-<summary>Snapshot builds are also available</summary>
-___
-
-You'll need to add the Sonatype snapshots repository.
-Look for the actual version of the snapshot in the name of the opened `snapshot-<VERSION>` repository branch.
-
-```groovy
-buildscript {
-    repositories {
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    }
-
-    dependencies {
-        classpath "ru.cian.rustore-plugin:rustore-publish-gradle-plugin:<VERSION>-SNAPSHOT"
-    }
-}
-
-apply plugin: 'com.android.application'
-apply plugin: "ru.cian.rustore-publish-gradle-plugin"
-```
-___
-
-</details>
 
 ## Quickstart Plugin Configuration
 

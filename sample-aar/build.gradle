@@ -5,8 +5,7 @@ apply plugin: 'ru.cian.rustore-publish'
 
 buildscript {
     repositories {
-        mavenCentral()
-        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        gradlePluginPortal()
     }
 
     dependencies {
