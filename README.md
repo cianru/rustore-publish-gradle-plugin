@@ -16,7 +16,7 @@
 ![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
-The plugin use [Rustore API](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/publish_RuStore_API) to publish Android *.apk build file to the [RuStore](https://rustore.ru). 
+The plugin use [Rustore API](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/publish_RuStore_API) to publish Android build file to the [RuStore](https://rustore.ru). 
 
 :construction: _That's unofficial plugin. We made it for ourselves and are sharing it for you._
 
@@ -39,14 +39,13 @@ The plugin use [Rustore API](https://help.rustore.ru/rustore/for_developers/work
 
 The following features are available:
 
-- :white_check_mark: Publish APK build file in RuStore
+- :white_check_mark: Publish APK and AAB build file in RuStore
 - :white_check_mark: Submit the build on all users after getting store approve
 - :white_check_mark: Update Release Notes for publishing build (Release Notes)
 - :white_check_mark: Separated settings for different configurations build types and flavors
 - :white_check_mark: Support of Gradle Portal and Gradle DSL
-- :white_check_mark: Support of Gradle 8.+
 - :white_check_mark: Support of Configuration Cache
-- :white_check_mark: Support of AppBundle
+- :white_check_mark: Support of Gradle 8.+
 
 The following features are missing:
 
@@ -115,16 +114,21 @@ rustorePublish {
        * Default value: `null` (but plugin wait that you provide credentials by CLI params)
        * CLI: `--credentialsPath`
        */
-      credentialsPath = "$rootDir/rustore-credentials-release.json"
+       credentialsPath = "$rootDir/rustore-credentials-release.json"
 
-      /**
-       * 'apk' or 'aab' for corresponding build format.
-       * See https://www.rustore.ru/help/developers/publishing-and-verifying-apps/app-publication/upload-aab how to prepare project for loading of aab files.
-       * Type: String (Optional)
-       * Default value: `apk`
-       * CLI: `--buildFormat`
-       */
-      buildFormat = ru.cian.rustore.publish.BuildFormat.APK      
+       /**
+        * Build file format.
+        * See https://www.rustore.ru/help/developers/publishing-and-verifying-apps/app-publication/upload-aab how to prepare project for loading of aab files.
+        * Type: String (Optional)
+        * CLI: `--buildFormat`, available values:
+        * ----| 'apk'
+        * ----| 'aab'
+        * Gradle Extention DSL, available values:
+        * ----| ru.cian.rustore.publish.BuildFormat.APK
+        * ----| ru.cian.rustore.publish.BuildFormat.AAB
+        * Default value: `apk`
+        */
+       buildFormat = ru.cian.rustore.publish.BuildFormat.APK
     }
   }
 }
@@ -155,6 +159,7 @@ rustorePublish {
   instances {
     create("release") {
       /**
+       * (Required)
        * Path to json file with RuStore credentials params (`key_id` and `client_secret`).
        * How to get credentials see [[RU] Rustore API Getting Started](https://www.rustore.ru/help/work-with-rustore-api/api-authorization-process/).
        * Plugin credential json example:
@@ -168,25 +173,33 @@ rustorePublish {
        * CLI: `--credentialsPath`
        */
       credentialsPath = "$rootDir/rustore-credentials-release.json"
-
+        
       /**
-       * Path to build file if you would like to change default path. "null" means use standard path for "apk" and "aab" files.
-       * Type: String (Optional)
-       * Default value: `null`
-       * CLI: `--buildFile`
-       */
-      buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
-
-      /**
-       * 'apk' or 'aab' for corresponding build format.
+       * (Required)
+       * Build file format.
        * See https://www.rustore.ru/help/developers/publishing-and-verifying-apps/app-publication/upload-aab how to prepare project for loading of aab files.
        * Type: String (Optional)
+       * CLI: `--buildFormat`, available values:
+       * ----| 'apk'
+       * ----| 'aab'
+       * Gradle Extention DSL, available values:
+       * ----| ru.cian.rustore.publish.BuildFormat.APK
+       * ----| ru.cian.rustore.publish.BuildFormat.AAB
        * Default value: `apk`
-       * CLI: `--buildFormat`
        */
       buildFormat = ru.cian.rustore.publish.BuildFormat.APK
 
+       /**
+        * (Optional)
+        * Path to build file if you would like to change default path. "null" means use standard path for "apk" and "aab" files.
+        * Type: String (Optional)
+        * Default value: `null`
+        * CLI: `--buildFile`
+        */
+       buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
+
       /**
+       * (Optional)
        * The time in seconds to wait for the publication to complete. Increase it if you build is large. 
        * Type: Long (Optional)
        * Default value: `300` // (5min)
@@ -195,16 +208,22 @@ rustorePublish {
       requestTimeout = 300
       
       /**
-       * Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"].
-       * For more details see param `servicesType` in documentation " +
+       * (Optional)
+       * Type of mobile services used in application.
+       * For more details see param `servicesType` in documentation:
        * https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk/
-       * Type: ru.cian.rustore.publish.MobileServicesType (Optional)
-       * Default value: UNKNOWN
        * CLI: `--mobileServicesType`
+       * ----| 'Unknown'
+       * ----| 'HMS'
+       * Gradle Extention DSL, available values:
+       * ----| ru.cian.rustore.publish.MobileServicesType.UNKNOWN
+       * ----| ru.cian.rustore.publish.MobileServicesType.HMS
+       * Default value: `Unknown`
        */
       mobileServicesType = ru.cian.rustore.publish.MobileServicesType.UNKNOWN
 
       /**
+       * (Optional)
        * Release Notes settings. For mote info see ReleaseNote param desc.
        * Type: List<ReleaseNote> (Optional)
        * Default value: `null`
