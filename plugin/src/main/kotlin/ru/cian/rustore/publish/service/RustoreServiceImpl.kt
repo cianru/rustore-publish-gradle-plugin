@@ -61,6 +61,7 @@ internal class RustoreServiceImpl(
         token: String,
         applicationId: String,
         whatsNew: String,
+        publishType: String,
     ): Int {
         val bodyRequest = AppDraftRequest(
             whatsNew = whatsNew,
@@ -72,7 +73,8 @@ internal class RustoreServiceImpl(
             --header 'Content-Type: application/json' \
             --header 'Public-Token: $token' \
             --data-raw '{
-                "whatsNew": "$whatsNew"
+                "whatsNew": "$whatsNew",
+                "publishType:": "$publishType"
             }'            
         """.trimIndent())
 
@@ -111,6 +113,7 @@ internal class RustoreServiceImpl(
                 token = token,
                 applicationId = applicationId,
                 whatsNew = whatsNew,
+                publishType = publishType,
             )
         }
 

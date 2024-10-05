@@ -12,8 +12,8 @@
   </h1>
 </p>
 
-![Version](https://img.shields.io/badge/GradlePortal-0.5.0-green.svg)
-![Version](https://img.shields.io/badge/Gradle-8.*-pink.svg)
+[//]: # (![Version]&#40;https://img.shields.io/badge/GradlePortal-0.5.0-green.svg&#41;)
+<img src="https://img.shields.io/maven-metadata/v.svg?label=Gradle%20Plugins%20Portal&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fru%2Fcian%2Frustore-publish-gradle-plugin%2Fru.cian.rustore-publish-gradle-plugin.gradle.plugin%2Fmaven-metadata.xml" />
 [![License](https://img.shields.io/github/license/srs/gradle-node-plugin.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 The plugin use [Rustore API](https://help.rustore.ru/rustore/for_developers/work_with_RuStore_API/publish_RuStore_API) to publish Android build file to the [RuStore](https://rustore.ru). 
@@ -215,12 +215,24 @@ rustorePublish {
        * CLI: `--mobileServicesType`
        * ----| 'Unknown'
        * ----| 'HMS'
-       * Gradle Extention DSL, available values:
+       * Gradle Extension DSL, available values:
        * ----| ru.cian.rustore.publish.MobileServicesType.UNKNOWN
        * ----| ru.cian.rustore.publish.MobileServicesType.HMS
        * Default value: `Unknown`
        */
       mobileServicesType = ru.cian.rustore.publish.MobileServicesType.UNKNOWN
+
+        /**
+         * (Optional)
+         * CLI: `--publishType`
+         * ----| 'instantly' – the application will be published immediately after the review process is completed.
+         * ----| 'manual' – the application must be published manually by the developer after ther review process is completed.
+         * Gradle Extenion DSL, available values:
+         * ----| ru.cian.rustore.publish.PublishType.INSTANTLY
+         * ----| ru.cian.rustore.publish.PublishType.MANUAL
+         * Default value: `instantly`
+         */  
+      publishType = ru.cian.rustore.publish.PublishType.INSTANTLY
 
       /**
        * (Optional)

@@ -41,14 +41,6 @@ open class RustorePublishTask
 
     @get:Internal
     @set:Option(
-        option = "deployType",
-        description = "How to deploy build: 'publish' to all users or create 'draft' " +
-            "without publishing or 'upload-only' without draft creation"
-    )
-    var deployType: DeployType? = null
-
-    @get:Internal
-    @set:Option(
         option = "credentialsPath",
         description = "File path with AppGallery credentials params ('key_id' and 'client_secret')"
     )
@@ -127,6 +119,13 @@ open class RustorePublishTask
     var releaseNotes: String? = null
 
     @get:Internal
+    @set:Option(
+        option = "publishType",
+        description = "How to publish build file. Available values: ['manual', 'instantly']."
+    )
+    var publishType: PublishType? = null
+
+    @get:Internal
     @set:Option(option = "apiStub", description = "Use RestAPI stub instead of real RestAPI requests")
     var apiStub: Boolean? = false
 
@@ -149,7 +148,7 @@ open class RustorePublishTask
             )
 
         val cli = RustorePublishCli(
-            deployType = deployType,
+            publishType = publishType,
             credentialsPath = credentialsPath,
             keyId = keyId,
             clientSecret = clientSecret,
@@ -212,6 +211,7 @@ open class RustorePublishTask
             token = token,
             applicationId = config.applicationId,
             whatsNew = config.releaseNotes?.first()?.newFeatures ?: "",
+            publishType = config.publishType.name,
         )
 
         logger.v("5/6. Upload build file '${config.artifactFile}'")
