@@ -61,9 +61,11 @@ internal class RustoreServiceImpl(
         token: String,
         applicationId: String,
         whatsNew: String,
+        publishType: String,
     ): Int {
         val bodyRequest = AppDraftRequest(
             whatsNew = whatsNew,
+            publishType = publishType,
         )
 
         logger.i("""
@@ -72,7 +74,8 @@ internal class RustoreServiceImpl(
             --header 'Content-Type: application/json' \
             --header 'Public-Token: $token' \
             --data-raw '{
-                "whatsNew": "$whatsNew"
+                "whatsNew": "$whatsNew",
+                "publishType": "$publishType"
             }'            
         """.trimIndent())
 
@@ -111,10 +114,11 @@ internal class RustoreServiceImpl(
                 token = token,
                 applicationId = applicationId,
                 whatsNew = whatsNew,
+                publishType = publishType,
             )
         }
 
-        logger.v("response=$response")
+        logger.i("response=$response")
         return response.body
     }
 
@@ -180,7 +184,7 @@ internal class RustoreServiceImpl(
             headers = headers
         )
 
-        logger.v("response=$response")
+        logger.i("response=$response")
 
         check(response.code == "OK") {
             "Build file uploading is failed! " +
@@ -234,7 +238,7 @@ internal class RustoreServiceImpl(
             ),
         )
 
-        logger.v("response=$response")
+        logger.i("response=$response")
 
         return response.code == "OK"
     }

@@ -27,7 +27,7 @@ class RustorePublishExtensionConfig(
      *  var param by GradleProperty(project, String::class.java)
      */
     var credentialsPath: String? = null
-    var deployType = DeployType.PUBLISH
+    var publishType = PublishType.INSTANTLY
     var requestTimeout: Long? = null
     var mobileServicesType: MobileServicesType = MobileServicesType.UNKNOWN
     var buildFormat: BuildFormat = BuildFormat.APK
@@ -52,7 +52,7 @@ class RustorePublishExtensionConfig(
         return "RustorePublishExtensionConfig(" +
             "name='$name', " +
             "credentialsPath='$credentialsPath', " +
-            "deployType='$deployType', " +
+            "deployType='$publishType', " +
             "requestTimeout='$requestTimeout', " +
             "mobileServicesType='$mobileServicesType', " +
             "buildFormat='$buildFormat', " +
@@ -111,19 +111,19 @@ enum class MobileServicesType(val value: String) {
     UNKNOWN("Unknown"),
 }
 
-enum class DeployType {
+enum class PublishType {
     /**
-     * Deploy without draft saving and submit on users;
+     * Manual publication. After review you should publish it manually;
      */
-    UPLOAD_ONLY,
+    MANUAL,
 
     /**
-     * Deploy and save as draft without submit on users;
+     * Automatically publish on all users after reviewing store approve;
      */
-    DRAFT,
+    INSTANTLY,
 
     /**
-     * Deploy, save as draft and submit build on users;
+     * Delayed publication. You should set publishDateTime;
      */
-    PUBLISH,
+//    DELAYED, // FIXME: Implement delayed publication after adding of `publishDateTime` API param;
 }

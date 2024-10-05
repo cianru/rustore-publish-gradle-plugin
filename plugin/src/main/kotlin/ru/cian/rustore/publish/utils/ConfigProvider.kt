@@ -22,7 +22,7 @@ internal class ConfigProvider(
 
         val requestTimeout = cli.requestTimeout?.toLongOrNull() ?: extension.requestTimeout
         val mobileServicesType = cli.mobileServicesType ?: extension.mobileServicesType
-        val deployType = cli.deployType ?: extension.deployType
+        val publishType = cli.publishType ?: extension.publishType
         val artifactFormat = cli.buildFormat ?: extension.buildFormat
         val customBuildFilePath: String? = cli.buildFile ?: extension.buildFile
         val releaseTime: String? = cli.releaseTime ?: extension.releaseTime
@@ -44,7 +44,7 @@ internal class ConfigProvider(
 
         return PluginConfig(
             credentials = credentialsConfig,
-            deployType = deployType,
+            publishType = publishType,
             requestTimeout = requestTimeout,
             mobileServicesType = mobileServicesType,
             artifactFormat = actualArtifactFormat,

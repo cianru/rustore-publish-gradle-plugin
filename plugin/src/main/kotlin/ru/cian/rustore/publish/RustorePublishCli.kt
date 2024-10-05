@@ -1,7 +1,7 @@
 package ru.cian.rustore.publish
 
 internal data class RustorePublishCli(
-    val deployType: DeployType? = null,
+    val publishType: PublishType? = null,
     val credentialsPath: String? = null,
     val keyId: String? = null,
     val clientSecret: String? = null,

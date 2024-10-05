@@ -1,3 +1,21 @@
+# 0.5.1
+
+##### Add
+* [issue#15](https://github.com/cianru/rustore-publish-gradle-plugin/issues/15) Support of `publishType` param.
+```groovy
+    /**
+     * (Optional)
+     * CLI: `--publishType`
+     * ----| 'instantly' – the application will be published immediately after the review process is completed.
+     * ----| 'manual' – the application must be published manually by the developer after ther review process is completed.
+     * Gradle Extenion DSL, available values:
+     * ----| ru.cian.rustore.publish.PublishType.INSTANTLY
+     * ----| ru.cian.rustore.publish.PublishType.MANUAL
+     * Default value: `instantly`
+     */  
+  publishType = ru.cian.rustore.publish.PublishType.INSTANTLY
+```
+
 # 0.5.0
 
 ##### Add

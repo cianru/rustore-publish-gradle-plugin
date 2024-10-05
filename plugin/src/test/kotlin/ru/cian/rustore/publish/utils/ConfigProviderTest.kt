@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.Credentials
-import ru.cian.rustore.publish.DeployType
+import ru.cian.rustore.publish.PublishType
 import ru.cian.rustore.publish.RustorePublishCli
 import ru.cian.rustore.publish.PluginConfig
 import ru.cian.rustore.publish.MobileServicesType
@@ -134,7 +134,7 @@ internal class ConfigProviderTest {
 
         val expectedConfig = PluginConfig(
             credentials = Credentials("id", "secret"),
-            deployType = DeployType.PUBLISH,
+            publishType = PublishType.INSTANTLY,
             artifactFormat = BuildFormat.APK,
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
@@ -182,7 +182,7 @@ internal class ConfigProviderTest {
 
         val expectedConfig = PluginConfig(
             credentials = Credentials("id123", "secret123"),
-            deployType = DeployType.DRAFT,
+            publishType = PublishType.MANUAL,
             artifactFormat = BuildFormat.AAB,
             artifactFile = File(ARTIFACT_AAB_FILE_SECOND_PATH),
             requestTimeout = 234_567L,
@@ -197,7 +197,7 @@ internal class ConfigProviderTest {
 
         val inputExtensionConfig = extensionConfigInstance().apply {
             credentialsPath = CREDENTIALS_FILE_PATH
-            deployType = DeployType.PUBLISH
+            publishType = PublishType.INSTANTLY
             buildFormat = BuildFormat.APK
             requestTimeout = 123_456L
             buildFile = ARTIFACT_APK_FILE_PATH
@@ -207,7 +207,7 @@ internal class ConfigProviderTest {
             }
         }
         val inputCliConfig = RustorePublishCli(
-            deployType = DeployType.DRAFT,
+            publishType = PublishType.MANUAL,
             credentialsPath = CREDENTIALS_FILE_SECOND_PATH,
             keyId = "id123",
             clientSecret = "secret123",
@@ -236,7 +236,7 @@ internal class ConfigProviderTest {
 
         val expectedConfig = PluginConfig(
             credentials = Credentials("id", "secret"),
-            deployType = DeployType.PUBLISH,
+            publishType = PublishType.INSTANTLY,
             artifactFormat = BuildFormat.APK,
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
@@ -249,7 +249,7 @@ internal class ConfigProviderTest {
 
         tableOf("expectedValue", "actualValue")
             .row(
-                expectedConfig.copy(deployType = DeployType.PUBLISH),
+                expectedConfig.copy(publishType = PublishType.INSTANTLY),
                 ConfigProvider(
                     extension = extensionConfigInstance(),
                     cli = RustorePublishCli(),
@@ -259,10 +259,10 @@ internal class ConfigProviderTest {
                 )
             )
             .row(
-                expectedConfig.copy(deployType = DeployType.DRAFT),
+                expectedConfig.copy(publishType = PublishType.MANUAL),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        deployType = DeployType.DRAFT
+                        publishType = PublishType.MANUAL
                     },
                     cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
@@ -271,10 +271,10 @@ internal class ConfigProviderTest {
                 )
             )
             .row(
-                expectedConfig.copy(deployType = DeployType.UPLOAD_ONLY),
+                expectedConfig.copy(publishType = PublishType.MANUAL),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        deployType = DeployType.UPLOAD_ONLY
+                        publishType = PublishType.MANUAL
                     },
                     cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
@@ -283,13 +283,13 @@ internal class ConfigProviderTest {
                 )
             )
             .row(
-                expectedConfig.copy(deployType = DeployType.DRAFT),
+                expectedConfig.copy(publishType = PublishType.INSTANTLY),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        deployType = DeployType.DRAFT
+                        publishType = PublishType.INSTANTLY
                     },
                     cli = RustorePublishCli(
-                        deployType = null
+                        publishType = null
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -297,13 +297,13 @@ internal class ConfigProviderTest {
                 )
             )
             .row(
-                expectedConfig.copy(deployType = DeployType.UPLOAD_ONLY),
+                expectedConfig.copy(publishType = PublishType.MANUAL),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        deployType = DeployType.DRAFT
+                        publishType = PublishType.INSTANTLY
                     },
                     cli = RustorePublishCli(
-                        deployType = DeployType.UPLOAD_ONLY
+                        publishType = PublishType.MANUAL
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -334,7 +334,7 @@ internal class ConfigProviderTest {
     fun `correct config with overriding release notes`() {
         val expectedConfig = PluginConfig(
             credentials = Credentials(keyId = "id", clientSecret = "secret"),
-            deployType = DeployType.PUBLISH,
+            publishType = PublishType.INSTANTLY,
             artifactFormat = BuildFormat.APK,
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
