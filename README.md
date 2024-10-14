@@ -123,7 +123,7 @@ rustorePublish {
         * CLI: `--buildFormat`, available values:
         * ----| 'apk'
         * ----| 'aab'
-        * Gradle Extention DSL, available values:
+        * Gradle Extension DSL, available values:
         * ----| ru.cian.rustore.publish.BuildFormat.APK
         * ----| ru.cian.rustore.publish.BuildFormat.AAB
         * Default value: `apk`
@@ -182,7 +182,7 @@ rustorePublish {
        * CLI: `--buildFormat`, available values:
        * ----| 'apk'
        * ----| 'aab'
-       * Gradle Extention DSL, available values:
+       * Gradle Extension DSL, available values:
        * ----| ru.cian.rustore.publish.BuildFormat.APK
        * ----| ru.cian.rustore.publish.BuildFormat.AAB
        * Default value: `apk`
@@ -203,7 +203,7 @@ rustorePublish {
        * The time in seconds to wait for the publication to complete. Increase it if you build is large. 
        * Type: Long (Optional)
        * Default value: `300` // (5min)
-       * CLI: `--publishTimeoutMs`
+       * CLI: `--requestTimeout`
        */
       requestTimeout = 300
       
@@ -227,7 +227,7 @@ rustorePublish {
          * CLI: `--publishType`
          * ----| 'instantly' – the application will be published immediately after the review process is completed.
          * ----| 'manual' – the application must be published manually by the developer after ther review process is completed.
-         * Gradle Extenion DSL, available values:
+         * Gradle Extension DSL, available values:
          * ----| ru.cian.rustore.publish.PublishType.INSTANTLY
          * ----| ru.cian.rustore.publish.PublishType.MANUAL
          * Default value: `instantly`
@@ -282,7 +282,7 @@ rustorePublish {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
             buildFormat = "apk"
             buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
-            requestTimeout = 60
+            requestTimeout = 60 // 1min
             mobileServicesType = "Unknown"
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
@@ -346,6 +346,7 @@ CLI params are more priority than gradle configuration params.
     --credentialsPath="/sample-kotlin/rustore-credentials.json" \
     --buildFormat=apk \
     --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
+    --requestTimeout=300 \ # 5min
     --mobileServicesType="Unknown" \
     --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
 ```
