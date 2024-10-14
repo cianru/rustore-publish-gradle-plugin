@@ -4,7 +4,7 @@ import java.io.File
 
 internal data class PluginConfig(
     val credentials: Credentials,
-    val deployType: DeployType,
+    val publishType: PublishType,
     val artifactFormat: BuildFormat,
     val requestTimeout: Long?,
     val mobileServicesType: MobileServicesType,

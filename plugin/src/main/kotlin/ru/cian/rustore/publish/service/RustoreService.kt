@@ -18,6 +18,7 @@ internal interface RustoreService {
         token: String,
         applicationId: String,
         whatsNew: String,
+        publishType: String,
     ): Int
 
     @Suppress("LongParameterList")
