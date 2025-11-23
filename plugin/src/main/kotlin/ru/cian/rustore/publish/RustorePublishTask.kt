@@ -169,7 +169,7 @@ open class RustorePublishTask
             releaseTime = releaseTime,
             releasePhasePercent = releasePhasePercent,
             releaseNotes = releaseNotes,
-            seoTags = seoTags?.split(",")?.map { SeoTag.valueOf(it.trim()) }.orEmpty(),
+            seoTags = seoTags?.split(",")?.map { SeoTag.valueOf(it.trim()) },
             apiStub = apiStub,
         )
 
