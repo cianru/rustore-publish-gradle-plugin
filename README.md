@@ -129,6 +129,29 @@ rustorePublish {
         * Default value: `apk`
         */
        buildFormat = ru.cian.rustore.publish.BuildFormat.APK
+
+        /**
+         * (Required)
+         * See description in https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+         * Type: String
+         * Default value: `8`
+         * CLI: `--minAndroidVersion`
+         */
+        minAndroidVersion = "8"
+
+        /**
+         * (Required)
+         * Information about Developer.
+         * See description in https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+         * Type: ru.cian.rustore.publish.DeveloperContacts (Required)
+         * Default value: `null`
+         * CLI: (see DeveloperContacts param desc.)
+         */
+        developerContacts = ru.cian.rustore.publish.DeveloperContacts(
+            email = "mhelp@mysite.com",
+            website = "www.mysite.com",
+            vkCommunity = null,
+        )        
     }
   }
 }
@@ -143,6 +166,12 @@ rustorePublish {
         release {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
             buildFormat = "apk"
+            minAndroidVersion = "8"
+            developerContacts = new ru.cian.rustore.publish.DeveloperContacts(
+                    "mhelp@mysite.com",
+                    "www.mysite.com",
+                    null,
+            )
         }
     }
 }

@@ -1,8 +1,10 @@
 # 0.5.3
 
-### Fix
-* [issue#29](https://github.com/cianru/rustore-publish-gradle-plugin/issues/29) Fix API erros: 
+#### Fix
+[issue#29](https://github.com/cianru/rustore-publish-gradle-plugin/issues/29) Can't detect previous app versionId. Server response message must contain 'ID ='
 
+RuStore API add new required params `minAndroidVersion` and `developerContacts` (see more info by [link](https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version)).
+The absence of parameters causes errors:
 ```
 {
     "code":"ERROR",
