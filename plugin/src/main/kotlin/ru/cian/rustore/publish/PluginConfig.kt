@@ -9,11 +9,12 @@ internal data class PluginConfig(
     val requestTimeout: Long?,
     val mobileServicesType: MobileServicesType,
     val artifactFile: File,
-    val releaseTime: String?,
     val releasePhase: ReleasePhaseConfig?,
     val releaseNotes: List<ReleaseNotesConfig>?,
     val applicationId: String,
     val seoTags: List<SeoTag>,
+    val minAndroidVersion: String,
+    val developerContacts: DeveloperContactsConfig,
 )
 
 internal data class ReleasePhaseConfig(
@@ -28,4 +29,10 @@ internal data class Credentials(
 internal data class ReleaseNotesConfig(
     val lang: String,
     val newFeatures: String,
+)
+
+internal data class DeveloperContactsConfig(
+    val email: String,
+    val website: String? = null,
+    val vkCommunity: String? = null,
 )

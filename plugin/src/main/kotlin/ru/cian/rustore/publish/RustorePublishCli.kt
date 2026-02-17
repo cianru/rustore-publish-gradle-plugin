@@ -9,9 +9,9 @@ internal data class RustorePublishCli(
     val mobileServicesType: MobileServicesType? = null,
     val buildFormat: BuildFormat? = null,
     val buildFile: String? = null,
-    val releaseTime: String? = null,
     val releasePhasePercent: String? = null,
     val releaseNotes: String? = null,
     val apiStub: Boolean? = null,
     val seoTags: List<SeoTag>? = null,
+    val minAndroidVersion: String? = null,
 )
