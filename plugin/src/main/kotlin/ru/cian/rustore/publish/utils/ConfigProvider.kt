@@ -2,6 +2,7 @@ package ru.cian.rustore.publish.utils
 
 import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.Credentials
+import ru.cian.rustore.publish.DeveloperContactsConfig
 import ru.cian.rustore.publish.RustorePublishCli
 import ru.cian.rustore.publish.PluginConfig
 import ru.cian.rustore.publish.ReleaseNotesConfig
@@ -31,9 +32,10 @@ internal class ConfigProvider(
         val credentialsConfig = getCredentialsConfig()
         val releaseNotes = getReleaseNotesConfig()
         val seoTags: List<SeoTag> = cli.seoTags ?: extension.seoTags
+        val minAndroidVersion = cli.minAndroidVersion ?: extension.minAndroidVersion
+        val developerContacts = getDeveloperContactsConfig()
 
         val artifactFile = getBuildFile(customBuildFilePath, artifactFormat)
-
         val artifactFileExtension = artifactFile.extension
         val actualArtifactFormat = when (artifactFileExtension) {
             "apk" -> BuildFormat.APK
@@ -56,6 +58,8 @@ internal class ConfigProvider(
             releaseNotes = releaseNotes,
             applicationId = applicationId,
             seoTags = seoTags,
+            minAndroidVersion = minAndroidVersion,
+            developerContacts = developerContacts,
         )
     }
 
@@ -84,6 +88,18 @@ internal class ConfigProvider(
             )
         }
         return artifactFile
+    }
+
+    private fun getDeveloperContactsConfig(): DeveloperContactsConfig {
+        val developerContactsTmp = extension.developerContacts
+            ?: throw IllegalArgumentException(
+                "Extention param `developerContacts` can't be null"
+            )
+        return DeveloperContactsConfig(
+            email = developerContactsTmp.email,
+            website = developerContactsTmp.website,
+            vkCommunity = developerContactsTmp.vkCommunity
+        )
     }
 
     @Suppress("ThrowsCount")

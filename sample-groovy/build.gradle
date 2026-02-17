@@ -25,6 +25,12 @@ rustorePublish {
                 ru.cian.rustore.publish.SeoTag.LIFESTYLE,
                 ru.cian.rustore.publish.SeoTag.ROMANTIC,
             ]
+            minAndroidVersion = "8"
+            developerContacts = new ru.cian.rustore.publish.DeveloperContacts(
+                "mhelp@mysite.com",
+                "www.mysite.com",
+                null,
+            )
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
                     "ru-RU",

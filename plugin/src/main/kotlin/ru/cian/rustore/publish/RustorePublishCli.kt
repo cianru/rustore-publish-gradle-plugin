@@ -14,4 +14,5 @@ internal data class RustorePublishCli(
     val releaseNotes: String? = null,
     val apiStub: Boolean? = null,
     val seoTags: List<SeoTag>? = null,
+    val minAndroidVersion: String? = null,
 )

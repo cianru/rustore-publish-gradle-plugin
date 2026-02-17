@@ -4,8 +4,10 @@ import com.google.gson.Gson
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import ru.cian.rustore.publish.DeveloperContactsConfig
 import ru.cian.rustore.publish.models.request.AccessTokenRustoreRequest
 import ru.cian.rustore.publish.models.request.AppDraftRequest
+import ru.cian.rustore.publish.models.request.DeveloperContactsRequestModel
 import ru.cian.rustore.publish.models.response.AccessTokenResponse
 import ru.cian.rustore.publish.models.response.AppDraftResponse
 import ru.cian.rustore.publish.models.response.DeleteAppDraftResponse
@@ -72,11 +74,20 @@ internal class RustoreServiceImpl(
         whatsNew: String,
         publishType: String,
         seoTags: List<Int>,
+        minAndroidVersion: String,
+        developerContacts: DeveloperContactsConfig,
     ): Int {
+        val developerContactsRequest = DeveloperContactsRequestModel(
+            email = developerContacts.email,
+            website = developerContacts.website,
+            vkCommunity = developerContacts.vkCommunity
+        )
         val bodyRequest = AppDraftRequest(
             whatsNew = whatsNew,
             publishType = publishType,
-            seoTags = seoTags
+            seoTags = seoTags,
+            minAndroidVersion = minAndroidVersion,
+            developerContacts = developerContactsRequest
         )
 
         logger.i("""
@@ -87,7 +98,9 @@ internal class RustoreServiceImpl(
             --data-raw '{
                 "whatsNew": "$whatsNew",
                 "publishType": "$publishType",
-                "seoTags": [${seoTags.joinToString()}]
+                "seoTags": [${seoTags.joinToString()}],
+                "minAndroidVersion": "$minAndroidVersion",
+                "developerContacts": "${gson.toJson(developerContactsRequest)}"
             }'            
         """.trimIndent())
 
@@ -107,7 +120,7 @@ internal class RustoreServiceImpl(
 
             check(indexOf > 0) {
                 "Can't detect previous app versionId. " +
-                    "Server response message must contain '$searchString'"
+                    "Server response message must contain '$searchString'. Raw response: '$response'"
             }
 
             val previousAppId = response.message.substring(indexOf + searchString.length + 1)
@@ -127,7 +140,9 @@ internal class RustoreServiceImpl(
                 applicationId = applicationId,
                 whatsNew = whatsNew,
                 publishType = publishType,
-                seoTags = seoTags
+                seoTags = seoTags,
+                minAndroidVersion = minAndroidVersion,
+                developerContacts = developerContacts,
             )
         }
 

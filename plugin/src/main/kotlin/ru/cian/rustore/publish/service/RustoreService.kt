@@ -1,5 +1,6 @@
 package ru.cian.rustore.publish.service
 
+import ru.cian.rustore.publish.DeveloperContactsConfig
 import java.io.File
 
 /**
@@ -20,7 +21,9 @@ internal interface RustoreService {
         applicationId: String,
         whatsNew: String,
         publishType: String,
-        seoTags: List<Int>
+        seoTags: List<Int>,
+        minAndroidVersion: String,
+        developerContacts: DeveloperContactsConfig,
     ): Int
 
     @Suppress("LongParameterList")

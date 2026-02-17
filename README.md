@@ -249,6 +249,29 @@ rustorePublish {
          */  
       publishType = ru.cian.rustore.publish.PublishType.INSTANTLY
 
+        /**
+         * (Required)
+         * See description in https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+         * Type: String
+         * Default value: `8`
+         * CLI: `--minAndroidVersion`
+         */
+        minAndroidVersion = "8"
+
+        /**
+         * (Required)
+         * Information about Developer.
+         * See description in https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+         * Type: ru.cian.rustore.publish.DeveloperContacts (Required)
+         * Default value: `null`
+         * CLI: (see DeveloperContacts param desc.)
+         */
+        developerContacts = ru.cian.rustore.publish.DeveloperContacts(
+            email = "mhelp@mysite.com",
+            website = "www.mysite.com",
+            vkCommunity = null,
+        )
+        
       /**
        * (Optional)
        * Release Notes settings. For mote info see ReleaseNote param desc.
@@ -368,6 +391,7 @@ CLI params are more priority than gradle configuration params.
     --requestTimeout=300 \ # 5min
     --seoTags=LIFESTYLE,ROMANTIC \
     --mobileServicesType="Unknown" \
+    --minAndroidVersion="8" \
     --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
 ```
 

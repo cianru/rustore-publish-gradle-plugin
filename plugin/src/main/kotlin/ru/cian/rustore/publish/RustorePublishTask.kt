@@ -135,6 +135,17 @@ open class RustorePublishTask
     )
     var seoTags: String? = null
 
+    @SuppressWarnings("MaxLineLength")
+    @get:Internal
+    @set:Option(
+        option = "minAndroidVersion",
+        description = "Minimum Android version.\n" +
+            "A numeric field from 1 to the maximum available Android version. " +
+            "At the time of writing, this is version 16." +
+            "Actual available values see on https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version"
+    )
+    var minAndroidVersion: String? = null
+
     @get:Internal
     @set:Option(option = "apiStub", description = "Use RestAPI stub instead of real RestAPI requests")
     var apiStub: Boolean? = false
@@ -171,6 +182,7 @@ open class RustorePublishTask
             releaseNotes = releaseNotes,
             seoTags = seoTags?.split(",")?.map { SeoTag.valueOf(it.trim()) },
             apiStub = apiStub,
+            minAndroidVersion = minAndroidVersion,
         )
 
         logger.i("extension=$extension")
@@ -223,7 +235,9 @@ open class RustorePublishTask
             applicationId = config.applicationId,
             whatsNew = config.releaseNotes?.first()?.newFeatures ?: "",
             publishType = config.publishType.name,
-            seoTags = config.seoTags.take(5).map { it.id }
+            seoTags = config.seoTags.take(5).map { it.id },
+            minAndroidVersion = config.minAndroidVersion,
+            developerContacts = config.developerContacts,
         )
 
         logger.v("5/6. Upload build file '${config.artifactFile}'")

@@ -112,9 +112,38 @@ class RustorePublishExtensionConfig(
      */
     var releaseNotes: List<ReleaseNote>? = null
 
-    var releaseTime: String? = null
+    var releaseTime: String? = null // TODO delete
     var releasePhase: ReleasePhaseExtension? = null
+
+    /**
+     * (Optional)
+     * List of available SEO tags for RuStore app listing.
+     * For more details see documentation: https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/app-tag-list
+     * Number of tags should not be greater than 5.
+     * Default value: []
+     * CLI: `--seoTags`. For example: `--seoTags=LIFESTYLE,ROMANTIC`
+     * Gradle Extension DSL, available values from ru.cian.rustore.publish.SeoTag
+     */
     var seoTags: List<SeoTag> = emptyList()
+
+    /**
+     * (Required)
+     * See description in https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+     * Type: String
+     * Default value: `null` (but plugin wait that you provide credentials by CLI params)
+     * CLI: `--minAndroidVersion`
+     */
+    var minAndroidVersion: String = "8"
+
+    /**
+     * (Required)
+     * Information about Developer.
+     * See description in https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+     * Type: ru.cian.rustore.publish.DeveloperContacts (Required)
+     * Default value: `null`
+     * CLI: (see DeveloperContacts param desc.)
+     */
+    var developerContacts: DeveloperContacts? = null
 
     init {
         require(name.isNotBlank()) {
@@ -140,7 +169,9 @@ class RustorePublishExtensionConfig(
             "buildFile='$buildFile', " +
             "releaseTime='$releaseTime', " +
             "releasePhase='$releasePhase', " +
-            "releaseNotes='$releaseNotes'" +
+            "releaseNotes='$releaseNotes', " +
+            "minAndroidVersion='$minAndroidVersion', " +
+            "developerContacts='$developerContacts'" +
             ")"
     }
 }
@@ -178,6 +209,29 @@ open class ReleaseNote {
         return "ReleaseNote(" +
             "lang='$lang', " +
             "filePath='$filePath'" +
+            ")"
+    }
+}
+
+open class DeveloperContacts {
+
+    lateinit var email: String
+    var website: String? = null
+    var vkCommunity: String? = null
+
+    constructor()
+
+    constructor(email: String, website: String?, vkCommunity: String?) {
+        this.email = email
+        this.website = website
+        this.vkCommunity = vkCommunity
+    }
+
+    override fun toString(): String {
+        return "DeveloperContacts(" +
+            "email='$email', " +
+            "website='$website', " +
+            "vkCommunity='$vkCommunity'" +
             ")"
     }
 }

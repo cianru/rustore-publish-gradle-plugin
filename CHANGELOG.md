@@ -1,3 +1,26 @@
+# 0.5.3
+
+### Fix
+* [issue#29](https://github.com/cianru/rustore-publish-gradle-plugin/issues/29) Fix API erros: 
+
+```
+{
+    "code":"ERROR",
+    "message":"Minimal android version is not filled in",
+    "body":null,
+    "timestamp":"2026-02-08T22:34:43.728Z"
+}
+```
+```
+{
+    "code":"ERROR",
+    "message":"Developer contacts are not filled in",
+    "body":null,
+    "timestamp":"2026-02-08T23:29:03.035Z"
+}
+```
+
+
 # 0.5.2
 
 ##### Add
