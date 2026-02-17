@@ -8,7 +8,7 @@ internal data class AccessTokenResponse(
     @SerializedName("message")
     val message: String,
     @SerializedName("body")
-    val body: AccessTokenRustoreBodyResponse
+    val body: AccessTokenRustoreBodyResponse?,
 ) {
     internal data class AccessTokenRustoreBodyResponse(
         @SerializedName("jwe")

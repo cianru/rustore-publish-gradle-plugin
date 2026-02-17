@@ -54,7 +54,16 @@ internal class RustoreServiceImpl(
                 "Content-Type" to "application/json",
             ),
         )
-        return response.body.jwe
+        logger.i("Response=$response")
+        return when {
+            response.code != "OK" -> throw IllegalStateException(
+                "Server response code is not OK! Response=$response"
+            )
+            response.body == null -> throw IllegalStateException(
+                "Got unexpected server response, body is empty! Response=$response"
+            )
+            else -> response.body.jwe
+        }
     }
 
     override fun createDraft(
