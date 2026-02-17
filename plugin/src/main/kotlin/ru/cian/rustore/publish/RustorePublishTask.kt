@@ -17,7 +17,6 @@ import ru.cian.rustore.publish.utils.ConfigProvider
 import ru.cian.rustore.publish.utils.DATETIME_FORMAT_ISO8601
 import ru.cian.rustore.publish.utils.FileWrapper
 import ru.cian.rustore.publish.utils.Logger
-import ru.cian.rustore.publish.utils.RELEASE_DATE_TIME_FORMAT
 import ru.cian.rustore.publish.utils.signature.MockSignatureTools
 import ru.cian.rustore.publish.utils.signature.SignatureTools
 import ru.cian.rustore.publish.utils.signature.SignatureToolsImpl
@@ -98,13 +97,6 @@ open class RustorePublishTask
 
     @get:Internal
     @set:Option(
-        option = "releaseTime",
-        description = "Release time in UTC format. The format is $RELEASE_DATE_TIME_FORMAT."
-    )
-    var releaseTime: String? = null
-
-    @get:Internal
-    @set:Option(
         option = "releasePhasePercent",
         description = "Percentage of target users of release by phase. The integer or decimal value from 0 to 100."
     )
@@ -177,7 +169,6 @@ open class RustorePublishTask
             mobileServicesType = mobileServicesType,
             buildFormat = buildFormat,
             buildFile = buildFile,
-            releaseTime = releaseTime,
             releasePhasePercent = releasePhasePercent,
             releaseNotes = releaseNotes,
             seoTags = seoTags?.split(",")?.map { SeoTag.valueOf(it.trim()) },

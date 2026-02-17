@@ -112,7 +112,6 @@ class RustorePublishExtensionConfig(
      */
     var releaseNotes: List<ReleaseNote>? = null
 
-    var releaseTime: String? = null // TODO delete
     var releasePhase: ReleasePhaseExtension? = null
 
     /**
@@ -167,7 +166,6 @@ class RustorePublishExtensionConfig(
             "seoTags='$seoTags', " +
             "buildFormat='$buildFormat', " +
             "buildFile='$buildFile', " +
-            "releaseTime='$releaseTime', " +
             "releasePhase='$releasePhase', " +
             "releaseNotes='$releaseNotes', " +
             "minAndroidVersion='$minAndroidVersion', " +

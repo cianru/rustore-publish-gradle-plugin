@@ -9,7 +9,6 @@ internal data class PluginConfig(
     val requestTimeout: Long?,
     val mobileServicesType: MobileServicesType,
     val artifactFile: File,
-    val releaseTime: String?,
     val releasePhase: ReleasePhaseConfig?,
     val releaseNotes: List<ReleaseNotesConfig>?,
     val applicationId: String,

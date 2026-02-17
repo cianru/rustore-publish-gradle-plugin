@@ -27,7 +27,6 @@ internal class ConfigProvider(
         val publishType = cli.publishType ?: extension.publishType
         val artifactFormat = cli.buildFormat ?: extension.buildFormat
         val customBuildFilePath: String? = cli.buildFile ?: extension.buildFile
-        val releaseTime: String? = cli.releaseTime ?: extension.releaseTime
         val releasePhase = getReleasePhaseConfig()
         val credentialsConfig = getCredentialsConfig()
         val releaseNotes = getReleaseNotesConfig()
@@ -53,7 +52,6 @@ internal class ConfigProvider(
             mobileServicesType = mobileServicesType,
             artifactFormat = actualArtifactFormat,
             artifactFile = artifactFile,
-            releaseTime = releaseTime,
             releasePhase = releasePhase,
             releaseNotes = releaseNotes,
             applicationId = applicationId,
