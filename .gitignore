@@ -8,6 +8,15 @@
 build
 bin
 gen
+#------------------------------------------
+# AI Agents
+#------------------------------------------
+.codex
+.claude
+.qwen
+.gimini
+AGENTS.md
+PROMT.md
 
 #------------------------------------------
 # Gradle generated files
