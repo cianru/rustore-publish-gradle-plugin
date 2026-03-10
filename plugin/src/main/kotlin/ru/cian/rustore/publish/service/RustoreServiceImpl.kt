@@ -13,18 +13,18 @@ import ru.cian.rustore.publish.models.response.AppDraftResponse
 import ru.cian.rustore.publish.models.response.DeleteAppDraftResponse
 import ru.cian.rustore.publish.models.response.SubmitPublicationResponse
 import ru.cian.rustore.publish.models.response.UploadAppFileResponse
-import ru.cian.rustore.publish.utils.Logger
+import ru.cian.rustore.publish.utils.RustoreLogger
 import java.io.File
 
 @SuppressWarnings("StringLiteralDuplication", "TooManyFunctions")
 internal class RustoreServiceImpl(
-    private val logger: Logger,
+    private val rustoreLogger: RustoreLogger,
     private val baseEntryPoint: String,
     private val requestTimeout: Long?,
 ) : RustoreService {
 
     private val gson = Gson()
-    private val httpClient = HttpClientHelper(logger, requestTimeout)
+    private val httpClient = HttpClientHelper(rustoreLogger, requestTimeout)
 
     override fun getToken(
         keyId: String,
@@ -38,7 +38,7 @@ internal class RustoreServiceImpl(
             signature = signature,
         )
 
-        logger.i("""
+        rustoreLogger.i("""
             curl --location --request POST \
             $baseEntryPoint/public/auth/ \
             --header 'Content-Type: application/json' \
@@ -56,7 +56,7 @@ internal class RustoreServiceImpl(
                 "Content-Type" to "application/json",
             ),
         )
-        logger.i("Response=$response")
+        rustoreLogger.i("Response=$response")
         return when {
             response.code != "OK" -> throw IllegalStateException(
                 "Server response code is not OK! Response=$response"
@@ -90,7 +90,7 @@ internal class RustoreServiceImpl(
             developerContacts = developerContactsRequest
         )
 
-        logger.i("""
+        rustoreLogger.i("""
             curl --location --request POST \
             $baseEntryPoint/public/v1/application/$applicationId/version \
             --header 'Content-Type: application/json' \
@@ -124,7 +124,7 @@ internal class RustoreServiceImpl(
             }
 
             val previousAppId = response.message.substring(indexOf + searchString.length + 1)
-            logger.v("previousAppId='$previousAppId'")
+            rustoreLogger.v("previousAppId='$previousAppId'")
             val deletePreviousVersionIdResult = deletePreviousDraft(
                 token = token,
                 packageName = applicationId,
@@ -146,7 +146,7 @@ internal class RustoreServiceImpl(
             )
         }
 
-        logger.i("response=$response")
+        rustoreLogger.i("response=$response")
         return response.body
     }
 
@@ -178,7 +178,7 @@ internal class RustoreServiceImpl(
                     .addFormDataPart("servicesType", mobileServicesType)
                     .addFormDataPart("isMainApk", "true")
 
-                logger.i(
+                rustoreLogger.i(
                     """
                     curl --location --request POST \
                     --header 'Content-Type: application/json' \
@@ -191,7 +191,7 @@ internal class RustoreServiceImpl(
                 )
             }
             RustoreBuildFormat.AAB -> {
-                logger.i(
+                rustoreLogger.i(
                     """
                     curl --location --request POST \
                     --header 'Content-Type: application/json' \
@@ -212,7 +212,7 @@ internal class RustoreServiceImpl(
             headers = headers
         )
 
-        logger.i("response=$response")
+        rustoreLogger.i("response=$response")
 
         check(response.code == "OK") {
             "Build file uploading is failed! " +
@@ -228,7 +228,7 @@ internal class RustoreServiceImpl(
         versionId: Int,
         priorityUpdate: Int
     ): Boolean {
-        logger.i("""
+        rustoreLogger.i("""
             curl --location --request POST \
             $baseEntryPoint/public/v1/application/$applicationId/version/$versionId/commit?priorityUpdate=$priorityUpdate \
             --header 'Content-Type: application/json'
@@ -251,7 +251,7 @@ internal class RustoreServiceImpl(
         previousAppId: String,
     ): Boolean {
 
-        logger.i("""
+        rustoreLogger.i("""
             curl --location --request DELETE $baseEntryPoint/public/v1/application/$packageName/version/$previousAppId \
             --header 'Content-Type: application/json' \
             --header 'Public-Token: $token'            
@@ -266,7 +266,7 @@ internal class RustoreServiceImpl(
             ),
         )
 
-        logger.i("response=$response")
+        rustoreLogger.i("response=$response")
 
         return response.code == "OK"
     }

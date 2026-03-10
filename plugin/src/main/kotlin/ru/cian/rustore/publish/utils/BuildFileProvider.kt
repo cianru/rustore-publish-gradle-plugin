@@ -1,35 +1,41 @@
 package ru.cian.rustore.publish.utils
 
-import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.variant.ApplicationVariant
 import ru.cian.rustore.publish.BuildFormat
 import java.io.File
 
-internal class BuildFileProvider(
-    private val variant: ApplicationVariant,
-    private val logger: Logger,
-) {
+internal interface BuildFileResolver {
+    fun getBuildFile(buildFormat: BuildFormat): File?
+}
 
-    fun getBuildFile(buildFormat: BuildFormat): File? {
+internal class BuildFileProvider(
+    private val rustoreLogger: RustoreLogger,
+    private val apkDirectory: File?,
+    private val bundleFile: File?,
+) : BuildFileResolver {
+
+    override fun getBuildFile(buildFormat: BuildFormat): File? {
         return when (buildFormat) {
-            BuildFormat.APK -> getFinalApkArtifactCompat(variant).singleOrNull()
-            BuildFormat.AAB -> getFinalBundleArtifactCompat(variant).singleOrNull()
+            BuildFormat.APK -> findApk()
+            BuildFormat.AAB -> bundleFile?.takeIf { it.exists() }
         }
     }
 
-    // FIXME(a.mirko): Remove after https://github.com/gradle/gradle/issues/16777
-    // FIXME(a.mirko): Remove after https://github.com/gradle/gradle/issues/16775
-    private fun getFinalApkArtifactCompat(variant: ApplicationVariant): List<File> {
-        val apkDirectory = variant.artifacts.get(SingleArtifact.APK).get()
-        logger.v("Build File Directory: $apkDirectory")
-        return variant.artifacts.getBuiltArtifactsLoader().load(apkDirectory)
-            ?.elements?.map { element -> File(element.outputFile) }
-            ?: apkDirectory.asFileTree.matching { include("*.apk") }.map { it.absolutePath }.map { File(it) }
-            ?: emptyList()
-    }
+    private fun findApk(): File? {
+        val directory = apkDirectory ?: return null
+        if (!directory.exists()) return null
 
-    private fun getFinalBundleArtifactCompat(variant: ApplicationVariant): List<File> {
-        val aabFile = variant.artifacts.get(SingleArtifact.BUNDLE).get().asFile
-        return listOf(aabFile)
+        rustoreLogger.v("Build File Directory: $directory")
+
+        val apkFiles = directory
+            .walkTopDown()
+            .filter { it.isFile && it.extension.equals("apk", ignoreCase = true) }
+            .sortedBy { it.name }
+            .toList()
+
+        if (apkFiles.size > 1) {
+            rustoreLogger.v("Multiple APK files found, selecting first: ${apkFiles.first().name}")
+        }
+
+        return apkFiles.firstOrNull()
     }
 }

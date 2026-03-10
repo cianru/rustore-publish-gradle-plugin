@@ -4,14 +4,14 @@ import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import ru.cian.rustore.publish.utils.Logger
+import ru.cian.rustore.publish.utils.RustoreLogger
 import java.util.concurrent.TimeUnit
 
 private const val DELAY_REQUEST_BODY_SECONDS = 2L
 
 @SuppressWarnings("MaxLineLength", "MagicNumber")
 class MockServerWrapperImpl(
-    val logger: Logger,
+    val rustoreLogger: RustoreLogger,
     val applicationId: String,
     val requestFormArgument: String,
 ): MockServerWrapper {
@@ -23,7 +23,7 @@ class MockServerWrapperImpl(
     }
 
     override fun start() {
-        logger.v(":: start mock server")
+        rustoreLogger.v(":: start mock server")
         val versionId = 123456789
         val priorityUpdate = 5
 
@@ -79,7 +79,7 @@ class MockServerWrapperImpl(
     }
 
     override fun shutdown() {
-        logger.v(":: shutdown mock server")
+        rustoreLogger.v(":: shutdown mock server")
         mockWebServer.shutdown()
     }
 }

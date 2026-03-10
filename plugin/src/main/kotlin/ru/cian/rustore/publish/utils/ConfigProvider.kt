@@ -3,19 +3,20 @@ package ru.cian.rustore.publish.utils
 import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.Credentials
 import ru.cian.rustore.publish.DeveloperContactsConfig
+import ru.cian.rustore.publish.ExtensionConfigSnapshot
+import ru.cian.rustore.publish.ReleaseNotePath
 import ru.cian.rustore.publish.RustorePublishCli
 import ru.cian.rustore.publish.PluginConfig
 import ru.cian.rustore.publish.ReleaseNotesConfig
 import ru.cian.rustore.publish.ReleasePhaseConfig
-import ru.cian.rustore.publish.RustorePublishExtensionConfig
 import ru.cian.rustore.publish.SeoTag
 import java.io.File
 import java.io.FileNotFoundException
 
 internal class ConfigProvider(
-    private val extension: RustorePublishExtensionConfig,
+    private val extension: ExtensionConfigSnapshot,
     private val cli: RustorePublishCli,
-    private val buildFileProvider: BuildFileProvider,
+    private val buildFileProvider: BuildFileResolver,
     private val releaseNotesFileProvider: FileWrapper,
     private val applicationId: String,
 ) {
@@ -91,7 +92,7 @@ internal class ConfigProvider(
     private fun getDeveloperContactsConfig(): DeveloperContactsConfig {
         val developerContactsTmp = extension.developerContacts
             ?: throw IllegalArgumentException(
-                "Extention param `developerContacts` can't be null"
+                "Extension param `developerContacts` can't be null"
             )
         return DeveloperContactsConfig(
             email = developerContactsTmp.email,
@@ -138,7 +139,7 @@ internal class ConfigProvider(
 
     @Suppress("ThrowsCount")
     private fun getReleasePhaseConfig(): ReleasePhaseConfig? {
-        val releasePhasePercent = cli.releasePhasePercent?.toDouble() ?: extension.releasePhase?.percent
+        val releasePhasePercent = cli.releasePhasePercent?.toDouble() ?: extension.releasePhasePercent
 
         if (releasePhasePercent != null) {
             val releasePhase = ReleasePhaseConfig(
@@ -164,19 +165,17 @@ internal class ConfigProvider(
 
         val releaseNotePairs = cli.releaseNotes?.split(";")?.map {
             val split = it.split(":")
-            split[0] to split[1]
-        } ?: extension.releaseNotes?.map {
-            it.lang to it.filePath
-        }
+            ReleaseNotePath(split[0], split[1])
+        } ?: extension.releaseNotePairs
 
         return releaseNotePairs?.map {
 
-            val lang = it.first
+            val lang = it.lang
             require(lang.isNotBlank()) {
                 "'lang' param must not be empty."
             }
 
-            val filePath = it.second
+            val filePath = it.path
             val file = releaseNotesFileProvider.getFile(filePath)
             require(file.exists()) {
                 "File '$filePath' with Release Notes for '$lang' language is not exist."

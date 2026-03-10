@@ -1,9 +1,16 @@
 package ru.cian.rustore.publish
 
-import com.android.build.api.variant.ApplicationVariant
 import org.gradle.api.DefaultTask
 import org.gradle.api.publish.plugins.PublishingPlugin
-import org.gradle.api.tasks.Internal
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
@@ -16,7 +23,7 @@ import ru.cian.rustore.publish.utils.BuildFileProvider
 import ru.cian.rustore.publish.utils.ConfigProvider
 import ru.cian.rustore.publish.utils.DATETIME_FORMAT_ISO8601
 import ru.cian.rustore.publish.utils.FileWrapper
-import ru.cian.rustore.publish.utils.Logger
+import ru.cian.rustore.publish.utils.RustoreLogger
 import ru.cian.rustore.publish.utils.signature.MockSignatureTools
 import ru.cian.rustore.publish.utils.signature.SignatureTools
 import ru.cian.rustore.publish.utils.signature.SignatureToolsImpl
@@ -25,27 +32,39 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @DisableCachingByDefault
-open class RustorePublishTask
-@Inject constructor(
-    private val variant: ApplicationVariant
-) : DefaultTask() {
+abstract class RustorePublishTask @Inject constructor() : DefaultTask() {
 
     init {
         group = PublishingPlugin.PUBLISH_TASK_GROUP
-        description = "Upload and publish application build file " +
-            "to RuStore for ${variant.name} buildType"
+        description = "Upload and publish application build file to RuStore"
     }
 
-    private val logger by lazy { Logger(project) }
+    @get:Input
+    abstract val applicationId: Property<String>
 
-    @get:Internal
+    @get:Input
+    abstract val variantName: Property<String>
+
+    @get:InputDirectory
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val apkDirectory: DirectoryProperty
+
+    @get:InputFile
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val bundleFile: RegularFileProperty
+
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "credentialsPath",
         description = "File path with AppGallery credentials params ('key_id' and 'client_secret')"
     )
     var credentialsPath: String? = null
 
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "keyId",
         description = "'keyId' param from AppGallery credentials. " +
@@ -53,7 +72,8 @@ open class RustorePublishTask
     )
     var keyId: String? = null
 
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "clientSecret",
         description = "'client_secret' param from AppGallery credentials. " +
@@ -61,7 +81,8 @@ open class RustorePublishTask
     )
     var clientSecret: String? = null
 
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "buildFormat",
         description = "'apk' or 'aab' for corresponding build format. " +
@@ -70,7 +91,8 @@ open class RustorePublishTask
     )
     var buildFormat: BuildFormat? = null
 
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "requestTimeout",
         description = "The time in seconds to wait for the publication to complete. " +
@@ -79,7 +101,8 @@ open class RustorePublishTask
     var requestTimeout: String? = null
 
     @Suppress("MaxLineLength")
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "mobileServicesType",
         description = "Type of mobile services used in application. Available values: [\"Unknown\", \"HMS\"]. " +
@@ -88,14 +111,16 @@ open class RustorePublishTask
     )
     var mobileServicesType: MobileServicesType? = null
 
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "buildFile",
         description = "Path to build file. 'null' means use standard path for 'apk' and 'aab' files."
     )
     var buildFile: String? = null
 
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "releasePhasePercent",
         description = "Percentage of target users of release by phase. The integer or decimal value from 0 to 100."
@@ -103,14 +128,16 @@ open class RustorePublishTask
     var releasePhasePercent: String? = null
 
     @SuppressWarnings("MaxLineLength")
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "releaseNotes",
         description = "Release Notes. Format: 'ru-RU:<releaseNotes_FilePath_1>'. "
     )
     var releaseNotes: String? = null
 
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "publishType",
         description = "How to publish build file. Available values: ['manual', 'instantly']."
@@ -118,7 +145,8 @@ open class RustorePublishTask
     var publishType: PublishType? = null
 
     @SuppressWarnings("MaxLineLength")
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "seoTags",
         description = "List of release SEO tags from ru.cian.rustore.publish.SeoTag. " +
@@ -128,7 +156,8 @@ open class RustorePublishTask
     var seoTags: String? = null
 
     @SuppressWarnings("MaxLineLength")
-    @get:Internal
+    @get:Input
+    @get:Optional
     @set:Option(
         option = "minAndroidVersion",
         description = "Minimum Android version.\n" +
@@ -138,26 +167,24 @@ open class RustorePublishTask
     )
     var minAndroidVersion: String? = null
 
-    @get:Internal
+    @get:Input
     @set:Option(option = "apiStub", description = "Use RestAPI stub instead of real RestAPI requests")
     var apiStub: Boolean? = false
+
+    /**
+     * Snapshot of extension config set at configuration time (configuration-cache safe).
+     */
+    @get:Input
+    var extensionConfig: ExtensionConfigSnapshot? = null
 
     @Suppress("LongMethod")
     @TaskAction
     fun action() {
-
-        val rustorePublishExtension = project.extensions
-            .findByName(RustorePublishExtension.MAIN_EXTENSION_NAME) as? RustorePublishExtension
-            ?: throw IllegalArgumentException(
-                "Plugin extension '${RustorePublishExtension.MAIN_EXTENSION_NAME}' " +
-                    "is not available at build.gradle of the application module"
-            )
-
-        val buildTypeName = variant.name
-        val extension = rustorePublishExtension.instances.find { it.name.equals(buildTypeName, ignoreCase = true) }
-            ?: throw IllegalArgumentException(
-                "Plugin extension '${RustorePublishExtension.MAIN_EXTENSION_NAME}' " +
-                    "instance with name '$buildTypeName' is not available"
+        val publishLogger = RustoreLogger(logger)
+        val extension = extensionConfig
+            ?: throw IllegalStateException(
+                "Plugin extension config was not set. Ensure '${RustorePublishExtension.MAIN_EXTENSION_NAME}' " +
+                    "is configured in build.gradle of the application module."
             )
 
         val cli = RustorePublishCli(
@@ -176,43 +203,47 @@ open class RustorePublishTask
             minAndroidVersion = minAndroidVersion,
         )
 
-        logger.i("extension=$extension")
-        logger.i("cli=$cli")
+        publishLogger.i("extension=$extension")
+        publishLogger.i("cli=$cli")
 
-        logger.v("1/6. Prepare input config")
-        val buildFileProvider = BuildFileProvider(variant = variant, logger = logger)
+        publishLogger.v("1/6. Prepare input config")
+        val buildFileProvider = BuildFileProvider(
+            rustoreLogger = publishLogger,
+            apkDirectory = apkDirectory.orNull?.asFile,
+            bundleFile = bundleFile.orNull?.asFile,
+        )
         val config = ConfigProvider(
             extension = extension,
             cli = cli,
             buildFileProvider = buildFileProvider,
             releaseNotesFileProvider = FileWrapper(),
-            applicationId = variant.applicationId.get(),
+            applicationId = applicationId.get(),
         ).getConfig()
-        logger.i("config=$config")
+        publishLogger.i("config=$config")
 
         val artifactFormat = when (config.artifactFormat) {
             BuildFormat.APK -> RustoreBuildFormat.APK
             BuildFormat.AAB -> RustoreBuildFormat.AAB
         }
-        val mockServerWrapper = getMockServerWrapper(config, artifactFormat)
+        val mockServerWrapper = getMockServerWrapper(config, artifactFormat, publishLogger)
         mockServerWrapper.start()
 
         val rustoreService = RustoreServiceImpl(
-            logger = logger,
+            rustoreLogger = publishLogger,
             baseEntryPoint = mockServerWrapper.getBaseUrl(),
             requestTimeout = config.requestTimeout,
         )
 
-        logger.v("Found build file: `${config.artifactFile.name}`")
+        publishLogger.v("Found build file: `${config.artifactFile.name}`")
 
-        logger.v("2/6. Create signature")
+        publishLogger.v("2/6. Create signature")
         val datetimeFormatPattern = DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601)
         val timestamp = ZonedDateTime.now().format(datetimeFormatPattern)
         val salt = "${config.credentials.keyId}$timestamp"
         val signatureTools: SignatureTools = if (apiStub != true) SignatureToolsImpl() else MockSignatureTools()
         val signature = signatureTools.signData(salt, config.credentials.clientSecret)
 
-        logger.v("3/6. Get Access Token")
+        publishLogger.v("3/6. Get Access Token")
 
         val token = rustoreService.getToken(
             keyId = config.credentials.keyId,
@@ -220,7 +251,7 @@ open class RustorePublishTask
             signature = signature,
         )
 
-        logger.v("4/6. Create App Draft")
+        publishLogger.v("4/6. Create App Draft")
         val appVersionId = rustoreService.createDraft(
             token = token,
             applicationId = config.applicationId,
@@ -231,7 +262,7 @@ open class RustorePublishTask
             developerContacts = config.developerContacts,
         )
 
-        logger.v("5/6. Upload build file '${config.artifactFile}'")
+        publishLogger.v("5/6. Upload build file '${config.artifactFile}'")
         rustoreService.uploadApkBuildFile(
             token = token,
             applicationId = config.applicationId,
@@ -241,7 +272,7 @@ open class RustorePublishTask
             buildFile = config.artifactFile
         )
 
-        logger.v("6/6. Submit publication")
+        publishLogger.v("6/6. Submit publication")
         val summitResult = rustoreService.submit(
             token = token,
             applicationId = config.applicationId,
@@ -250,9 +281,9 @@ open class RustorePublishTask
         )
 
         if (summitResult) {
-            logger.v("Upload and submit build file - Successfully Done!")
+            publishLogger.v("Upload and submit build file - Successfully Done!")
         } else {
-            logger.v("Upload and submit build file - Failed!")
+            publishLogger.v("Upload and submit build file - Failed!")
         }
 
         mockServerWrapper.shutdown()
@@ -260,11 +291,12 @@ open class RustorePublishTask
 
     private fun getMockServerWrapper(
         config: PluginConfig,
-        artifactFormat: RustoreBuildFormat
+        artifactFormat: RustoreBuildFormat,
+        rustoreLogger: RustoreLogger,
     ): MockServerWrapper {
         return if (apiStub == true) {
             MockServerWrapperImpl(
-                logger = logger,
+                rustoreLogger = rustoreLogger,
                 applicationId = config.applicationId,
                 requestFormArgument = artifactFormat.fileExtension,
             )

@@ -6,11 +6,11 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
-import ru.cian.rustore.publish.utils.Logger
+import ru.cian.rustore.publish.utils.RustoreLogger
 import java.util.concurrent.TimeUnit
 
 internal class HttpClientHelper constructor(
-    private val logger: Logger,
+    private val rustoreLogger: RustoreLogger,
     private val requestTimeout: Long?,
 ) {
 
@@ -47,7 +47,7 @@ internal class HttpClientHelper constructor(
                     ?: throw IllegalStateException("http request result must not be null")
             }
         } catch (e: JsonSyntaxException) {
-            logger.e(e)
+            rustoreLogger.e(e)
         }
         throw IllegalStateException("Request is failed. Something went wrong, please check request!")
     }

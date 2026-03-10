@@ -15,6 +15,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.Credentials
+import ru.cian.rustore.publish.DeveloperContacts
+import ru.cian.rustore.publish.DeveloperContactsConfig
+import ru.cian.rustore.publish.DeveloperContactsSnapshot
+import ru.cian.rustore.publish.ExtensionConfigSnapshot
+import ru.cian.rustore.publish.ExtensionConfigSnapshotMapper
 import ru.cian.rustore.publish.PublishType
 import ru.cian.rustore.publish.RustorePublishCli
 import ru.cian.rustore.publish.PluginConfig
@@ -51,7 +56,7 @@ private const val APP_BASIC_INFO_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/app_i
 internal class ConfigProviderTest {
 
     private val project = mockk<Project>()
-    private val buildFileProvider = mockk<BuildFileProvider>()
+    private val buildFileProvider = mockk<BuildFileResolver>()
     private val releaseNotesFileProvider = mockk<FileWrapper>()
     private val applicationId = "applicationId_1234567890"
     private val emptyCliConfig = RustorePublishCli()
@@ -59,9 +64,23 @@ internal class ConfigProviderTest {
     private fun extensionConfigInstance() = run {
         RustorePublishExtensionConfig("any", project).apply {
             credentialsPath = CREDENTIALS_FILE_PATH
+            minAndroidVersion = "8"
+            developerContacts = DeveloperContacts(
+                email = "a@cian.com",
+                website = "www.cian.ru",
+                vkCommunity = null,
+            )
         }
     }
 
+    private fun extensionSnapshotConfigInstance(
+        config: RustorePublishExtensionConfig = extensionConfigInstance()
+    ) = run {
+        ExtensionConfigSnapshotMapper.buildExtensionSnapshot(
+            project = project,
+            config = config,
+        )
+    }
     @BeforeAll
     internal fun beforeAll() {
         File(ARTIFACT_APK_FILE_PATH).createNewFile()
@@ -108,6 +127,7 @@ internal class ConfigProviderTest {
 
     @BeforeEach
     fun beforeEach() {
+        every { project.file(any<String>()) } answers { File(it.invocation.args[0] as String) }
         every { buildFileProvider.getBuildFile(BuildFormat.APK) } returns File(ARTIFACT_APK_FILE_PATH)
         every { buildFileProvider.getBuildFile(BuildFormat.AAB) } returns File(ARTIFACT_AAB_FILE_PATH)
     }
@@ -120,7 +140,7 @@ internal class ConfigProviderTest {
             buildFile = WRONG_ARTIFACT_FILE_PATH
         )
         val configProvider = ConfigProvider(
-            extension = extensionConfigInstance(),
+            extension = extensionSnapshotConfigInstance(),
             cli = cliConfig,
             buildFileProvider = buildFileProvider,
             releaseNotesFileProvider = releaseNotesFileProvider,
@@ -140,11 +160,16 @@ internal class ConfigProviderTest {
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
-            releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
             seoTags = emptyList(),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(
+                email = "a@cian.com",
+                website = "www.cian.ru",
+                vkCommunity = null,
+            ),
         )
 
         every {
@@ -155,7 +180,7 @@ internal class ConfigProviderTest {
             .row(
                 expectedConfig,
                 ConfigProvider(
-                    extension = extensionConfigInstance(),
+                    extension = extensionSnapshotConfigInstance(),
                     cli = emptyCliConfig,
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -165,7 +190,7 @@ internal class ConfigProviderTest {
             .row(
                 expectedConfig,
                 ConfigProvider(
-                    extension = extensionConfigInstance(),
+                    extension = extensionSnapshotConfigInstance(),
                     cli = RustorePublishCli(
                         credentialsPath = CREDENTIALS_FILE_PATH
                     ),
@@ -189,7 +214,6 @@ internal class ConfigProviderTest {
             artifactFile = File(ARTIFACT_AAB_FILE_SECOND_PATH),
             requestTimeout = 234_567L,
             mobileServicesType = MobileServicesType.UNKNOWN,
-            releaseTime = "2019-10-18T21:00:00+0300",
             releasePhase = ReleasePhaseConfig(
                 percent = 10.05
             ),
@@ -198,24 +222,37 @@ internal class ConfigProviderTest {
             seoTags = listOf(
                 SeoTag.AMERICAN_FOOTBALL,
                 SeoTag.BLOGS,
-            )
+            ),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(
+                email = "a@cian.com",
+                website = "www.cian.ru",
+                vkCommunity = null,
+            ),
         )
 
-        val inputExtensionConfig = extensionConfigInstance().apply {
-            credentialsPath = CREDENTIALS_FILE_PATH
-            publishType = PublishType.INSTANTLY
-            buildFormat = BuildFormat.APK
-            requestTimeout = 123_456L
-            buildFile = ARTIFACT_APK_FILE_PATH
-            releaseTime = "2000-10-18T21:00:00+0300"
-            releasePhase = ReleasePhaseExtension().apply {
-                percent = 99.7
+        val inputExtensionConfig = extensionSnapshotConfigInstance(
+            config = extensionConfigInstance().apply {
+                credentialsPath = CREDENTIALS_FILE_PATH
+                publishType = PublishType.INSTANTLY
+                buildFormat = BuildFormat.APK
+                requestTimeout = 123_456L
+                buildFile = ARTIFACT_APK_FILE_PATH
+                releasePhase = ReleasePhaseExtension(
+                    percent = 99.7,
+                )
+                seoTags = listOf(
+                    SeoTag.ROMANTIC,
+                    SeoTag.LIFESTYLE,
+                )
+                minAndroidVersion = "8"
+                developerContacts = DeveloperContacts(
+                    email = "a@cian.com",
+                    website = "www.cian.ru",
+                    vkCommunity = null,
+                )
             }
-            seoTags = listOf(
-                SeoTag.ROMANTIC,
-                SeoTag.LIFESTYLE,
-            )
-        }
+        )
         val inputCliConfig = RustorePublishCli(
             publishType = PublishType.MANUAL,
             credentialsPath = CREDENTIALS_FILE_SECOND_PATH,
@@ -224,7 +261,6 @@ internal class ConfigProviderTest {
             buildFormat = BuildFormat.AAB,
             requestTimeout = "234567",
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,
-            releaseTime = "2019-10-18T21:00:00+0300",
             releasePhasePercent = "10.05",
             seoTags = listOf(
                 SeoTag.AMERICAN_FOOTBALL,
@@ -255,18 +291,25 @@ internal class ConfigProviderTest {
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
-            releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
             seoTags = emptyList(),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(
+                email = "a@cian.com",
+                website = "www.cian.ru",
+                vkCommunity = null,
+            ),
         )
 
         tableOf("expectedValue", "actualValue")
             .row(
                 expectedConfig.copy(publishType = PublishType.INSTANTLY),
                 ConfigProvider(
-                    extension = extensionConfigInstance(),
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance()
+                    ),
                     cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -276,9 +319,11 @@ internal class ConfigProviderTest {
             .row(
                 expectedConfig.copy(publishType = PublishType.MANUAL),
                 ConfigProvider(
-                    extension = extensionConfigInstance().apply {
-                        publishType = PublishType.MANUAL
-                    },
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance().apply {
+                            publishType = PublishType.MANUAL
+                        }
+                    ),
                     cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -288,9 +333,11 @@ internal class ConfigProviderTest {
             .row(
                 expectedConfig.copy(publishType = PublishType.MANUAL),
                 ConfigProvider(
-                    extension = extensionConfigInstance().apply {
-                        publishType = PublishType.MANUAL
-                    },
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance().apply {
+                            publishType = PublishType.MANUAL
+                        }
+                    ),
                     cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -300,9 +347,11 @@ internal class ConfigProviderTest {
             .row(
                 expectedConfig.copy(publishType = PublishType.INSTANTLY),
                 ConfigProvider(
-                    extension = extensionConfigInstance().apply {
-                        publishType = PublishType.INSTANTLY
-                    },
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance().apply {
+                            publishType = PublishType.INSTANTLY
+                        }
+                    ),
                     cli = RustorePublishCli(
                         publishType = null
                     ),
@@ -314,9 +363,11 @@ internal class ConfigProviderTest {
             .row(
                 expectedConfig.copy(publishType = PublishType.MANUAL),
                 ConfigProvider(
-                    extension = extensionConfigInstance().apply {
-                        publishType = PublishType.INSTANTLY
-                    },
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance().apply {
+                            publishType = PublishType.INSTANTLY
+                        }
+                    ),
                     cli = RustorePublishCli(
                         publishType = PublishType.MANUAL
                     ),
@@ -328,9 +379,11 @@ internal class ConfigProviderTest {
             .row(
                 expectedConfig.copy(requestTimeout = 123_456L),
                 ConfigProvider(
-                    extension = extensionConfigInstance().apply {
-                        requestTimeout = 123_456L
-                    },
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance().apply {
+                            requestTimeout = 123_456L
+                        }
+                    ),
                     cli = RustorePublishCli(
                         requestTimeout = null
                     ),
@@ -354,11 +407,16 @@ internal class ConfigProviderTest {
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
-            releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
             seoTags = emptyList(),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(
+                email = "a@cian.com",
+                website = "www.cian.ru",
+                vkCommunity = null,
+            ),
         )
         val langRu = "lang_ru_RU"
         val releaseNotesRu = "Some release notes for ru_RU"
@@ -388,14 +446,16 @@ internal class ConfigProviderTest {
                     )
                 )),
                 ConfigProvider(
-                    extension = extensionConfigInstance().apply {
-                        releaseNotes = listOf(
-                            ReleaseNote(
-                                lang = langRu,
-                                filePath = releaseNotesRuFilePath
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance().apply {
+                            releaseNotes = listOf(
+                                ReleaseNote(
+                                    lang = langRu,
+                                    filePath = releaseNotesRuFilePath
+                                )
                             )
-                        )
-                    },
+                        }
+                    ),
                     cli = RustorePublishCli(),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -410,7 +470,9 @@ internal class ConfigProviderTest {
                     )
                 )),
                 ConfigProvider(
-                    extension = extensionConfigInstance(),
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance()
+                    ),
                     cli = RustorePublishCli(
                         releaseNotes = "$langRu:$releaseNotesRuFilePath"
                     ),
@@ -427,14 +489,16 @@ internal class ConfigProviderTest {
                     )
                 )),
                 ConfigProvider(
-                    extension = extensionConfigInstance().apply {
-                        releaseNotes = listOf(
-                            ReleaseNote(
-                                lang = langRu,
-                                filePath = releaseNotesRuFilePath
+                    extension = extensionSnapshotConfigInstance(
+                        config = extensionConfigInstance().apply {
+                            releaseNotes = listOf(
+                                ReleaseNote(
+                                    lang = langRu,
+                                    filePath = releaseNotesRuFilePath
+                                )
                             )
-                        )
-                    },
+                        }
+                    ),
                     cli = RustorePublishCli(
                         releaseNotes = "$langEn:$releaseNotesEnFilePath"
                     ),

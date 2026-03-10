@@ -1,8 +1,8 @@
 package ru.cian.rustore.publish
 
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
-import com.android.build.api.variant.VariantSelector
 import com.android.build.gradle.AppPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -27,7 +27,7 @@ class RustorePublishPlugin : Plugin<Project> {
         )
 
         val androidComponents = project.extensions.getByType<ApplicationAndroidComponentsExtension>()
-        androidComponents.onVariants(androidComponents.selector().all() as VariantSelector) { variant ->
+        androidComponents.onVariants(androidComponents.selector().all()) { variant ->
             createTask(project, variant, rustorePublishExtension)
         }
     }
@@ -40,9 +40,17 @@ class RustorePublishPlugin : Plugin<Project> {
     ) {
         val extension = rustorePublishExtension.instances.find { it.name.equals(variant.name, ignoreCase = true) }
         if (extension != null) {
-            val variantName = variant.name.capitalize()
+            val extensionSnapshot = ExtensionConfigSnapshotMapper.buildExtensionSnapshot(project, extension)
+            val variantName = variant.name.replaceFirstChar { it.titlecase() }
             val publishTaskName = "${RustorePublishTask.TASK_NAME}$variantName"
-            val publishTask = project.tasks.register<RustorePublishTask>(publishTaskName, variant)
+            val publishTask = project.tasks.register<RustorePublishTask>(publishTaskName) {
+                description = "Upload and publish application build file to RuStore for ${variant.name} buildType"
+                applicationId.set(variant.applicationId)
+                this.variantName.set(variant.name)
+                apkDirectory.set(variant.artifacts.get(SingleArtifact.APK))
+                bundleFile.set(variant.artifacts.get(SingleArtifact.BUNDLE))
+                this.extensionConfig = extensionSnapshot
+            }
 
             scheduleTasksOrder(publishTask, project, variantName)
         }
@@ -53,20 +61,10 @@ class RustorePublishPlugin : Plugin<Project> {
         project: Project,
         variantName: String
     ) {
-        project.gradle.projectsEvaluated {
-            mustRunAfter(project, publishTask, "assemble$variantName")
-            mustRunAfter(project, publishTask, "bundle$variantName")
-        }
-    }
-
-    private fun mustRunAfter(
-        project: Project,
-        publishTask: TaskProvider<RustorePublishTask>,
-        taskBeforeName: String,
-    ) {
-        if (project.tasks.findByName(taskBeforeName) != null) {
-            val assembleTask = project.tasks.named(taskBeforeName).get()
-            publishTask.get().mustRunAfter(assembleTask)
+        listOf("assemble$variantName", "bundle$variantName").forEach { taskName ->
+            publishTask.configure {
+                mustRunAfter(project.tasks.named(taskName))
+            }
         }
     }
 }
