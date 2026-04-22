@@ -1,12 +1,9 @@
 package ru.cian.rustore.publish.utils
 
-import java.lang.Exception
-import org.gradle.api.Project
-
 private const val LOG_TAG = "Rustore Publishing API"
 
 class Logger(
-    private val project: Project
+    private val gradleLogger: org.gradle.api.logging.Logger
 ) {
 
     fun v(message: String) {
@@ -18,6 +15,6 @@ class Logger(
     }
 
     fun i(message: String) {
-        project.logger.info("INFO, $LOG_TAG: $message")
+        gradleLogger.info("INFO, $LOG_TAG: $message")
     }
 }

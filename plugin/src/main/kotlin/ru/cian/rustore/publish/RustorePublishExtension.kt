@@ -8,7 +8,7 @@ open class RustorePublishExtension(
 ) {
 
     val instances = project.container(RustorePublishExtensionConfig::class.java) { name ->
-        RustorePublishExtensionConfig(name, project)
+        RustorePublishExtensionConfig(name)
     }
 
     companion object {
@@ -24,8 +24,7 @@ open class RustorePublishExtension(
  */
 class RustorePublishExtensionConfig(
     val name: String,
-    val project: Project
-) {
+) : java.io.Serializable {
 
     /**
      * (Required)
@@ -152,7 +151,9 @@ class RustorePublishExtensionConfig(
 
     fun releasePhase(closure: Closure<ReleasePhaseExtension>): ReleasePhaseExtension {
         releasePhase = ReleasePhaseExtension()
-        project.configure(releasePhase!!, closure)
+        closure.delegate = releasePhase
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.call()
         return releasePhase!!
     }
 
@@ -174,7 +175,7 @@ class RustorePublishExtensionConfig(
     }
 }
 
-open class ReleasePhaseExtension {
+open class ReleasePhaseExtension : java.io.Serializable {
 
     var percent: Double? = null
 
@@ -191,7 +192,7 @@ open class ReleasePhaseExtension {
     }
 }
 
-open class ReleaseNote {
+open class ReleaseNote : java.io.Serializable {
 
     lateinit var lang: String
     lateinit var filePath: String
@@ -211,7 +212,7 @@ open class ReleaseNote {
     }
 }
 
-open class DeveloperContacts {
+open class DeveloperContacts : java.io.Serializable {
 
     lateinit var email: String
     var website: String? = null

@@ -1,5 +1,6 @@
 package ru.cian.rustore.publish
 
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.VariantSelector
@@ -40,11 +41,22 @@ class RustorePublishPlugin : Plugin<Project> {
     ) {
         val extension = rustorePublishExtension.instances.find { it.name.equals(variant.name, ignoreCase = true) }
         if (extension != null) {
-            val variantName = variant.name.capitalize()
-            val publishTaskName = "${RustorePublishTask.TASK_NAME}$variantName"
-            val publishTask = project.tasks.register<RustorePublishTask>(publishTaskName, variant)
+            val capitalizedVariantName = variant.name.capitalize()
+            val publishTaskName = "${RustorePublishTask.TASK_NAME}$capitalizedVariantName"
+            val publishTask = project.tasks.register<RustorePublishTask>(publishTaskName)
 
-            scheduleTasksOrder(publishTask, project, variantName)
+            publishTask.configure {
+                description = "Upload and publish application build file " +
+                    "to RuStore for ${variant.name} buildType"
+                applicationId.set(variant.applicationId)
+                variantName.set(variant.name)
+                apkDirectory.set(variant.artifacts.get(SingleArtifact.APK))
+                bundleFile.set(variant.artifacts.get(SingleArtifact.BUNDLE))
+                builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
+                extensionConfig = extension
+            }
+
+            scheduleTasksOrder(publishTask, project, capitalizedVariantName)
         }
     }
 
@@ -53,20 +65,20 @@ class RustorePublishPlugin : Plugin<Project> {
         project: Project,
         variantName: String
     ) {
-        project.gradle.projectsEvaluated {
-            mustRunAfter(project, publishTask, "assemble$variantName")
-            mustRunAfter(project, publishTask, "bundle$variantName")
+        project.afterEvaluate {
+            mustRunAfter(publishTask, "assemble$variantName")
+            mustRunAfter(publishTask, "bundle$variantName")
         }
     }
 
-    private fun mustRunAfter(
-        project: Project,
+    private fun Project.mustRunAfter(
         publishTask: TaskProvider<RustorePublishTask>,
         taskBeforeName: String,
     ) {
-        if (project.tasks.findByName(taskBeforeName) != null) {
-            val assembleTask = project.tasks.named(taskBeforeName).get()
-            publishTask.get().mustRunAfter(assembleTask)
+        if (tasks.findByName(taskBeforeName) != null) {
+            publishTask.configure {
+                mustRunAfter(tasks.named(taskBeforeName))
+            }
         }
     }
 }

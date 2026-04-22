@@ -7,7 +7,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.mockkStatic
-import org.gradle.api.Project
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -23,6 +22,8 @@ import ru.cian.rustore.publish.ReleaseNote
 import ru.cian.rustore.publish.ReleaseNotesConfig
 import ru.cian.rustore.publish.ReleasePhaseConfig
 import ru.cian.rustore.publish.ReleasePhaseExtension
+import ru.cian.rustore.publish.DeveloperContacts
+import ru.cian.rustore.publish.DeveloperContactsConfig
 import ru.cian.rustore.publish.RustorePublishExtensionConfig
 import ru.cian.rustore.publish.SeoTag
 import ru.cian.rustore.publish.models.Credential
@@ -50,15 +51,15 @@ private const val APP_BASIC_INFO_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/app_i
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 internal class ConfigProviderTest {
 
-    private val project = mockk<Project>()
     private val buildFileProvider = mockk<BuildFileProvider>()
     private val releaseNotesFileProvider = mockk<FileWrapper>()
     private val applicationId = "applicationId_1234567890"
     private val emptyCliConfig = RustorePublishCli()
 
     private fun extensionConfigInstance() = run {
-        RustorePublishExtensionConfig("any", project).apply {
+        RustorePublishExtensionConfig("any").apply {
             credentialsPath = CREDENTIALS_FILE_PATH
+            developerContacts = DeveloperContacts("test@test.com", null, null)
         }
     }
 
@@ -140,11 +141,12 @@ internal class ConfigProviderTest {
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
-            releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
             seoTags = emptyList(),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(email = "test@test.com"),
         )
 
         every {
@@ -189,7 +191,6 @@ internal class ConfigProviderTest {
             artifactFile = File(ARTIFACT_AAB_FILE_SECOND_PATH),
             requestTimeout = 234_567L,
             mobileServicesType = MobileServicesType.UNKNOWN,
-            releaseTime = "2019-10-18T21:00:00+0300",
             releasePhase = ReleasePhaseConfig(
                 percent = 10.05
             ),
@@ -198,7 +199,9 @@ internal class ConfigProviderTest {
             seoTags = listOf(
                 SeoTag.AMERICAN_FOOTBALL,
                 SeoTag.BLOGS,
-            )
+            ),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(email = "test@test.com"),
         )
 
         val inputExtensionConfig = extensionConfigInstance().apply {
@@ -207,7 +210,6 @@ internal class ConfigProviderTest {
             buildFormat = BuildFormat.APK
             requestTimeout = 123_456L
             buildFile = ARTIFACT_APK_FILE_PATH
-            releaseTime = "2000-10-18T21:00:00+0300"
             releasePhase = ReleasePhaseExtension().apply {
                 percent = 99.7
             }
@@ -224,7 +226,6 @@ internal class ConfigProviderTest {
             buildFormat = BuildFormat.AAB,
             requestTimeout = "234567",
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,
-            releaseTime = "2019-10-18T21:00:00+0300",
             releasePhasePercent = "10.05",
             seoTags = listOf(
                 SeoTag.AMERICAN_FOOTBALL,
@@ -255,11 +256,12 @@ internal class ConfigProviderTest {
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
-            releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
             seoTags = emptyList(),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(email = "test@test.com"),
         )
 
         tableOf("expectedValue", "actualValue")
@@ -354,11 +356,12 @@ internal class ConfigProviderTest {
             requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
-            releaseTime = null,
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
             seoTags = emptyList(),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(email = "test@test.com"),
         )
         val langRu = "lang_ru_RU"
         val releaseNotesRu = "Some release notes for ru_RU"
