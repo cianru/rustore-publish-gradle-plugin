@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.pluginPublish)
     alias(libs.plugins.dokka)
-    alias(libs.plugins.kotlinJvm)
 }
 
 apply(from = "$projectDir/config/gradle-portal.gradle")
@@ -58,8 +57,10 @@ tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
     }
 }
 
-tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
-    outputDirectory.set(buildDir.resolve("dokka"))
+dokka {
+    dokkaPublications.configureEach {
+        outputDirectory.set(layout.buildDirectory.dir("dokka"))
+    }
 }
 
 tasks.withType<Test> {

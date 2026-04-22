@@ -4,16 +4,16 @@
 ###############################################################
 
 [versions]
-compileSdkVersion = "33"
-targetSdkVersion  = "33"
+compileSdkVersion = "35"
+targetSdkVersion  = "35"
 minSdkVersion     = "21"
 
 jvm = "17"
-kotlin = "1.9.23"
-detekt = "1.23.4"
+kotlin = "2.0.21"
+detekt = "1.23.8"
 junitJupiter = "5.9.3"
-androidGradlePlugin = "8.0.2"
-sampleRustorePlugin = "0.5.3-alpha01"
+androidGradlePlugin = "8.7.3"
+sampleRustorePlugin = "0.5.5-alpha01"
 
 [libraries]
 appcompat = "androidx.appcompat:appcompat:1.6.1"
@@ -37,8 +37,8 @@ test-junitJupiterEngine = { group = "org.junit.jupiter", name = "junit-jupiter-e
 test-junitJupiterParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junitJupiter" }
 
 [plugins]
-dokka = { id = "org.jetbrains.dokka", version = "1.9.10" }
-pluginPublish = { id = "com.gradle.plugin-publish", version = "0.15.0" }
+dokka = { id = "org.jetbrains.dokka", version = "2.0.0" }
+pluginPublish = { id = "com.gradle.plugin-publish", version = "2.1.1" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 benManesVersions = { id = "com.github.ben-manes.versions", version = "0.47.0" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
