@@ -26,6 +26,10 @@ rustorePublish {
                     lang = "ru-RU",
                     filePath = "$projectDir/release-notes-ru.txt"
                 ),
+                ru.cian.rustore.publish.ReleaseNote(
+                    lang = "en-EN",
+                    filePath = "$projectDir/release-notes-en.txt"
+                ),
             )
         }
     }

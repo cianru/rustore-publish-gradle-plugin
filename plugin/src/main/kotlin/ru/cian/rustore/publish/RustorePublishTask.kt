@@ -1,7 +1,10 @@
 package ru.cian.rustore.publish
 
-import com.android.build.api.variant.ApplicationVariant
+import com.android.build.api.variant.BuiltArtifactsLoader
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -22,21 +25,33 @@ import ru.cian.rustore.publish.utils.signature.SignatureTools
 import ru.cian.rustore.publish.utils.signature.SignatureToolsImpl
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import javax.inject.Inject
 
 @DisableCachingByDefault
-open class RustorePublishTask
-@Inject constructor(
-    private val variant: ApplicationVariant
-) : DefaultTask() {
+abstract class RustorePublishTask : DefaultTask() {
 
     init {
         group = PublishingPlugin.PUBLISH_TASK_GROUP
-        description = "Upload and publish application build file " +
-            "to RuStore for ${variant.name} buildType"
     }
 
-    private val logger by lazy { Logger(project) }
+    @get:Internal
+    abstract val applicationId: Property<String>
+
+    @get:Internal
+    abstract val variantName: Property<String>
+
+    @get:Internal
+    abstract val apkDirectory: DirectoryProperty
+
+    @get:Internal
+    abstract val bundleFile: RegularFileProperty
+
+    @get:Internal
+    abstract val builtArtifactsLoader: Property<BuiltArtifactsLoader>
+
+    @get:Internal
+    lateinit var extensionConfig: RustorePublishExtensionConfig
+
+    private val rustoreLogger by lazy { Logger(logger) }
 
     @get:Internal
     @set:Option(
@@ -146,19 +161,7 @@ open class RustorePublishTask
     @TaskAction
     fun action() {
 
-        val rustorePublishExtension = project.extensions
-            .findByName(RustorePublishExtension.MAIN_EXTENSION_NAME) as? RustorePublishExtension
-            ?: throw IllegalArgumentException(
-                "Plugin extension '${RustorePublishExtension.MAIN_EXTENSION_NAME}' " +
-                    "is not available at build.gradle of the application module"
-            )
-
-        val buildTypeName = variant.name
-        val extension = rustorePublishExtension.instances.find { it.name.equals(buildTypeName, ignoreCase = true) }
-            ?: throw IllegalArgumentException(
-                "Plugin extension '${RustorePublishExtension.MAIN_EXTENSION_NAME}' " +
-                    "instance with name '$buildTypeName' is not available"
-            )
+        val extension = extensionConfig
 
         val cli = RustorePublishCli(
             publishType = publishType,
@@ -176,19 +179,24 @@ open class RustorePublishTask
             minAndroidVersion = minAndroidVersion,
         )
 
-        logger.i("extension=$extension")
-        logger.i("cli=$cli")
+        rustoreLogger.i("extension=$extension")
+        rustoreLogger.i("cli=$cli")
 
-        logger.v("1/6. Prepare input config")
-        val buildFileProvider = BuildFileProvider(variant = variant, logger = logger)
+        rustoreLogger.v("1/6. Prepare input config")
+        val buildFileProvider = BuildFileProvider(
+            apkDirectory = apkDirectory.orNull,
+            builtArtifactsLoader = builtArtifactsLoader.orNull,
+            bundleFile = bundleFile.orNull,
+            logger = rustoreLogger,
+        )
         val config = ConfigProvider(
             extension = extension,
             cli = cli,
             buildFileProvider = buildFileProvider,
             releaseNotesFileProvider = FileWrapper(),
-            applicationId = variant.applicationId.get(),
+            applicationId = applicationId.get(),
         ).getConfig()
-        logger.i("config=$config")
+        rustoreLogger.i("config=$config")
 
         val artifactFormat = when (config.artifactFormat) {
             BuildFormat.APK -> RustoreBuildFormat.APK
@@ -198,21 +206,21 @@ open class RustorePublishTask
         mockServerWrapper.start()
 
         val rustoreService = RustoreServiceImpl(
-            logger = logger,
+            logger = rustoreLogger,
             baseEntryPoint = mockServerWrapper.getBaseUrl(),
             requestTimeout = config.requestTimeout,
         )
 
-        logger.v("Found build file: `${config.artifactFile.name}`")
+        rustoreLogger.v("Found build file: `${config.artifactFile.name}`")
 
-        logger.v("2/6. Create signature")
+        rustoreLogger.v("2/6. Create signature")
         val datetimeFormatPattern = DateTimeFormatter.ofPattern(DATETIME_FORMAT_ISO8601)
         val timestamp = ZonedDateTime.now().format(datetimeFormatPattern)
         val salt = "${config.credentials.keyId}$timestamp"
         val signatureTools: SignatureTools = if (apiStub != true) SignatureToolsImpl() else MockSignatureTools()
         val signature = signatureTools.signData(salt, config.credentials.clientSecret)
 
-        logger.v("3/6. Get Access Token")
+        rustoreLogger.v("3/6. Get Access Token")
 
         val token = rustoreService.getToken(
             keyId = config.credentials.keyId,
@@ -220,7 +228,7 @@ open class RustorePublishTask
             signature = signature,
         )
 
-        logger.v("4/6. Create App Draft")
+        rustoreLogger.v("4/6. Create App Draft")
         val appVersionId = rustoreService.createDraft(
             token = token,
             applicationId = config.applicationId,
@@ -231,7 +239,7 @@ open class RustorePublishTask
             developerContacts = config.developerContacts,
         )
 
-        logger.v("5/6. Upload build file '${config.artifactFile}'")
+        rustoreLogger.v("5/6. Upload build file '${config.artifactFile}'")
         rustoreService.uploadApkBuildFile(
             token = token,
             applicationId = config.applicationId,
@@ -241,7 +249,7 @@ open class RustorePublishTask
             buildFile = config.artifactFile
         )
 
-        logger.v("6/6. Submit publication")
+        rustoreLogger.v("6/6. Submit publication")
         val summitResult = rustoreService.submit(
             token = token,
             applicationId = config.applicationId,
@@ -250,9 +258,9 @@ open class RustorePublishTask
         )
 
         if (summitResult) {
-            logger.v("Upload and submit build file - Successfully Done!")
+            rustoreLogger.v("Upload and submit build file - Successfully Done!")
         } else {
-            logger.v("Upload and submit build file - Failed!")
+            rustoreLogger.v("Upload and submit build file - Failed!")
         }
 
         mockServerWrapper.shutdown()
@@ -264,7 +272,7 @@ open class RustorePublishTask
     ): MockServerWrapper {
         return if (apiStub == true) {
             MockServerWrapperImpl(
-                logger = logger,
+                logger = rustoreLogger,
                 applicationId = config.applicationId,
                 requestFormArgument = artifactFormat.fileExtension,
             )
