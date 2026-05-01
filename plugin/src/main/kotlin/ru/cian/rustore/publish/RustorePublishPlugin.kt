@@ -66,7 +66,9 @@ class RustorePublishPlugin : Plugin<Project> {
         variantName: String
     ) {
         project.afterEvaluate {
+            logger.info("RustorePublishPlugin: mustRunAfter(assemble$variantName)")
             mustRunAfter(publishTask, "assemble$variantName")
+            logger.info("RustorePublishPlugin: mustRunAfter(bundle$variantName)")
             mustRunAfter(publishTask, "bundle$variantName")
         }
     }
