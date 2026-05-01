@@ -1,5 +1,6 @@
 name: Code Style Tests
 
+
 on: [push, pull_request]
 
 jobs:
@@ -10,11 +11,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up JDK 17
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
-          java-version: 17
+          java-version: '17'
+          distribution: 'zulu'
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Run detekt checks
