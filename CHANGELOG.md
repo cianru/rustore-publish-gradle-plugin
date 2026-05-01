@@ -1,3 +1,9 @@
+# 0.5.5
+
+### Fix
+* [issue#30](https://github.com/cianru/rustore-publish-gradle-plugin/issues/30) Configuration cache state could not be cached: Future was not completed yet 
+
+
 # 0.5.3
 
 ### Fix
