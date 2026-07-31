@@ -8,7 +8,7 @@ internal data class AppDraftRequest(
     @SerializedName("publishType")
     val publishType: String,
     @SerializedName("seoTagIds")
-    val seoTags: List<Int>,
+    val seoTagIds: List<Int>,
     @SerializedName("minAndroidVersion")
     val minAndroidVersion: String,
     @SerializedName("developerContacts")

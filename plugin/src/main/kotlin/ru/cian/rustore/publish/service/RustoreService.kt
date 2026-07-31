@@ -21,7 +21,7 @@ internal interface RustoreService {
         applicationId: String,
         whatsNew: String,
         publishType: String,
-        seoTags: List<Int>,
+        seoTagIds: List<Int>,
         minAndroidVersion: String,
         developerContacts: DeveloperContactsConfig,
     ): Int

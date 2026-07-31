@@ -1,3 +1,15 @@
+# 0.5.6
+
+### Breaking Change
+* [issue#35](https://github.com/cianru/rustore-publish-gradle-plugin/issues/35) The `seoTags` param is renamed to `seoTagIds` and now accepts numeric RuStore tag ids (`List<Int>`, CLI `--seoTagIds=116,69`) 
+instead of the `ru.cian.rustore.publish.SeoTag` enum. The `SeoTag` enum has been removed. 
+See the tag id list in documentation: https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/app-tag-list
+```kotlin
+  seoTagIds = listOf(116, 69)
+```
+I had to do this because the Rustore API developers change the values ids without warning, 
+which breaks backward compatibility.
+
 # 0.5.5
 
 ### Fix

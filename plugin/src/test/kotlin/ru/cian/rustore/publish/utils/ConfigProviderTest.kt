@@ -25,7 +25,6 @@ import ru.cian.rustore.publish.ReleasePhaseExtension
 import ru.cian.rustore.publish.DeveloperContacts
 import ru.cian.rustore.publish.DeveloperContactsConfig
 import ru.cian.rustore.publish.RustorePublishExtensionConfig
-import ru.cian.rustore.publish.SeoTag
 import ru.cian.rustore.publish.models.Credential
 import java.io.File
 
@@ -144,7 +143,7 @@ internal class ConfigProviderTest {
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
-            seoTags = emptyList(),
+            seoTagIds = emptyList(),
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
         )
@@ -196,9 +195,9 @@ internal class ConfigProviderTest {
             ),
             releaseNotes = null,
             applicationId = applicationId,
-            seoTags = listOf(
-                SeoTag.AMERICAN_FOOTBALL,
-                SeoTag.BLOGS,
+            seoTagIds = listOf(
+                4,
+                133,
             ),
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
@@ -213,9 +212,9 @@ internal class ConfigProviderTest {
             releasePhase = ReleasePhaseExtension().apply {
                 percent = 99.7
             }
-            seoTags = listOf(
-                SeoTag.ROMANTIC,
-                SeoTag.LIFESTYLE,
+            seoTagIds = listOf(
+                69,
+                116,
             )
         }
         val inputCliConfig = RustorePublishCli(
@@ -227,9 +226,9 @@ internal class ConfigProviderTest {
             requestTimeout = "234567",
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,
             releasePhasePercent = "10.05",
-            seoTags = listOf(
-                SeoTag.AMERICAN_FOOTBALL,
-                SeoTag.BLOGS,
+            seoTagIds = listOf(
+                4,
+                133,
             )
         )
         val configProvider = ConfigProvider(
@@ -259,7 +258,7 @@ internal class ConfigProviderTest {
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
-            seoTags = emptyList(),
+            seoTagIds = emptyList(),
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
         )
@@ -359,7 +358,7 @@ internal class ConfigProviderTest {
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
-            seoTags = emptyList(),
+            seoTagIds = emptyList(),
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
         )

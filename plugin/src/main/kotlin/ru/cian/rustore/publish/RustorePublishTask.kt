@@ -135,12 +135,12 @@ abstract class RustorePublishTask : DefaultTask() {
     @SuppressWarnings("MaxLineLength")
     @get:Internal
     @set:Option(
-        option = "seoTags",
-        description = "List of release SEO tags from ru.cian.rustore.publish.SeoTag. " +
+        option = "seoTagIds",
+        description = "List of release SEO tag ids. " +
             "Number of tags should not be greater than 5. " +
             "For more details see documentation: https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/app-tag-list"
     )
-    var seoTags: String? = null
+    var seoTagIds: String? = null
 
     @SuppressWarnings("MaxLineLength")
     @get:Internal
@@ -174,7 +174,7 @@ abstract class RustorePublishTask : DefaultTask() {
             buildFile = buildFile,
             releasePhasePercent = releasePhasePercent,
             releaseNotes = releaseNotes,
-            seoTags = seoTags?.split(",")?.map { SeoTag.valueOf(it.trim()) },
+            seoTagIds = seoTagIds?.split(",")?.map { it.trim().toInt() },
             apiStub = apiStub,
             minAndroidVersion = minAndroidVersion,
         )
@@ -234,7 +234,7 @@ abstract class RustorePublishTask : DefaultTask() {
             applicationId = config.applicationId,
             whatsNew = config.releaseNotes?.first()?.newFeatures ?: "",
             publishType = config.publishType.name,
-            seoTags = config.seoTags.take(5).map { it.id },
+            seoTagIds = config.seoTagIds.take(5),
             minAndroidVersion = config.minAndroidVersion,
             developerContacts = config.developerContacts,
         )

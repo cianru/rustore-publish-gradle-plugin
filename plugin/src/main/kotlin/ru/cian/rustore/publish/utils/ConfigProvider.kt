@@ -8,7 +8,6 @@ import ru.cian.rustore.publish.PluginConfig
 import ru.cian.rustore.publish.ReleaseNotesConfig
 import ru.cian.rustore.publish.ReleasePhaseConfig
 import ru.cian.rustore.publish.RustorePublishExtensionConfig
-import ru.cian.rustore.publish.SeoTag
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -30,7 +29,7 @@ internal class ConfigProvider(
         val releasePhase = getReleasePhaseConfig()
         val credentialsConfig = getCredentialsConfig()
         val releaseNotes = getReleaseNotesConfig()
-        val seoTags: List<SeoTag> = cli.seoTags ?: extension.seoTags
+        val seoTagIds: List<Int> = cli.seoTagIds ?: extension.seoTagIds
         val minAndroidVersion = cli.minAndroidVersion ?: extension.minAndroidVersion
         val developerContacts = getDeveloperContactsConfig()
 
@@ -55,7 +54,7 @@ internal class ConfigProvider(
             releasePhase = releasePhase,
             releaseNotes = releaseNotes,
             applicationId = applicationId,
-            seoTags = seoTags,
+            seoTagIds = seoTagIds,
             minAndroidVersion = minAndroidVersion,
             developerContacts = developerContacts,
         )

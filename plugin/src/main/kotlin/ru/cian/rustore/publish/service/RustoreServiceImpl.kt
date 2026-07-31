@@ -73,7 +73,7 @@ internal class RustoreServiceImpl(
         applicationId: String,
         whatsNew: String,
         publishType: String,
-        seoTags: List<Int>,
+        seoTagIds: List<Int>,
         minAndroidVersion: String,
         developerContacts: DeveloperContactsConfig,
     ): Int {
@@ -85,7 +85,7 @@ internal class RustoreServiceImpl(
         val bodyRequest = AppDraftRequest(
             whatsNew = whatsNew,
             publishType = publishType,
-            seoTags = seoTags,
+            seoTagIds = seoTagIds,
             minAndroidVersion = minAndroidVersion,
             developerContacts = developerContactsRequest
         )
@@ -98,7 +98,7 @@ internal class RustoreServiceImpl(
             --data-raw '{
                 "whatsNew": "$whatsNew",
                 "publishType": "$publishType",
-                "seoTags": [${seoTags.joinToString()}],
+                "seoTagIds": [${seoTagIds.joinToString()}],
                 "minAndroidVersion": "$minAndroidVersion",
                 "developerContacts": ${gson.toJson(developerContactsRequest)}
             }'            
@@ -140,7 +140,7 @@ internal class RustoreServiceImpl(
                 applicationId = applicationId,
                 whatsNew = whatsNew,
                 publishType = publishType,
-                seoTags = seoTags,
+                seoTagIds = seoTagIds,
                 minAndroidVersion = minAndroidVersion,
                 developerContacts = developerContacts,
             )
