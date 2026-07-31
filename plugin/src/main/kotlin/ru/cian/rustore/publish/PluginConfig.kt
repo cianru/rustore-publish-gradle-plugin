@@ -15,6 +15,7 @@ internal data class PluginConfig(
     val seoTagIds: List<Int>,
     val minAndroidVersion: String,
     val developerContacts: DeveloperContactsConfig,
+    val appType: AppTypes?,
 )
 
 internal data class ReleasePhaseConfig(

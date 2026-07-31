@@ -21,6 +21,7 @@ rustorePublish {
                 website = "www.mysite.com",
                 vkCommunity = null,
             )
+            appType = ru.cian.rustore.publish.AppTypes.MAIN
             releaseNotes = listOf(
                 ru.cian.rustore.publish.ReleaseNote(
                     lang = "ru-RU",

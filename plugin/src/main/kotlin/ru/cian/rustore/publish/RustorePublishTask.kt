@@ -153,6 +153,16 @@ abstract class RustorePublishTask : DefaultTask() {
     )
     var minAndroidVersion: String? = null
 
+    @SuppressWarnings("MaxLineLength")
+    @get:Internal
+    @set:Option(
+        option = "appType",
+        description = "Type of application version. Available values: [\"MAIN\", \"GAMES\"]. " +
+            "'MAIN' for non-game applications, 'GAMES' for games. " +
+            "See https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version"
+    )
+    var appType: AppTypes? = null
+
     @get:Internal
     @set:Option(option = "apiStub", description = "Use RestAPI stub instead of real RestAPI requests")
     var apiStub: Boolean? = false
@@ -177,6 +187,7 @@ abstract class RustorePublishTask : DefaultTask() {
             seoTagIds = seoTagIds?.split(",")?.map { it.trim().toInt() },
             apiStub = apiStub,
             minAndroidVersion = minAndroidVersion,
+            appType = appType,
         )
 
         rustoreLogger.i("extension=$extension")
@@ -237,6 +248,7 @@ abstract class RustorePublishTask : DefaultTask() {
             seoTagIds = config.seoTagIds.take(5),
             minAndroidVersion = config.minAndroidVersion,
             developerContacts = config.developerContacts,
+            appType = config.appType?.value,
         )
 
         rustoreLogger.v("5/6. Upload build file '${config.artifactFile}'")

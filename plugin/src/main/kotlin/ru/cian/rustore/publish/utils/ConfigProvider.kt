@@ -32,6 +32,7 @@ internal class ConfigProvider(
         val seoTagIds: List<Int> = cli.seoTagIds ?: extension.seoTagIds
         val minAndroidVersion = cli.minAndroidVersion ?: extension.minAndroidVersion
         val developerContacts = getDeveloperContactsConfig()
+        val appType = cli.appType ?: extension.appType
 
         val artifactFile = getBuildFile(customBuildFilePath, artifactFormat)
         val artifactFileExtension = artifactFile.extension
@@ -57,6 +58,7 @@ internal class ConfigProvider(
             seoTagIds = seoTagIds,
             minAndroidVersion = minAndroidVersion,
             developerContacts = developerContacts,
+            appType = appType,
         )
     }
 

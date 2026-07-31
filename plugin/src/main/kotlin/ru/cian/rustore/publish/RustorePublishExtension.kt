@@ -143,6 +143,20 @@ class RustorePublishExtensionConfig(
      */
     var developerContacts: DeveloperContacts? = null
 
+    /**
+     * (Optional)
+     * Type of application version.
+     * See description in https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+     * CLI: `--appType`, available values:
+     * ----| 'MAIN' – for non-game applications.
+     * ----| 'GAMES' – for games.
+     * Gradle Extension DSL, available values:
+     * ----| ru.cian.rustore.publish.AppTypes.MAIN
+     * ----| ru.cian.rustore.publish.AppTypes.GAMES
+     * Default value: `null` (the value is not sent to the Rustore API)
+     */
+    var appType: AppTypes? = null
+
     init {
         require(name.isNotBlank()) {
             "Name must not be blank nor empty"
@@ -170,7 +184,8 @@ class RustorePublishExtensionConfig(
             "releasePhase='$releasePhase', " +
             "releaseNotes='$releaseNotes', " +
             "minAndroidVersion='$minAndroidVersion', " +
-            "developerContacts='$developerContacts'" +
+            "developerContacts='$developerContacts', " +
+            "appType='$appType'" +
             ")"
     }
 }
@@ -243,6 +258,11 @@ enum class BuildFormat(val fileExtension: String) {
 enum class MobileServicesType(val value: String) {
     HMS("HMS"),
     UNKNOWN("Unknown"),
+}
+
+enum class AppTypes(val value: String) {
+    MAIN("MAIN"),
+    GAMES("GAMES"),
 }
 
 enum class PublishType {

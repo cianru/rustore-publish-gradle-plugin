@@ -76,6 +76,7 @@ internal class RustoreServiceImpl(
         seoTagIds: List<Int>,
         minAndroidVersion: String,
         developerContacts: DeveloperContactsConfig,
+        appType: String?,
     ): Int {
         val developerContactsRequest = DeveloperContactsRequestModel(
             email = developerContacts.email,
@@ -87,7 +88,8 @@ internal class RustoreServiceImpl(
             publishType = publishType,
             seoTagIds = seoTagIds,
             minAndroidVersion = minAndroidVersion,
-            developerContacts = developerContactsRequest
+            developerContacts = developerContactsRequest,
+            appType = appType,
         )
 
         logger.i("""
@@ -95,13 +97,7 @@ internal class RustoreServiceImpl(
             $baseEntryPoint/public/v1/application/$applicationId/version \
             --header 'Content-Type: application/json' \
             --header 'Public-Token: $token' \
-            --data-raw '{
-                "whatsNew": "$whatsNew",
-                "publishType": "$publishType",
-                "seoTagIds": [${seoTagIds.joinToString()}],
-                "minAndroidVersion": "$minAndroidVersion",
-                "developerContacts": ${gson.toJson(developerContactsRequest)}
-            }'            
+            --data-raw '${gson.toJson(bodyRequest)}'
         """.trimIndent())
 
         val response = httpClient.post<AppDraftResponse>(
@@ -143,6 +139,7 @@ internal class RustoreServiceImpl(
                 seoTagIds = seoTagIds,
                 minAndroidVersion = minAndroidVersion,
                 developerContacts = developerContacts,
+                appType = appType,
             )
         }
 

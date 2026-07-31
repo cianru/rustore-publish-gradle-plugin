@@ -24,6 +24,7 @@ internal interface RustoreService {
         seoTagIds: List<Int>,
         minAndroidVersion: String,
         developerContacts: DeveloperContactsConfig,
+        appType: String?,
     ): Int
 
     @Suppress("LongParameterList")

@@ -13,4 +13,6 @@ internal data class AppDraftRequest(
     val minAndroidVersion: String,
     @SerializedName("developerContacts")
     val developerContacts: DeveloperContactsRequestModel,
+    @SerializedName("appType")
+    val appType: String? = null,
 )
