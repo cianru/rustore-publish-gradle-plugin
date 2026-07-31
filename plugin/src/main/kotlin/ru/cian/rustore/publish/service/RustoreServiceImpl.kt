@@ -100,7 +100,7 @@ internal class RustoreServiceImpl(
                 "publishType": "$publishType",
                 "seoTags": [${seoTags.joinToString()}],
                 "minAndroidVersion": "$minAndroidVersion",
-                "developerContacts": "${gson.toJson(developerContactsRequest)}"
+                "developerContacts": ${gson.toJson(developerContactsRequest)}
             }'            
         """.trimIndent())
 
