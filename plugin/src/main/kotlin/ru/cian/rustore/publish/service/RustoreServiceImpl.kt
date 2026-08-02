@@ -73,9 +73,10 @@ internal class RustoreServiceImpl(
         applicationId: String,
         whatsNew: String,
         publishType: String,
-        seoTags: List<Int>,
+        seoTagIds: List<Int>,
         minAndroidVersion: String,
         developerContacts: DeveloperContactsConfig,
+        appType: String?,
     ): Int {
         val developerContactsRequest = DeveloperContactsRequestModel(
             email = developerContacts.email,
@@ -85,9 +86,10 @@ internal class RustoreServiceImpl(
         val bodyRequest = AppDraftRequest(
             whatsNew = whatsNew,
             publishType = publishType,
-            seoTags = seoTags,
+            seoTagIds = seoTagIds,
             minAndroidVersion = minAndroidVersion,
-            developerContacts = developerContactsRequest
+            developerContacts = developerContactsRequest,
+            appType = appType,
         )
 
         logger.i("""
@@ -95,13 +97,7 @@ internal class RustoreServiceImpl(
             $baseEntryPoint/public/v1/application/$applicationId/version \
             --header 'Content-Type: application/json' \
             --header 'Public-Token: $token' \
-            --data-raw '{
-                "whatsNew": "$whatsNew",
-                "publishType": "$publishType",
-                "seoTags": [${seoTags.joinToString()}],
-                "minAndroidVersion": "$minAndroidVersion",
-                "developerContacts": "${gson.toJson(developerContactsRequest)}"
-            }'            
+            --data-raw '${gson.toJson(bodyRequest)}'
         """.trimIndent())
 
         val response = httpClient.post<AppDraftResponse>(
@@ -140,9 +136,10 @@ internal class RustoreServiceImpl(
                 applicationId = applicationId,
                 whatsNew = whatsNew,
                 publishType = publishType,
-                seoTags = seoTags,
+                seoTagIds = seoTagIds,
                 minAndroidVersion = minAndroidVersion,
                 developerContacts = developerContacts,
+                appType = appType,
             )
         }
 

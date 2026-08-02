@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import ru.cian.rustore.publish.AppTypes
 import ru.cian.rustore.publish.BuildFormat
 import ru.cian.rustore.publish.Credentials
 import ru.cian.rustore.publish.PublishType
@@ -25,7 +26,6 @@ import ru.cian.rustore.publish.ReleasePhaseExtension
 import ru.cian.rustore.publish.DeveloperContacts
 import ru.cian.rustore.publish.DeveloperContactsConfig
 import ru.cian.rustore.publish.RustorePublishExtensionConfig
-import ru.cian.rustore.publish.SeoTag
 import ru.cian.rustore.publish.models.Credential
 import java.io.File
 
@@ -144,9 +144,10 @@ internal class ConfigProviderTest {
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
-            seoTags = emptyList(),
+            seoTagIds = emptyList(),
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
+            appType = null,
         )
 
         every {
@@ -196,12 +197,13 @@ internal class ConfigProviderTest {
             ),
             releaseNotes = null,
             applicationId = applicationId,
-            seoTags = listOf(
-                SeoTag.AMERICAN_FOOTBALL,
-                SeoTag.BLOGS,
+            seoTagIds = listOf(
+                4,
+                133,
             ),
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
+            appType = null,
         )
 
         val inputExtensionConfig = extensionConfigInstance().apply {
@@ -213,9 +215,9 @@ internal class ConfigProviderTest {
             releasePhase = ReleasePhaseExtension().apply {
                 percent = 99.7
             }
-            seoTags = listOf(
-                SeoTag.ROMANTIC,
-                SeoTag.LIFESTYLE,
+            seoTagIds = listOf(
+                69,
+                116,
             )
         }
         val inputCliConfig = RustorePublishCli(
@@ -227,9 +229,9 @@ internal class ConfigProviderTest {
             requestTimeout = "234567",
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,
             releasePhasePercent = "10.05",
-            seoTags = listOf(
-                SeoTag.AMERICAN_FOOTBALL,
-                SeoTag.BLOGS,
+            seoTagIds = listOf(
+                4,
+                133,
             )
         )
         val configProvider = ConfigProvider(
@@ -259,9 +261,10 @@ internal class ConfigProviderTest {
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
-            seoTags = emptyList(),
+            seoTagIds = emptyList(),
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
+            appType = null,
         )
 
         tableOf("expectedValue", "actualValue")
@@ -359,9 +362,10 @@ internal class ConfigProviderTest {
             releasePhase = null,
             releaseNotes = null,
             applicationId = applicationId,
-            seoTags = emptyList(),
+            seoTagIds = emptyList(),
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
+            appType = null,
         )
         val langRu = "lang_ru_RU"
         val releaseNotesRu = "Some release notes for ru_RU"
@@ -440,6 +444,67 @@ internal class ConfigProviderTest {
                     },
                     cli = RustorePublishCli(
                         releaseNotes = "$langEn:$releaseNotesEnFilePath"
+                    ),
+                    buildFileProvider = buildFileProvider,
+                    releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
+                )
+            )
+            .forAll { expectedValue, actualValue ->
+                assertThat(actualValue.getConfig()).isEqualTo(expectedValue)
+            }
+    }
+
+    @Test
+    fun `correct config with overriding appType param`() {
+
+        val expectedConfig = PluginConfig(
+            credentials = Credentials("id", "secret"),
+            publishType = PublishType.INSTANTLY,
+            artifactFormat = BuildFormat.APK,
+            requestTimeout = null,
+            mobileServicesType = MobileServicesType.UNKNOWN,
+            artifactFile = File(ARTIFACT_APK_FILE_PATH),
+            releasePhase = null,
+            releaseNotes = null,
+            applicationId = applicationId,
+            seoTagIds = emptyList(),
+            minAndroidVersion = "8",
+            developerContacts = DeveloperContactsConfig(email = "test@test.com"),
+            appType = null,
+        )
+
+        tableOf("expectedValue", "actualValue")
+            .row(
+                expectedConfig.copy(appType = null),
+                ConfigProvider(
+                    extension = extensionConfigInstance(),
+                    cli = RustorePublishCli(),
+                    buildFileProvider = buildFileProvider,
+                    releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
+                )
+            )
+            .row(
+                expectedConfig.copy(appType = AppTypes.MAIN),
+                ConfigProvider(
+                    extension = extensionConfigInstance().apply {
+                        appType = AppTypes.MAIN
+                    },
+                    cli = RustorePublishCli(),
+                    buildFileProvider = buildFileProvider,
+                    releaseNotesFileProvider = releaseNotesFileProvider,
+                    applicationId = applicationId,
+                )
+            )
+            .row(
+                expectedConfig.copy(appType = AppTypes.GAMES),
+                ConfigProvider(
+                    extension = extensionConfigInstance().apply {
+                        appType = AppTypes.MAIN
+                    },
+                    cli = RustorePublishCli(
+                        appType = AppTypes.GAMES
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,

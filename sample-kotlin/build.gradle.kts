@@ -11,9 +11,9 @@ rustorePublish {
             mobileServicesType = ru.cian.rustore.publish.MobileServicesType.HMS
             buildFormat = ru.cian.rustore.publish.BuildFormat.AAB
             requestTimeout = 60
-            seoTags = listOf(
-                ru.cian.rustore.publish.SeoTag.LIFESTYLE,
-                ru.cian.rustore.publish.SeoTag.ROMANTIC,
+            seoTagIds = listOf(
+                116,
+                69,
             )
             minAndroidVersion = "8"
             developerContacts = ru.cian.rustore.publish.DeveloperContacts(
@@ -21,6 +21,7 @@ rustorePublish {
                 website = "www.mysite.com",
                 vkCommunity = null,
             )
+            appType = ru.cian.rustore.publish.AppTypes.MAIN
             releaseNotes = listOf(
                 ru.cian.rustore.publish.ReleaseNote(
                     lang = "ru-RU",

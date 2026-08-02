@@ -206,21 +206,6 @@ rustorePublish {
        * CLI: `--requestTimeout`
        */
       requestTimeout = 300
-
-
-      /**
-       * (Optional)
-       * List of available SEO tags for RuStore app listing.
-       * For more details see documentation: https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/app-tag-list
-       * Number of tags should not be greater than 5.
-       * Default value: []
-       * CLI: `--seoTags`. For example: `--seoTags=LIFESTYLE,ROMANTIC`
-       * Gradle Extension DSL, available values from ru.cian.rustore.publish.SeoTag
-       */
-      seoTags = listOf(
-         ru.cian.rustore.publish.SeoTag.LIFESTYLE,
-         ru.cian.rustore.publish.SeoTag.ROMANTIC,
-      )  
         
       /**
        * (Optional)
@@ -271,7 +256,35 @@ rustorePublish {
             website = "www.mysite.com",
             vkCommunity = null,
         )
-        
+
+        /**
+         * (Optional)
+         * Type of application version.
+         * See description in https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+         * CLI: `--appType`, available values:
+         * ----| 'MAIN' – for non-game applications.
+         * ----| 'GAMES' – for games.
+         * Gradle Extension DSL, available values:
+         * ----| ru.cian.rustore.publish.AppTypes.MAIN
+         * ----| ru.cian.rustore.publish.AppTypes.GAMES
+         * Default value: `null` (the value is not sent to the Rustore API)
+         */
+        appType = ru.cian.rustore.publish.AppTypes.MAIN
+
+        /**
+         * (Optional)
+         * List of available SEO tags for RuStore app listing.
+         * For more details see documentation: https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/app-tag-list
+         * Number of tags should not be greater than 5.
+         * Default value: []
+         * CLI: `--seoTagIds`. For example: `--seoTagIds=116,69`
+         * Gradle Extension DSL: list of numeric tag ids, for example `listOf(116, 69)`
+         */
+        seoTagIds = listOf(
+            116, // Личные финансы
+            67, // Покер 
+        )
+
       /**
        * (Optional)
        * Release Notes settings. For mote info see ReleaseNote param desc.
@@ -321,11 +334,12 @@ rustorePublish {
             buildFormat = "apk"
             buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
             requestTimeout = 60 // 1min
-            seoTags = [
-                ru.cian.rustore.publish.SeoTag.LIFESTYLE,
-                ru.cian.rustore.publish.SeoTag.ROMANTIC,
+            seoTagIds = [
+                116,
+                69,
             ]
             mobileServicesType = "Unknown"
+            appType = "MAIN"
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
                     "ru-RU",
@@ -389,9 +403,10 @@ CLI params are more priority than gradle configuration params.
     --buildFormat=apk \
     --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
     --requestTimeout=300 \ # 5min
-    --seoTags=LIFESTYLE,ROMANTIC \
+    --seoTagIds=116,69 \
     --mobileServicesType="Unknown" \
     --minAndroidVersion="8" \
+    --appType="MAIN" \
     --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
 ```
 

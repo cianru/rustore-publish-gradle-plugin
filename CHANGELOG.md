@@ -1,3 +1,21 @@
+# 0.5.6
+
+### Add
+* Added the optional `appType` param (Gradle Extension DSL `ru.cian.rustore.publish.AppTypes.MAIN` / `.GAMES`,
+CLI `--appType=MAIN`) that sets the type of application version on draft creation.
+If it is not set, the value is not sent to the Rustore API.
+See documentation: https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/create-draft-version
+
+### Breaking Change
+* [issue#35](https://github.com/cianru/rustore-publish-gradle-plugin/issues/35) The `seoTags` param is renamed to `seoTagIds` and now accepts numeric RuStore tag ids (`List<Int>`, CLI `--seoTagIds=116,69`) 
+instead of the `ru.cian.rustore.publish.SeoTag` enum. The `SeoTag` enum has been removed. 
+See the tag id list in documentation: https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/app-tag-list
+```kotlin
+  seoTagIds = listOf(116, 69)
+```
+I had to do this because the Rustore API developers change the values ids without warning, 
+which breaks backward compatibility.
+
 # 0.5.5
 
 ### Fix
@@ -29,7 +47,7 @@
 
 # 0.5.2
 
-##### Add
+### Add
 * [issue#22](https://github.com/cianru/rustore-publish-gradle-plugin/issues/22) Support of `seoTags` param to control [SEO tags list](https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/app-tag-list).
 ```kotlin
   /**
@@ -50,7 +68,7 @@ Thanks to @iyakovlev for PR #22
 
 # 0.5.1
 
-##### Add
+### Add
 * [issue#15](https://github.com/cianru/rustore-publish-gradle-plugin/issues/15) Support of `publishType` param to control the publish process.
 ```kotlin
     /**
@@ -68,7 +86,7 @@ Thanks to @iyakovlev for PR #22
 
 # 0.5.0
 
-##### Add
+### Add
 * [issue#9](https://github.com/cianru/rustore-publish-gradle-plugin/issues/9) Support of AAB files. Now you can publish AAB files to Rustore.
 Just use a new parameter `buildFormat` in your configuration:
 ```kotlin
@@ -94,7 +112,7 @@ configure<ru.cian.rustore.publish.RustorePublishExtension> {
 }
 ```
 
-##### Breaking Changes
+### Breaking Changes
 * Remove support of Sonatype. It means that you can't use the plugin from Maven Central. You must to use the Gradle Portal. 
   To do this, you need to add the following code to your `settings.gradle.kts`:
   ```kotlin
@@ -108,7 +126,7 @@ configure<ru.cian.rustore.publish.RustorePublishExtension> {
 
 # 0.4.0
 
-##### Breaking Changes
+### Breaking Changes
 * [issue#8](https://github.com/cianru/rustore-publish-gradle-plugin/issues/8) The companyId in POST /public/auth/ will be deprecated by new documentation.
   According to [message](https://t.me/rustoredev/476) the `companyId` parameter of `POST /public/auth/` request is deprecated from 30 Jule 2024. Need to use `keyId` instead of. 
   
@@ -129,25 +147,25 @@ configure<ru.cian.rustore.publish.RustorePublishExtension> {
 
 # 0.3.2
 
-##### Add
+### Add
 * [issue#5](https://github.com/cianru/rustore-publish-gradle-plugin/issues/5) Support of serviceType plugin param.
 
 
 # 0.3.1
 
-##### Add
+### Add
 * Support of Gradle 8+, Android Gradle Plugin 8+ and JDK17+
 
 
 # 0.2.2
 
-##### Fix
+### Fix
 * Add mustRunAfter assemble and bundle tasks without side effect on configuration cache 
 
 
 # 0.2.1
 
-##### Fix
+### Fix
 * ReleaseNotes doesn't work #1
 
 
