@@ -26,8 +26,10 @@ import ru.cian.rustore.publish.ReleasePhaseExtension
 import ru.cian.rustore.publish.DeveloperContacts
 import ru.cian.rustore.publish.DeveloperContactsConfig
 import ru.cian.rustore.publish.RustorePublishExtensionConfig
+import ru.cian.rustore.publish.TrustedCertificatesConfig
 import ru.cian.rustore.publish.models.Credential
 import java.io.File
+import java.io.FileNotFoundException
 
 private const val BUILD_DIRECTORY_PATH = "./build"
 
@@ -44,6 +46,8 @@ private const val CREDENTIALS_JSON = "{\"key_id\": \"id\", \"client_secret\": \"
 
 private const val CREDENTIALS_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/credentials_second.json"
 private const val CREDENTIALS_SECOND_JSON = "{\"key_id\": \"no_id\", \"client_secret\": \"no_secret\"}"
+
+private const val TRUSTED_CERTIFICATE_FILE_PATH = "$BUILD_DIRECTORY_PATH/trusted_ca.pem"
 
 private const val APP_BASIC_INFO_FILE_PATH = "$BUILD_DIRECTORY_PATH/app_info.json"
 private const val APP_BASIC_INFO_FILE_SECOND_PATH = "$BUILD_DIRECTORY_PATH/app_info_second.json"
@@ -72,6 +76,7 @@ internal class ConfigProviderTest {
         File(ARTIFACT_AAB_FILE_SECOND_PATH).createNewFile()
 
         File(WRONG_ARTIFACT_FILE_PATH).createNewFile()
+        File(TRUSTED_CERTIFICATE_FILE_PATH).createNewFile()
 
         val credentialsFile = File(CREDENTIALS_FILE_PATH)
         credentialsFile.createNewFile()
@@ -102,6 +107,7 @@ internal class ConfigProviderTest {
         File(CREDENTIALS_FILE_SECOND_PATH).delete()
 
         File(WRONG_ARTIFACT_FILE_PATH).delete()
+        File(TRUSTED_CERTIFICATE_FILE_PATH).delete()
 
         File(APP_BASIC_INFO_FILE_PATH).delete()
         File(APP_BASIC_INFO_FILE_SECOND_PATH).delete()
@@ -515,4 +521,77 @@ internal class ConfigProviderTest {
                 assertThat(actualValue.getConfig()).isEqualTo(expectedValue)
             }
     }
+
+    @Test
+    fun `correct config with api base url and trusted certificates params`() = mockkObject(CredentialHelper) {
+
+        every {
+            CredentialHelper.getCredentials(match { it.absolutePath == CREDENTIALS_FILE_PATH })
+        } returns Credential(keyId = "id", clientSecret = "secret")
+
+        fun config(cli: RustorePublishCli, extension: RustorePublishExtensionConfig.() -> Unit = {}) =
+            ConfigProvider(
+                extension = extensionConfigInstance().apply(extension),
+                cli = cli,
+                buildFileProvider = buildFileProvider,
+                releaseNotesFileProvider = releaseNotesFileProvider,
+                applicationId = applicationId,
+            ).getConfig()
+
+        val default = config(emptyCliConfig)
+        assertThat(default.apiBaseUrl).isEqualTo(RUSTORE_API_BASE_URL)
+        assertThat(default.trustedCertificates).isEqualTo(TrustedCertificatesConfig())
+
+        val fromExtension = config(emptyCliConfig) {
+            networkSetting {
+                apiBaseUrl = "$RUSTORE_API_BASE_URL_RUSSIAN_CA/"
+                useBundledRussianTrustedRootCa = true
+                trustedCertificatePath = TRUSTED_CERTIFICATE_FILE_PATH
+            }
+        }
+        assertThat(fromExtension.apiBaseUrl).isEqualTo(RUSTORE_API_BASE_URL_RUSSIAN_CA)
+        assertThat(fromExtension.trustedCertificates).isEqualTo(
+            TrustedCertificatesConfig(
+                useBundledRussianTrustedRootCa = true,
+                certificateFile = File(TRUSTED_CERTIFICATE_FILE_PATH),
+            )
+        )
+
+        val fromCli = config(
+            RustorePublishCli(
+                apiBaseUrl = RUSTORE_API_BASE_URL,
+                useBundledRussianTrustedRootCa = false,
+            )
+        ) {
+            networkSetting {
+                apiBaseUrl = RUSTORE_API_BASE_URL_RUSSIAN_CA
+                useBundledRussianTrustedRootCa = true
+            }
+        }
+        assertThat(fromCli.apiBaseUrl).isEqualTo(RUSTORE_API_BASE_URL)
+        assertThat(fromCli.trustedCertificates.useBundledRussianTrustedRootCa).isEqualTo(false)
+    }
+
+    @Test
+    fun `get error to build config for wrong api base url and missing certificate file`() =
+        mockkObject(CredentialHelper) {
+
+            every {
+                CredentialHelper.getCredentials(match { it.absolutePath == CREDENTIALS_FILE_PATH })
+            } returns Credential(keyId = "id", clientSecret = "secret")
+
+            fun configProvider(cli: RustorePublishCli) = ConfigProvider(
+                extension = extensionConfigInstance(),
+                cli = cli,
+                buildFileProvider = buildFileProvider,
+                releaseNotesFileProvider = releaseNotesFileProvider,
+                applicationId = applicationId,
+            )
+
+            assertThat { configProvider(RustorePublishCli(apiBaseUrl = "public-api-m.rustore.ru")).getConfig() }
+                .hasException(IllegalArgumentException::class)
+            assertThat {
+                configProvider(RustorePublishCli(trustedCertificatePath = "$BUILD_DIRECTORY_PATH/absent.pem")).getConfig()
+            }.hasException(FileNotFoundException::class)
+        }
 }

@@ -164,6 +164,32 @@ abstract class RustorePublishTask : DefaultTask() {
     var appType: AppTypes? = null
 
     @get:Internal
+    @set:Option(
+        option = "apiBaseUrl",
+        description = "Base url of Rustore Public API. Available values: " +
+            "['https://public-api.rustore.ru', 'https://public-api-m.rustore.ru']. " +
+            "Default value is 'https://public-api.rustore.ru'."
+    )
+    var apiBaseUrl: String? = null
+
+    @get:Internal
+    @set:Option(
+        option = "useBundledRussianTrustedRootCa",
+        description = "Trust Russian Trusted Root CA certificate bundled into the plugin " +
+            "in addition to JVM default CAs. It's required for 'https://public-api-m.rustore.ru' domain " +
+            "if the certificate isn't installed into JVM truststore."
+    )
+    var useBundledRussianTrustedRootCa: Boolean? = null
+
+    @get:Internal
+    @set:Option(
+        option = "trustedCertificatePath",
+        description = "Path to CA certificate file (X.509 in PEM or DER format) " +
+            "to trust in addition to JVM default CAs."
+    )
+    var trustedCertificatePath: String? = null
+
+    @get:Internal
     @set:Option(option = "apiStub", description = "Use RestAPI stub instead of real RestAPI requests")
     var apiStub: Boolean? = false
 
@@ -188,6 +214,9 @@ abstract class RustorePublishTask : DefaultTask() {
             apiStub = apiStub,
             minAndroidVersion = minAndroidVersion,
             appType = appType,
+            apiBaseUrl = apiBaseUrl,
+            useBundledRussianTrustedRootCa = useBundledRussianTrustedRootCa,
+            trustedCertificatePath = trustedCertificatePath,
         )
 
         rustoreLogger.i("extension=$extension")
@@ -220,6 +249,7 @@ abstract class RustorePublishTask : DefaultTask() {
             logger = rustoreLogger,
             baseEntryPoint = mockServerWrapper.getBaseUrl(),
             requestTimeout = config.requestTimeout,
+            trustedCertificates = config.trustedCertificates,
         )
 
         rustoreLogger.v("Found build file: `${config.artifactFile.name}`")
@@ -289,7 +319,7 @@ abstract class RustorePublishTask : DefaultTask() {
                 requestFormArgument = artifactFormat.fileExtension,
             )
         } else {
-            MockServerWrapperStub()
+            MockServerWrapperStub(baseUrl = config.apiBaseUrl)
         }
     }
 

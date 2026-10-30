@@ -7,15 +7,38 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.Response
+import ru.cian.rustore.publish.TrustedCertificatesConfig
 import ru.cian.rustore.publish.utils.Logger
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLException
+import javax.net.ssl.SSLHandshakeException
+import javax.net.ssl.SSLPeerUnverifiedException
 
 internal class HttpClientHelper constructor(
     private val logger: Logger,
     private val requestTimeout: Long?,
+    private val trustedCertificates: TrustedCertificatesConfig = TrustedCertificatesConfig(),
 ) {
 
     private val gson by lazy { Gson() }
+
+    private val client by lazy {
+        val connectTimeout = requestTimeout ?: REQUEST_TIMEOUT_SECONDS
+        OkHttpClient.Builder()
+            .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+            .writeTimeout(connectTimeout, TimeUnit.SECONDS)
+            .readTimeout(connectTimeout, TimeUnit.SECONDS)
+            .apply {
+                TrustManagerProvider.create(trustedCertificates)?.let { trustManager ->
+                    val sslContext = SSLContext.getInstance("TLS")
+                    sslContext.init(null, arrayOf(trustManager), null)
+                    sslSocketFactory(sslContext.socketFactory, trustManager)
+                }
+            }
+            .build()
+    }
 
     inline fun <reified T> get(url: String, headers: Map<String, String>? = null): T =
         execute(Request.Builder().get(), url, headers, T::class.java)
@@ -40,18 +63,12 @@ internal class HttpClientHelper constructor(
         headers: Map<String, String>?,
         responseClass: Class<T>,
     ): T {
-        val connectTimeout = requestTimeout ?: REQUEST_TIMEOUT_SECONDS
-        val client = OkHttpClient.Builder()
-            .connectTimeout(connectTimeout, TimeUnit.SECONDS)
-            .writeTimeout(connectTimeout, TimeUnit.SECONDS)
-            .readTimeout(connectTimeout, TimeUnit.SECONDS)
-            .build()
         val request = requestBuilder
             .url(url)
             .apply { headers?.forEach { header(it.key, it.value) } }
             .build()
 
-        return client.newCall(request).execute().use { httpResponse ->
+        return executeCall(request).use { httpResponse ->
             val responseBody = httpResponse.body?.string()
             val parseResult = runCatching { parseJson(responseBody, responseClass, httpResponse.isSuccessful) }
             parseResult.getOrNull() ?: run {
@@ -67,6 +84,25 @@ internal class HttpClientHelper constructor(
                 throw exception
             }
         }
+    }
+
+    private fun executeCall(request: Request): Response = try {
+        client.newCall(request).execute()
+    } catch (e: SSLHandshakeException) {
+        throw tlsException(request, e)
+    } catch (e: SSLPeerUnverifiedException) {
+        throw tlsException(request, e)
+    }
+
+    private fun tlsException(request: Request, cause: SSLException): RustoreTlsException {
+        val exception = RustoreTlsException(
+            method = request.method,
+            url = request.url.toString(),
+            trustedCertificates = trustedCertificates,
+            cause = cause,
+        )
+        logger.e(exception)
+        return exception
     }
 
     private fun <T> parseJson(responseBody: String?, responseClass: Class<T>, isSuccessful: Boolean): T? {

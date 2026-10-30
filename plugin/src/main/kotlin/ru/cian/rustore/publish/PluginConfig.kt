@@ -1,5 +1,6 @@
 package ru.cian.rustore.publish
 
+import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL
 import java.io.File
 
 internal data class PluginConfig(
@@ -16,6 +17,13 @@ internal data class PluginConfig(
     val minAndroidVersion: String,
     val developerContacts: DeveloperContactsConfig,
     val appType: AppTypes?,
+    val apiBaseUrl: String = RUSTORE_API_BASE_URL,
+    val trustedCertificates: TrustedCertificatesConfig = TrustedCertificatesConfig(),
+)
+
+internal data class TrustedCertificatesConfig(
+    val useBundledRussianTrustedRootCa: Boolean = false,
+    val certificateFile: File? = null,
 )
 
 internal data class ReleasePhaseConfig(

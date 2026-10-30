@@ -12,10 +12,16 @@ import io.mockk.mockk
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.tls.HandshakeCertificates
+import okhttp3.tls.HeldCertificate
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import ru.cian.rustore.publish.TrustedCertificatesConfig
 import ru.cian.rustore.publish.models.response.UploadAppFileResponse
+import java.io.File
+import java.net.InetAddress
 
 class HttpClientHelperTest {
 
@@ -116,7 +122,54 @@ class HttpClientHelperTest {
         assertThat(exception.cause).isNotNull().prop(Throwable::message).isNotNull().contains("json")
     }
 
-    private fun upload(): UploadAppFileResponse = httpClient.post<UploadAppFileResponse>(
+    @Test
+    fun `should throw tls exception with hints for untrusted server certificate`() {
+        startHttpsServer()
+
+        val exception = runCatching { upload() }.exceptionOrNull()
+
+        assertThat(exception).isNotNull().isInstanceOf(RustoreTlsException::class)
+        assertThat(exception?.message).isNotNull().contains("TLS connection failed for POST")
+        assertThat(exception?.message).isNotNull().contains("--useBundledRussianTrustedRootCa")
+        assertThat(exception?.message).isNotNull().contains("--trustedCertificatePath")
+    }
+
+    @Test
+    fun `should trust server certificate from trusted certificate file`(@TempDir tempDir: File) {
+        val rootCertificate = startHttpsServer()
+        val certificateFile = File(tempDir, "ca.pem").apply { writeText(rootCertificate.certificatePem()) }
+        val trustedHttpClient = HttpClientHelper(
+            logger = mockk(relaxed = true),
+            requestTimeout = 5L,
+            trustedCertificates = TrustedCertificatesConfig(certificateFile = certificateFile),
+        )
+        server.enqueue(MockResponse().setResponseCode(200).setBody("""{"code":"OK","message":null}"""))
+
+        val response = upload(trustedHttpClient)
+
+        assertThat(response.code).isEqualTo("OK")
+    }
+
+    private fun startHttpsServer(): HeldCertificate {
+        server.shutdown()
+        val rootCertificate = HeldCertificate.Builder()
+            .certificateAuthority(0)
+            .commonName("Test Root CA")
+            .build()
+        val serverCertificate = HeldCertificate.Builder()
+            .addSubjectAlternativeName(InetAddress.getByName("localhost").canonicalHostName)
+            .signedBy(rootCertificate)
+            .build()
+        val serverHandshakeCertificates = HandshakeCertificates.Builder()
+            .heldCertificate(serverCertificate)
+            .build()
+        server = MockWebServer()
+        server.useHttps(serverHandshakeCertificates.sslSocketFactory(), false)
+        server.start()
+        return rootCertificate
+    }
+
+    private fun upload(client: HttpClientHelper = httpClient): UploadAppFileResponse = client.post<UploadAppFileResponse>(
         url = server.url("/public/v1/application/ru.cian.app/version/1/aab").toString(),
         body = "file".toRequestBody(HttpClientHelper.MEDIA_TYPE_AAB),
         headers = mapOf("Public-Token" to "secret"),

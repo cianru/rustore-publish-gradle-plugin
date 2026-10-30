@@ -287,6 +287,51 @@ rustorePublish {
 
       /**
        * (Optional)
+       * Network settings of requests to Rustore API.
+       */
+      networkSetting {
+          /**
+           * (Optional)
+           * Base url of Rustore Public API.
+           * Rustore moves Public API to the new domain with certificate issued by Russian Trusted Root CA,
+           * see https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam
+           * Available values:
+           * ----| 'https://public-api.rustore.ru' – the domain with international certificate.
+           * ----| 'https://public-api-m.rustore.ru' – the new domain with certificate issued by Russian Trusted Root CA.
+           *       JVM must trust Russian Trusted Root CA: install it into JVM truststore
+           *       or use `useBundledRussianTrustedRootCa` or `trustedCertificatePath` params.
+           * Type: String (Optional)
+           * Default value: `https://public-api.rustore.ru`
+           * CLI: `--apiBaseUrl`
+           */
+          apiBaseUrl = "https://public-api.rustore.ru"
+
+          /**
+           * (Optional)
+           * Trust Russian Trusted Root CA (Ministry of Digital Development) certificate bundled into the plugin
+           * in addition to JVM default CAs. It's required for `https://public-api-m.rustore.ru` domain
+           * if the certificate isn't installed into JVM truststore.
+           * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
+           * Type: Boolean (Optional)
+           * Default value: `false`
+           * CLI: `--useBundledRussianTrustedRootCa`
+           */
+          useBundledRussianTrustedRootCa = false
+
+          /**
+           * (Optional)
+           * Path to CA certificate file (X.509 in PEM or DER format, PEM file may contain several certificates)
+           * to trust in addition to JVM default CAs. For example, Russian Trusted Root CA from https://www.gosuslugi.ru/crt
+           * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
+           * Type: String (Optional)
+           * Default value: `null`
+           * CLI: `--trustedCertificatePath`
+           */
+          trustedCertificatePath = null
+      }
+
+      /**
+       * (Optional)
        * Release Notes settings. For mote info see ReleaseNote param desc.
        * Type: List<ReleaseNote> (Optional)
        * Default value: `null`
@@ -340,6 +385,11 @@ rustorePublish {
             ]
             mobileServicesType = "Unknown"
             appType = "MAIN"
+            networkSetting {
+                apiBaseUrl = "https://public-api.rustore.ru"
+                useBundledRussianTrustedRootCa = false
+                trustedCertificatePath = null
+            }
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
                     "ru-RU",
@@ -407,8 +457,39 @@ CLI params are more priority than gradle configuration params.
     --mobileServicesType="Unknown" \
     --minAndroidVersion="8" \
     --appType="MAIN" \
+    --apiBaseUrl="https://public-api-m.rustore.ru" \
+    --useBundledRussianTrustedRootCa \
+    --trustedCertificatePath="/home/<USERNAME>/certs/russian_trusted_root_ca.pem" \
     --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
 ```
+
+# Rustore API domain migration
+
+Rustore [moves](https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam)
+Public API from `https://public-api.rustore.ru` to `https://public-api-m.rustore.ru`.
+The new domain uses certificate issued by Russian Trusted Root CA (Ministry of Digital Development),
+which is absent in the default JVM truststore. Both domains work in parallel now, so the plugin uses
+the old domain by default.
+
+To switch to the new domain set `apiBaseUrl = "https://public-api-m.rustore.ru"` in `networkSetting { ... }` block
+and choose one of the ways to trust the certificate:
+
+```kotlin
+networkSetting {
+    apiBaseUrl = "https://public-api-m.rustore.ru"
+    useBundledRussianTrustedRootCa = true
+}
+```
+
+
+1. Install Russian Trusted Root CA from https://www.gosuslugi.ru/crt into the truststore of JVM that runs Gradle
+   (e.g. `keytool -importcert -cacerts -alias russian_trusted_root_ca -file russian_trusted_root_ca.cer`)
+   or pass a custom truststore with `-Djavax.net.ssl.trustStore` in `org.gradle.jvmargs`. No plugin params are required.
+2. Set `networkSetting.useBundledRussianTrustedRootCa = true` to use the certificate bundled into the plugin.
+3. Set `networkSetting.trustedCertificatePath` to the certificate file managed by you.
+
+Options 2 and 3 add the certificate only to plugin requests to Rustore API in addition to JVM default CAs,
+JVM global settings are not changed. If TLS connection fails, the plugin throws `RustoreTlsException` with the list of these options.
 
 # Promotion
 

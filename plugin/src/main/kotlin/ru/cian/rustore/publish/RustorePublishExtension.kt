@@ -1,7 +1,9 @@
 package ru.cian.rustore.publish
 
 import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.Project
+import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL
 
 open class RustorePublishExtension(
     project: Project
@@ -157,6 +159,13 @@ class RustorePublishExtensionConfig(
      */
     var appType: AppTypes? = null
 
+    /**
+     * (Optional)
+     * Network settings of requests to Rustore API. For more info see NetworkSettingExtension params desc.
+     * Gradle Extension DSL: `networkSetting { ... }`
+     */
+    var networkSetting: NetworkSettingExtension = NetworkSettingExtension()
+
     init {
         require(name.isNotBlank()) {
             "Name must not be blank nor empty"
@@ -169,6 +178,17 @@ class RustorePublishExtensionConfig(
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.call()
         return releasePhase!!
+    }
+
+    fun networkSetting(action: Action<NetworkSettingExtension>) {
+        action.execute(networkSetting)
+    }
+
+    fun networkSetting(closure: Closure<NetworkSettingExtension>): NetworkSettingExtension {
+        closure.delegate = networkSetting
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.call(networkSetting)
+        return networkSetting
     }
 
     override fun toString(): String {
@@ -185,7 +205,58 @@ class RustorePublishExtensionConfig(
             "releaseNotes='$releaseNotes', " +
             "minAndroidVersion='$minAndroidVersion', " +
             "developerContacts='$developerContacts', " +
-            "appType='$appType'" +
+            "appType='$appType', " +
+            "networkSetting='$networkSetting'" +
+            ")"
+    }
+}
+
+open class NetworkSettingExtension : java.io.Serializable {
+
+    /**
+     * (Optional)
+     * Base url of Rustore Public API.
+     * Rustore moves Public API to the new domain with certificate issued by Russian Trusted Root CA,
+     * see https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam
+     * Available values:
+     * ----| 'https://public-api.rustore.ru' – the domain with international certificate.
+     * ----| 'https://public-api-m.rustore.ru' – the new domain with certificate issued by Russian Trusted Root CA.
+     *       JVM must trust Russian Trusted Root CA: install it into JVM truststore
+     *       or use `useBundledRussianTrustedRootCa` or `trustedCertificatePath` params.
+     * Type: String (Optional)
+     * Default value: `https://public-api.rustore.ru`
+     * CLI: `--apiBaseUrl`
+     */
+    var apiBaseUrl: String = RUSTORE_API_BASE_URL
+
+    /**
+     * (Optional)
+     * Trust Russian Trusted Root CA (Ministry of Digital Development) certificate bundled into the plugin
+     * in addition to JVM default CAs. It's required for `https://public-api-m.rustore.ru` domain
+     * if the certificate isn't installed into JVM truststore.
+     * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
+     * Type: Boolean (Optional)
+     * Default value: `false`
+     * CLI: `--useBundledRussianTrustedRootCa`
+     */
+    var useBundledRussianTrustedRootCa: Boolean = false
+
+    /**
+     * (Optional)
+     * Path to CA certificate file (X.509 in PEM or DER format, PEM file may contain several certificates)
+     * to trust in addition to JVM default CAs. For example, Russian Trusted Root CA from https://www.gosuslugi.ru/crt
+     * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
+     * Type: String (Optional)
+     * Default value: `null`
+     * CLI: `--trustedCertificatePath`
+     */
+    var trustedCertificatePath: String? = null
+
+    override fun toString(): String {
+        return "NetworkSettingExtension(" +
+            "apiBaseUrl='$apiBaseUrl', " +
+            "useBundledRussianTrustedRootCa='$useBundledRussianTrustedRootCa', " +
+            "trustedCertificatePath='$trustedCertificatePath'" +
             ")"
     }
 }

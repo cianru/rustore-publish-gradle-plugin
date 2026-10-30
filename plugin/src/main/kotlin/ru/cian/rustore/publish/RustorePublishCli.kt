@@ -15,4 +15,7 @@ internal data class RustorePublishCli(
     val seoTagIds: List<Int>? = null,
     val minAndroidVersion: String? = null,
     val appType: AppTypes? = null,
+    val apiBaseUrl: String? = null,
+    val useBundledRussianTrustedRootCa: Boolean? = null,
+    val trustedCertificatePath: String? = null,
 )
