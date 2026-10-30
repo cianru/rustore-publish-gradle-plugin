@@ -26,6 +26,7 @@ import ru.cian.rustore.publish.ReleasePhaseExtension
 import ru.cian.rustore.publish.DeveloperContacts
 import ru.cian.rustore.publish.DeveloperContactsConfig
 import ru.cian.rustore.publish.RustorePublishExtensionConfig
+import ru.cian.rustore.publish.TimeoutsConfig
 import ru.cian.rustore.publish.TrustedCertificatesConfig
 import ru.cian.rustore.publish.models.Credential
 import java.io.File
@@ -144,7 +145,6 @@ internal class ConfigProviderTest {
             credentials = Credentials("id", "secret"),
             publishType = PublishType.INSTANTLY,
             artifactFormat = BuildFormat.APK,
-            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releasePhase = null,
@@ -196,7 +196,6 @@ internal class ConfigProviderTest {
             publishType = PublishType.MANUAL,
             artifactFormat = BuildFormat.AAB,
             artifactFile = File(ARTIFACT_AAB_FILE_SECOND_PATH),
-            requestTimeout = 234_567L,
             mobileServicesType = MobileServicesType.UNKNOWN,
             releasePhase = ReleasePhaseConfig(
                 percent = 10.05
@@ -210,13 +209,22 @@ internal class ConfigProviderTest {
             minAndroidVersion = "8",
             developerContacts = DeveloperContactsConfig(email = "test@test.com"),
             appType = null,
+            timeouts = TimeoutsConfig(
+                connectTimeout = 234_567L,
+                readTimeout = 345_678L,
+                writeTimeout = 456_789L,
+            ),
         )
 
         val inputExtensionConfig = extensionConfigInstance().apply {
             credentialsPath = CREDENTIALS_FILE_PATH
             publishType = PublishType.INSTANTLY
             buildFormat = BuildFormat.APK
-            requestTimeout = 123_456L
+            networkSetting {
+                connectTimeout = 123_456L
+                readTimeout = 123_456L
+                writeTimeout = 123_456L
+            }
             buildFile = ARTIFACT_APK_FILE_PATH
             releasePhase = ReleasePhaseExtension().apply {
                 percent = 99.7
@@ -232,7 +240,9 @@ internal class ConfigProviderTest {
             keyId = "id123",
             clientSecret = "secret123",
             buildFormat = BuildFormat.AAB,
-            requestTimeout = "234567",
+            connectTimeout = "234567",
+            readTimeout = "345678",
+            writeTimeout = "456789",
             buildFile = ARTIFACT_AAB_FILE_SECOND_PATH,
             releasePhasePercent = "10.05",
             seoTagIds = listOf(
@@ -261,7 +271,6 @@ internal class ConfigProviderTest {
             credentials = Credentials("id", "secret"),
             publishType = PublishType.INSTANTLY,
             artifactFormat = BuildFormat.APK,
-            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releasePhase = null,
@@ -337,13 +346,15 @@ internal class ConfigProviderTest {
                 )
             )
             .row(
-                expectedConfig.copy(requestTimeout = 123_456L),
+                expectedConfig.copy(timeouts = TimeoutsConfig(connectTimeout = 123_456L)),
                 ConfigProvider(
                     extension = extensionConfigInstance().apply {
-                        requestTimeout = 123_456L
+                        networkSetting {
+                            connectTimeout = 123_456L
+                        }
                     },
                     cli = RustorePublishCli(
-                        requestTimeout = null
+                        connectTimeout = null
                     ),
                     buildFileProvider = buildFileProvider,
                     releaseNotesFileProvider = releaseNotesFileProvider,
@@ -362,7 +373,6 @@ internal class ConfigProviderTest {
             credentials = Credentials(keyId = "id", clientSecret = "secret"),
             publishType = PublishType.INSTANTLY,
             artifactFormat = BuildFormat.APK,
-            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releasePhase = null,
@@ -468,7 +478,6 @@ internal class ConfigProviderTest {
             credentials = Credentials("id", "secret"),
             publishType = PublishType.INSTANTLY,
             artifactFormat = BuildFormat.APK,
-            requestTimeout = null,
             mobileServicesType = MobileServicesType.UNKNOWN,
             artifactFile = File(ARTIFACT_APK_FILE_PATH),
             releasePhase = null,
@@ -541,6 +550,7 @@ internal class ConfigProviderTest {
         val default = config(emptyCliConfig)
         assertThat(default.apiBaseUrl).isEqualTo(RUSTORE_API_BASE_URL)
         assertThat(default.trustedCertificates).isEqualTo(TrustedCertificatesConfig())
+        assertThat(default.timeouts).isEqualTo(TimeoutsConfig(30L, 300L, 60L))
 
         val fromExtension = config(emptyCliConfig) {
             networkSetting {
@@ -573,7 +583,7 @@ internal class ConfigProviderTest {
     }
 
     @Test
-    fun `get error to build config for wrong api base url and missing certificate file`() =
+    fun `get error to build config for wrong network setting params`() =
         mockkObject(CredentialHelper) {
 
             every {
@@ -593,5 +603,9 @@ internal class ConfigProviderTest {
             assertThat {
                 configProvider(RustorePublishCli(trustedCertificatePath = "$BUILD_DIRECTORY_PATH/absent.pem")).getConfig()
             }.hasException(FileNotFoundException::class)
+            assertThat { configProvider(RustorePublishCli(readTimeout = "5min")).getConfig() }
+                .hasException(IllegalArgumentException::class)
+            assertThat { configProvider(RustorePublishCli(writeTimeout = "-1")).getConfig() }
+                .hasException(IllegalArgumentException::class)
         }
 }

@@ -5,7 +5,6 @@ internal data class RustorePublishCli(
     val credentialsPath: String? = null,
     val keyId: String? = null,
     val clientSecret: String? = null,
-    val requestTimeout: String? = null,
     val mobileServicesType: MobileServicesType? = null,
     val buildFormat: BuildFormat? = null,
     val buildFile: String? = null,
@@ -18,4 +17,7 @@ internal data class RustorePublishCli(
     val apiBaseUrl: String? = null,
     val useBundledRussianTrustedRootCa: Boolean? = null,
     val trustedCertificatePath: String? = null,
+    val connectTimeout: String? = null,
+    val readTimeout: String? = null,
+    val writeTimeout: String? = null,
 )

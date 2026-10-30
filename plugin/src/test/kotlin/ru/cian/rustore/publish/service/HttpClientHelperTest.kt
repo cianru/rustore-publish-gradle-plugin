@@ -18,15 +18,18 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import ru.cian.rustore.publish.TimeoutsConfig
 import ru.cian.rustore.publish.TrustedCertificatesConfig
 import ru.cian.rustore.publish.models.response.UploadAppFileResponse
 import java.io.File
 import java.net.InetAddress
+import java.net.SocketTimeoutException
+import java.util.concurrent.TimeUnit
 
 class HttpClientHelperTest {
 
     private lateinit var server: MockWebServer
-    private val httpClient = HttpClientHelper(logger = mockk(relaxed = true), requestTimeout = 5L)
+    private val httpClient = HttpClientHelper(logger = mockk(relaxed = true), timeouts = TEST_TIMEOUTS)
 
     @BeforeEach
     fun setUp() {
@@ -140,7 +143,7 @@ class HttpClientHelperTest {
         val certificateFile = File(tempDir, "ca.pem").apply { writeText(rootCertificate.certificatePem()) }
         val trustedHttpClient = HttpClientHelper(
             logger = mockk(relaxed = true),
-            requestTimeout = 5L,
+            timeouts = TEST_TIMEOUTS,
             trustedCertificates = TrustedCertificatesConfig(certificateFile = certificateFile),
         )
         server.enqueue(MockResponse().setResponseCode(200).setBody("""{"code":"OK","message":null}"""))
@@ -148,6 +151,24 @@ class HttpClientHelperTest {
         val response = upload(trustedHttpClient)
 
         assertThat(response.code).isEqualTo("OK")
+    }
+
+    @Test
+    fun `should fail by read timeout`() {
+        val client = HttpClientHelper(
+            logger = mockk(relaxed = true),
+            timeouts = TEST_TIMEOUTS.copy(readTimeout = 1L),
+        )
+        server.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setHeadersDelay(3, TimeUnit.SECONDS)
+                .setBody("""{"code":"OK","message":null}""")
+        )
+
+        val exception = runCatching { upload(client) }.exceptionOrNull()
+
+        assertThat(exception).isNotNull().isInstanceOf(SocketTimeoutException::class)
     }
 
     private fun startHttpsServer(): HeldCertificate {
@@ -179,5 +200,9 @@ class HttpClientHelperTest {
         val exception = runCatching { upload() }.exceptionOrNull()
         assertThat(exception).isNotNull().isInstanceOf(RustoreHttpException::class)
         return exception as RustoreHttpException
+    }
+
+    private companion object {
+        val TEST_TIMEOUTS = TimeoutsConfig(connectTimeout = 5L, readTimeout = 5L, writeTimeout = 5L)
     }
 }

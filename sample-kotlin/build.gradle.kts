@@ -10,7 +10,13 @@ rustorePublish {
             credentialsPath = "$projectDir/rustore-credentials.json"
             mobileServicesType = ru.cian.rustore.publish.MobileServicesType.HMS
             buildFormat = ru.cian.rustore.publish.BuildFormat.AAB
-            requestTimeout = 60
+            networkSetting {
+                apiBaseUrl = "https://public-api.rustore.ru"
+                useBundledRussianTrustedRootCa = false
+                connectTimeout = 60
+                readTimeout = 60
+                writeTimeout = 60
+            }
             seoTagIds = listOf(
                 116,
                 69,

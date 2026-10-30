@@ -85,14 +85,6 @@ abstract class RustorePublishTask : DefaultTask() {
     )
     var buildFormat: BuildFormat? = null
 
-    @get:Internal
-    @set:Option(
-        option = "requestTimeout",
-        description = "The time in seconds to wait for the publication to complete. " +
-            "Increase it if you build is a large. Default value is 300 seconds."
-    )
-    var requestTimeout: String? = null
-
     @Suppress("MaxLineLength")
     @get:Internal
     @set:Option(
@@ -190,6 +182,30 @@ abstract class RustorePublishTask : DefaultTask() {
     var trustedCertificatePath: String? = null
 
     @get:Internal
+    @set:Option(
+        option = "connectTimeout",
+        description = "Timeout in seconds to establish connection to Rustore API. " +
+            "'0' means no timeout. Default value is 30."
+    )
+    var connectTimeout: String? = null
+
+    @get:Internal
+    @set:Option(
+        option = "readTimeout",
+        description = "Timeout in seconds between data packets while reading Rustore API response. " +
+            "'0' means no timeout. Default value is 300 (5min)."
+    )
+    var readTimeout: String? = null
+
+    @get:Internal
+    @set:Option(
+        option = "writeTimeout",
+        description = "Timeout in seconds between data packets while sending request body " +
+            "(including build file upload) to Rustore API. '0' means no timeout. Default value is 60 (1min)."
+    )
+    var writeTimeout: String? = null
+
+    @get:Internal
     @set:Option(option = "apiStub", description = "Use RestAPI stub instead of real RestAPI requests")
     var apiStub: Boolean? = false
 
@@ -204,7 +220,6 @@ abstract class RustorePublishTask : DefaultTask() {
             credentialsPath = credentialsPath,
             keyId = keyId,
             clientSecret = clientSecret,
-            requestTimeout = requestTimeout,
             mobileServicesType = mobileServicesType,
             buildFormat = buildFormat,
             buildFile = buildFile,
@@ -217,6 +232,9 @@ abstract class RustorePublishTask : DefaultTask() {
             apiBaseUrl = apiBaseUrl,
             useBundledRussianTrustedRootCa = useBundledRussianTrustedRootCa,
             trustedCertificatePath = trustedCertificatePath,
+            connectTimeout = connectTimeout,
+            readTimeout = readTimeout,
+            writeTimeout = writeTimeout,
         )
 
         rustoreLogger.i("extension=$extension")
@@ -248,7 +266,7 @@ abstract class RustorePublishTask : DefaultTask() {
         val rustoreService = RustoreServiceImpl(
             logger = rustoreLogger,
             baseEntryPoint = mockServerWrapper.getBaseUrl(),
-            requestTimeout = config.requestTimeout,
+            timeouts = config.timeouts,
             trustedCertificates = config.trustedCertificates,
         )
 

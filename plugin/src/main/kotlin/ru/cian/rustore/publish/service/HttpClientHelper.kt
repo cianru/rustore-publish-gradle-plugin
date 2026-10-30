@@ -8,6 +8,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import ru.cian.rustore.publish.TimeoutsConfig
 import ru.cian.rustore.publish.TrustedCertificatesConfig
 import ru.cian.rustore.publish.utils.Logger
 import java.util.concurrent.TimeUnit
@@ -18,18 +19,17 @@ import javax.net.ssl.SSLPeerUnverifiedException
 
 internal class HttpClientHelper constructor(
     private val logger: Logger,
-    private val requestTimeout: Long?,
+    private val timeouts: TimeoutsConfig = TimeoutsConfig(),
     private val trustedCertificates: TrustedCertificatesConfig = TrustedCertificatesConfig(),
 ) {
 
     private val gson by lazy { Gson() }
 
     private val client by lazy {
-        val connectTimeout = requestTimeout ?: REQUEST_TIMEOUT_SECONDS
         OkHttpClient.Builder()
-            .connectTimeout(connectTimeout, TimeUnit.SECONDS)
-            .writeTimeout(connectTimeout, TimeUnit.SECONDS)
-            .readTimeout(connectTimeout, TimeUnit.SECONDS)
+            .connectTimeout(timeouts.connectTimeout, TimeUnit.SECONDS)
+            .readTimeout(timeouts.readTimeout, TimeUnit.SECONDS)
+            .writeTimeout(timeouts.writeTimeout, TimeUnit.SECONDS)
             .apply {
                 TrustManagerProvider.create(trustedCertificates)?.let { trustManager ->
                     val sslContext = SSLContext.getInstance("TLS")
@@ -124,7 +124,6 @@ internal class HttpClientHelper constructor(
     companion object {
         val MEDIA_TYPE_JSON = "application/json;charset=utf-8".toMediaType()
         val MEDIA_TYPE_AAB = "application/octet-stream".toMediaType()
-        private const val REQUEST_TIMEOUT_SECONDS = 300L
         private const val RESPONSE_CODE_FIELD = "code"
     }
 }

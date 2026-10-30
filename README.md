@@ -200,15 +200,6 @@ rustorePublish {
 
       /**
        * (Optional)
-       * The time in seconds to wait for the publication to complete. Increase it if you build is large. 
-       * Type: Long (Optional)
-       * Default value: `300` // (5min)
-       * CLI: `--requestTimeout`
-       */
-      requestTimeout = 300
-        
-      /**
-       * (Optional)
        * Type of mobile services used in application.
        * For more details see param `servicesType` in documentation:
        * https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk/
@@ -328,6 +319,35 @@ rustorePublish {
            * CLI: `--trustedCertificatePath`
            */
           trustedCertificatePath = null
+
+          /**
+           * (Optional)
+           * Timeout in seconds to establish TCP and TLS connection to Rustore API. `0` means no timeout.
+           * Type: Long (Optional)
+           * Default value: `30`
+           * CLI: `--connectTimeout`
+           */
+          connectTimeout = 30
+
+          /**
+           * (Optional)
+           * Timeout in seconds between data packets while reading Rustore API response,
+           * including waiting for the response after build file upload. `0` means no timeout.
+           * Type: Long (Optional)
+           * Default value: `300` // (5min)
+           * CLI: `--readTimeout`
+           */
+          readTimeout = 300
+
+          /**
+           * (Optional)
+           * Timeout in seconds between data packets while sending request body to Rustore API,
+           * including build file upload. It limits a pause, not the total upload time. `0` means no timeout.
+           * Type: Long (Optional)
+           * Default value: `60` // (1min)
+           * CLI: `--writeTimeout`
+           */
+          writeTimeout = 60
       }
 
       /**
@@ -378,7 +398,6 @@ rustorePublish {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
             buildFormat = "apk"
             buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
-            requestTimeout = 60 // 1min
             seoTagIds = [
                 116,
                 69,
@@ -389,6 +408,9 @@ rustorePublish {
                 apiBaseUrl = "https://public-api.rustore.ru"
                 useBundledRussianTrustedRootCa = false
                 trustedCertificatePath = null
+                connectTimeout = 30
+                readTimeout = 300 // 5min
+                writeTimeout = 60 // 1min
             }
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
@@ -452,7 +474,6 @@ CLI params are more priority than gradle configuration params.
     --credentialsPath="/sample-kotlin/rustore-credentials.json" \
     --buildFormat=apk \
     --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
-    --requestTimeout=300 \ # 5min
     --seoTagIds=116,69 \
     --mobileServicesType="Unknown" \
     --minAndroidVersion="8" \
@@ -460,6 +481,9 @@ CLI params are more priority than gradle configuration params.
     --apiBaseUrl="https://public-api-m.rustore.ru" \
     --useBundledRussianTrustedRootCa \
     --trustedCertificatePath="/home/<USERNAME>/certs/russian_trusted_root_ca.pem" \
+    --connectTimeout=30 \
+    --readTimeout=300 \
+    --writeTimeout=60 \
     --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
 ```
 

@@ -5,6 +5,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import ru.cian.rustore.publish.DeveloperContactsConfig
+import ru.cian.rustore.publish.TimeoutsConfig
 import ru.cian.rustore.publish.TrustedCertificatesConfig
 import ru.cian.rustore.publish.models.request.AccessTokenRustoreRequest
 import ru.cian.rustore.publish.models.request.AppDraftRequest
@@ -21,12 +22,12 @@ import java.io.File
 internal class RustoreServiceImpl(
     private val logger: Logger,
     private val baseEntryPoint: String,
-    private val requestTimeout: Long?,
+    private val timeouts: TimeoutsConfig = TimeoutsConfig(),
     private val trustedCertificates: TrustedCertificatesConfig = TrustedCertificatesConfig(),
 ) : RustoreService {
 
     private val gson = Gson()
-    private val httpClient = HttpClientHelper(logger, requestTimeout, trustedCertificates)
+    private val httpClient = HttpClientHelper(logger, timeouts, trustedCertificates)
 
     override fun getToken(
         keyId: String,

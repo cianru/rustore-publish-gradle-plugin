@@ -3,6 +3,9 @@ package ru.cian.rustore.publish
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.Project
+import ru.cian.rustore.publish.utils.DEFAULT_CONNECT_TIMEOUT_SECONDS
+import ru.cian.rustore.publish.utils.DEFAULT_READ_TIMEOUT_SECONDS
+import ru.cian.rustore.publish.utils.DEFAULT_WRITE_TIMEOUT_SECONDS
 import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL
 
 open class RustorePublishExtension(
@@ -55,15 +58,6 @@ class RustorePublishExtensionConfig(
      * Default value: `instantly`
      */
     var publishType = PublishType.INSTANTLY
-
-    /**
-     * (Optional)
-     * The time in seconds to wait for the publication to complete. Increase it if you build is large.
-     * Type: Long (Optional)
-     * Default value: `300` // (5min)
-     * CLI: `--requestTimeout`
-     */
-    var requestTimeout: Long? = null
 
     /**
      * (Optional)
@@ -196,7 +190,6 @@ class RustorePublishExtensionConfig(
             "name='$name', " +
             "credentialsPath='$credentialsPath', " +
             "publishType='$publishType', " +
-            "requestTimeout='$requestTimeout', " +
             "mobileServicesType='$mobileServicesType', " +
             "seoTagIds='$seoTagIds', " +
             "buildFormat='$buildFormat', " +
@@ -252,11 +245,43 @@ open class NetworkSettingExtension : java.io.Serializable {
      */
     var trustedCertificatePath: String? = null
 
+    /**
+     * (Optional)
+     * Timeout in seconds to establish TCP and TLS connection to Rustore API. `0` means no timeout.
+     * Type: Long (Optional)
+     * Default value: `30`
+     * CLI: `--connectTimeout`
+     */
+    var connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT_SECONDS
+
+    /**
+     * (Optional)
+     * Timeout in seconds between data packets while reading Rustore API response,
+     * including waiting for the response after build file upload. `0` means no timeout.
+     * Type: Long (Optional)
+     * Default value: `300` // (5min)
+     * CLI: `--readTimeout`
+     */
+    var readTimeout: Long = DEFAULT_READ_TIMEOUT_SECONDS
+
+    /**
+     * (Optional)
+     * Timeout in seconds between data packets while sending request body to Rustore API,
+     * including build file upload. It limits a pause, not the total upload time. `0` means no timeout.
+     * Type: Long (Optional)
+     * Default value: `60` // (1min)
+     * CLI: `--writeTimeout`
+     */
+    var writeTimeout: Long = DEFAULT_WRITE_TIMEOUT_SECONDS
+
     override fun toString(): String {
         return "NetworkSettingExtension(" +
             "apiBaseUrl='$apiBaseUrl', " +
             "useBundledRussianTrustedRootCa='$useBundledRussianTrustedRootCa', " +
-            "trustedCertificatePath='$trustedCertificatePath'" +
+            "trustedCertificatePath='$trustedCertificatePath', " +
+            "connectTimeout='$connectTimeout', " +
+            "readTimeout='$readTimeout', " +
+            "writeTimeout='$writeTimeout'" +
             ")"
     }
 }

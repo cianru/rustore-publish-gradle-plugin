@@ -10,6 +10,24 @@ New params are grouped in `networkSetting { ... }` block:
     bundled into the plugin. Default value is `false`.
   * `trustedCertificatePath` param (CLI: `--trustedCertificatePath`) to trust custom CA certificate file.
   * TLS errors are reported as `RustoreTlsException` with the list of ways to fix the certificate trust.
+* `connectTimeout`, `readTimeout`, `writeTimeout` params in seconds in `networkSetting { ... }` block
+(CLI: `--connectTimeout`, `--readTimeout`, `--writeTimeout`) to configure network timeouts separately.
+Default values: `connectTimeout = 30`, `readTimeout = 300`, `writeTimeout = 60`.
+Each timeout limits a pause between data packets, not a total request time,
+so `writeTimeout` doesn't limit the upload time of a large build file.
+
+### Breaking changes
+* `requestTimeout` param (CLI: `--requestTimeout`) is removed. Use timeout params of `networkSetting { ... }` block instead.
+Before all timeouts were 300 seconds by default, now connect and write timeouts are shorter (30 and 60 seconds).
+```kotlin
+// Before
+requestTimeout = 1800 // seconds
+// After
+networkSetting {
+    readTimeout = 1800 // seconds
+    writeTimeout = 1800 // seconds
+}
+```
 
 ### Fix
 * [issue#37](https://github.com/cianru/rustore-publish-gradle-plugin/issues/37) Rustore API errors without json body
@@ -19,7 +37,7 @@ Now the plugin fails with `RustoreHttpException` that contains HTTP code, reques
 ```
 Rustore API request failed: HTTP 504 Gateway Timeout for POST https://public-api.rustore.ru/public/v1/application/<package>/version/<versionId>/aab. Response body: 'upstream request timeout'
 ```
-Note: `504 upstream request timeout` is a timeout on the Rustore gateway side, the `requestTimeout` param doesn't affect it.
+Note: `504 upstream request timeout` is a timeout on the Rustore gateway side, the plugin timeout params don't affect it.
 
 
 # 0.5.6
