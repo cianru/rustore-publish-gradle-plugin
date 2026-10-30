@@ -1,3 +1,16 @@
+# 0.5.7
+
+### Fix
+* [issue#37](https://github.com/cianru/rustore-publish-gradle-plugin/issues/37) Rustore API errors without json body
+(e.g. `504 Gateway Timeout` with `upstream request timeout` from Rustore gateway on large AAB upload) were masked
+as `JsonSyntaxException` and `Request is failed. Something went wrong, please check request!`.
+Now the plugin fails with `RustoreHttpException` that contains HTTP code, request method, url and response body:
+```
+Rustore API request failed: HTTP 504 Gateway Timeout for POST https://public-api.rustore.ru/public/v1/application/<package>/version/<versionId>/aab. Response body: 'upstream request timeout'
+```
+Note: `504 upstream request timeout` is a timeout on the Rustore gateway side, the `requestTimeout` param doesn't affect it.
+
+
 # 0.5.6
 
 ### Add
