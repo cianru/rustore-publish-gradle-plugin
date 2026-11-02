@@ -6,7 +6,7 @@ import org.gradle.api.Project
 import ru.cian.rustore.publish.utils.DEFAULT_CONNECT_TIMEOUT_SECONDS
 import ru.cian.rustore.publish.utils.DEFAULT_READ_TIMEOUT_SECONDS
 import ru.cian.rustore.publish.utils.DEFAULT_WRITE_TIMEOUT_SECONDS
-import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL
+import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL_RUSSIAN_CA
 
 open class RustorePublishExtension(
     project: Project
@@ -212,15 +212,15 @@ open class NetworkSettingExtension : java.io.Serializable {
      * Rustore moves Public API to the new domain with certificate issued by Russian Trusted Root CA,
      * see https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam
      * Available values:
-     * ----| 'https://public-api.rustore.ru' – the domain with international certificate.
      * ----| 'https://public-api-m.rustore.ru' – the new domain with certificate issued by Russian Trusted Root CA.
-     *       JVM must trust Russian Trusted Root CA: install it into JVM truststore
-     *       or use `useBundledRussianTrustedRootCa` or `trustedCertificatePath` params.
+     *       JVM must trust Russian Trusted Root CA: it's trusted by default with `useBundledRussianTrustedRootCa`,
+     *       also it can be installed into JVM truststore or set by `trustedCertificatePath` param.
+     * ----| 'https://public-api.rustore.ru' – the old domain with international certificate.
      * Type: String (Optional)
-     * Default value: `https://public-api.rustore.ru`
+     * Default value: `https://public-api-m.rustore.ru`
      * CLI: `--apiBaseUrl`
      */
-    var apiBaseUrl: String = RUSTORE_API_BASE_URL
+    var apiBaseUrl: String = RUSTORE_API_BASE_URL_RUSSIAN_CA
 
     /**
      * (Optional)
@@ -229,10 +229,10 @@ open class NetworkSettingExtension : java.io.Serializable {
      * if the certificate isn't installed into JVM truststore.
      * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
      * Type: Boolean (Optional)
-     * Default value: `false`
-     * CLI: `--useBundledRussianTrustedRootCa`
+     * Default value: `true`
+     * CLI: `--useBundledRussianTrustedRootCa`, `--no-useBundledRussianTrustedRootCa`
      */
-    var useBundledRussianTrustedRootCa: Boolean = false
+    var useBundledRussianTrustedRootCa: Boolean = true
 
     /**
      * (Optional)

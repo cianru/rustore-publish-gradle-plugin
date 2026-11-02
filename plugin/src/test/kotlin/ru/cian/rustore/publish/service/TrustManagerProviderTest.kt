@@ -49,7 +49,7 @@ class TrustManagerProviderTest {
 
     @Test
     fun `should return null trust manager without additional certificates`() {
-        assertThat(TrustManagerProvider.create(TrustedCertificatesConfig())).isNull()
+        assertThat(TrustManagerProvider.create(TrustedCertificatesConfig(useBundledRussianTrustedRootCa = false))).isNull()
     }
 
     @Test

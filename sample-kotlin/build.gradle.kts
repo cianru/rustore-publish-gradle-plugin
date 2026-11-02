@@ -11,8 +11,8 @@ rustorePublish {
             mobileServicesType = ru.cian.rustore.publish.MobileServicesType.HMS
             buildFormat = ru.cian.rustore.publish.BuildFormat.AAB
             networkSetting {
-                apiBaseUrl = "https://public-api.rustore.ru"
-                useBundledRussianTrustedRootCa = false
+                apiBaseUrl = "https://public-api-m.rustore.ru"
+                useBundledRussianTrustedRootCa = true
                 connectTimeout = 60
                 readTimeout = 60
                 writeTimeout = 60

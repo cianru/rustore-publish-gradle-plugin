@@ -4,10 +4,10 @@
 * Support of Rustore Public API domain migration to certificates issued by Russian Trusted Root CA
 ([Rustore blog](https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam)).
 New params are grouped in `networkSetting { ... }` block:
-  * `apiBaseUrl` param (CLI: `--apiBaseUrl`) to choose API domain. Default value is `https://public-api.rustore.ru`,
-    the new domain is `https://public-api-m.rustore.ru`.
+  * `apiBaseUrl` param (CLI: `--apiBaseUrl`) to choose API domain. Default value is the new domain `https://public-api-m.rustore.ru`,
+    the old domain is `https://public-api.rustore.ru`.
   * `useBundledRussianTrustedRootCa` param (CLI: `--useBundledRussianTrustedRootCa`) to trust Russian Trusted Root CA
-    bundled into the plugin. Default value is `false`.
+    bundled into the plugin. Default value is `true`.
   * `trustedCertificatePath` param (CLI: `--trustedCertificatePath`) to trust custom CA certificate file.
   * TLS errors are reported as `RustoreTlsException` with the list of ways to fix the certificate trust.
 * `connectTimeout`, `readTimeout`, `writeTimeout` params in seconds in `networkSetting { ... }` block

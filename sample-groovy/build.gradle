@@ -21,8 +21,8 @@ rustorePublish {
             credentialsPath = "$projectDir/rustore-credentials-2.json"
             buildFormat = "apk"
             networkSetting {
-                apiBaseUrl = "https://public-api.rustore.ru"
-                useBundledRussianTrustedRootCa = false
+                apiBaseUrl = "https://public-api-m.rustore.ru"
+                useBundledRussianTrustedRootCa = true
                 connectTimeout = 120
                 readTimeout = 120
                 writeTimeout = 120

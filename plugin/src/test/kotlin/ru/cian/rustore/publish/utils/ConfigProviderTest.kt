@@ -548,8 +548,8 @@ internal class ConfigProviderTest {
             ).getConfig()
 
         val default = config(emptyCliConfig)
-        assertThat(default.apiBaseUrl).isEqualTo(RUSTORE_API_BASE_URL)
-        assertThat(default.trustedCertificates).isEqualTo(TrustedCertificatesConfig())
+        assertThat(default.apiBaseUrl).isEqualTo(RUSTORE_API_BASE_URL_RUSSIAN_CA)
+        assertThat(default.trustedCertificates).isEqualTo(TrustedCertificatesConfig(useBundledRussianTrustedRootCa = true))
         assertThat(default.timeouts).isEqualTo(TimeoutsConfig(30L, 300L, 60L))
 
         val fromExtension = config(emptyCliConfig) {

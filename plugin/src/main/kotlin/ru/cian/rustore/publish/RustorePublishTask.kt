@@ -159,8 +159,8 @@ abstract class RustorePublishTask : DefaultTask() {
     @set:Option(
         option = "apiBaseUrl",
         description = "Base url of Rustore Public API. Available values: " +
-            "['https://public-api.rustore.ru', 'https://public-api-m.rustore.ru']. " +
-            "Default value is 'https://public-api.rustore.ru'."
+            "['https://public-api-m.rustore.ru', 'https://public-api.rustore.ru']. " +
+            "Default value is 'https://public-api-m.rustore.ru'."
     )
     var apiBaseUrl: String? = null
 
@@ -169,7 +169,8 @@ abstract class RustorePublishTask : DefaultTask() {
         option = "useBundledRussianTrustedRootCa",
         description = "Trust Russian Trusted Root CA certificate bundled into the plugin " +
             "in addition to JVM default CAs. It's required for 'https://public-api-m.rustore.ru' domain " +
-            "if the certificate isn't installed into JVM truststore."
+            "if the certificate isn't installed into JVM truststore. Enabled by default, " +
+            "use '--no-useBundledRussianTrustedRootCa' to disable it."
     )
     var useBundledRussianTrustedRootCa: Boolean? = null
 

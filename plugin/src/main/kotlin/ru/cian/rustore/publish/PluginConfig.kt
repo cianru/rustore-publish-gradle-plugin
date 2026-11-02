@@ -3,7 +3,7 @@ package ru.cian.rustore.publish
 import ru.cian.rustore.publish.utils.DEFAULT_CONNECT_TIMEOUT_SECONDS
 import ru.cian.rustore.publish.utils.DEFAULT_READ_TIMEOUT_SECONDS
 import ru.cian.rustore.publish.utils.DEFAULT_WRITE_TIMEOUT_SECONDS
-import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL
+import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL_RUSSIAN_CA
 import java.io.File
 
 internal data class PluginConfig(
@@ -19,7 +19,7 @@ internal data class PluginConfig(
     val minAndroidVersion: String,
     val developerContacts: DeveloperContactsConfig,
     val appType: AppTypes?,
-    val apiBaseUrl: String = RUSTORE_API_BASE_URL,
+    val apiBaseUrl: String = RUSTORE_API_BASE_URL_RUSSIAN_CA,
     val trustedCertificates: TrustedCertificatesConfig = TrustedCertificatesConfig(),
     val timeouts: TimeoutsConfig = TimeoutsConfig(),
 )
@@ -31,7 +31,7 @@ internal data class TimeoutsConfig(
 )
 
 internal data class TrustedCertificatesConfig(
-    val useBundledRussianTrustedRootCa: Boolean = false,
+    val useBundledRussianTrustedRootCa: Boolean = true,
     val certificateFile: File? = null,
 )
 
