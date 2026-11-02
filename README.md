@@ -200,15 +200,6 @@ rustorePublish {
 
       /**
        * (Optional)
-       * The time in seconds to wait for the publication to complete. Increase it if you build is large. 
-       * Type: Long (Optional)
-       * Default value: `300` // (5min)
-       * CLI: `--requestTimeout`
-       */
-      requestTimeout = 300
-        
-      /**
-       * (Optional)
        * Type of mobile services used in application.
        * For more details see param `servicesType` in documentation:
        * https://www.rustore.ru/help/work-with-rustore-api/api-upload-publication-app/apk-file-upload/file-upload-apk/
@@ -287,6 +278,80 @@ rustorePublish {
 
       /**
        * (Optional)
+       * Network settings of requests to Rustore API.
+       */
+      networkSetting {
+          /**
+           * (Optional)
+           * Base url of Rustore Public API.
+           * Rustore moves Public API to the new domain with certificate issued by Russian Trusted Root CA,
+           * see https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam
+           * Available values:
+           * ----| 'https://public-api-m.rustore.ru' – the new domain with certificate issued by Russian Trusted Root CA.
+           *       JVM must trust Russian Trusted Root CA: it's trusted by default with `useBundledRussianTrustedRootCa`,
+           *       also it can be installed into JVM truststore or set by `trustedCertificatePath` param.
+           * ----| 'https://public-api.rustore.ru' – the old domain with international certificate.
+           * Type: String (Optional)
+           * Default value: `https://public-api-m.rustore.ru`
+           * CLI: `--apiBaseUrl`
+           */
+          apiBaseUrl = "https://public-api-m.rustore.ru"
+
+          /**
+           * (Optional)
+           * Trust Russian Trusted Root CA (Ministry of Digital Development) certificate bundled into the plugin
+           * in addition to JVM default CAs. It's required for `https://public-api-m.rustore.ru` domain
+           * if the certificate isn't installed into JVM truststore.
+           * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
+           * Type: Boolean (Optional)
+           * Default value: `true`
+           * CLI: `--useBundledRussianTrustedRootCa`, `--no-useBundledRussianTrustedRootCa`
+           */
+          useBundledRussianTrustedRootCa = true
+
+          /**
+           * (Optional)
+           * Path to CA certificate file (X.509 in PEM or DER format, PEM file may contain several certificates)
+           * to trust in addition to JVM default CAs. For example, Russian Trusted Root CA from https://www.gosuslugi.ru/crt
+           * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
+           * Type: String (Optional)
+           * Default value: `null`
+           * CLI: `--trustedCertificatePath`
+           */
+          trustedCertificatePath = null
+
+          /**
+           * (Optional)
+           * Timeout in seconds to establish TCP and TLS connection to Rustore API. `0` means no timeout.
+           * Type: Long (Optional)
+           * Default value: `30`
+           * CLI: `--connectTimeout`
+           */
+          connectTimeout = 30
+
+          /**
+           * (Optional)
+           * Timeout in seconds between data packets while reading Rustore API response,
+           * including waiting for the response after build file upload. `0` means no timeout.
+           * Type: Long (Optional)
+           * Default value: `300` // (5min)
+           * CLI: `--readTimeout`
+           */
+          readTimeout = 300
+
+          /**
+           * (Optional)
+           * Timeout in seconds between data packets while sending request body to Rustore API,
+           * including build file upload. It limits a pause, not the total upload time. `0` means no timeout.
+           * Type: Long (Optional)
+           * Default value: `60` // (1min)
+           * CLI: `--writeTimeout`
+           */
+          writeTimeout = 60
+      }
+
+      /**
+       * (Optional)
        * Release Notes settings. For mote info see ReleaseNote param desc.
        * Type: List<ReleaseNote> (Optional)
        * Default value: `null`
@@ -333,13 +398,20 @@ rustorePublish {
             credentialsPath = "$rootDir/rustore-credentials-release.json"
             buildFormat = "apk"
             buildFile = "$rootDir/app/build/outputs/apk/release/app-release.apk"
-            requestTimeout = 60 // 1min
             seoTagIds = [
                 116,
                 69,
             ]
             mobileServicesType = "Unknown"
             appType = "MAIN"
+            networkSetting {
+                apiBaseUrl = "https://public-api-m.rustore.ru"
+                useBundledRussianTrustedRootCa = true
+                trustedCertificatePath = null
+                connectTimeout = 30
+                readTimeout = 300 // 5min
+                writeTimeout = 60 // 1min
+            }
             releaseNotes = [
                 new ru.cian.rustore.publish.ReleaseNote(
                     "ru-RU",
@@ -402,13 +474,28 @@ CLI params are more priority than gradle configuration params.
     --credentialsPath="/sample-kotlin/rustore-credentials.json" \
     --buildFormat=apk \
     --buildFile="/sample-kotlin/app/build/outputs/apk/release/app-release.apk" \
-    --requestTimeout=300 \ # 5min
     --seoTagIds=116,69 \
     --mobileServicesType="Unknown" \
     --minAndroidVersion="8" \
     --appType="MAIN" \
+    --apiBaseUrl="https://public-api-m.rustore.ru" \
+    --useBundledRussianTrustedRootCa \
+    --trustedCertificatePath="/home/<USERNAME>/certs/russian_trusted_root_ca.pem" \
+    --connectTimeout=30 \
+    --readTimeout=300 \
+    --writeTimeout=60 \
     --releaseNotes="ru_RU:/home/<USERNAME>/str/project/release_notes_ru.txt"
 ```
+
+# Rustore API domain migration
+
+Rustore [moves](https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam)
+Public API from `https://public-api.rustore.ru` to `https://public-api-m.rustore.ru` and recommends switching
+to the new domain after 2026-09-17. The new domain uses certificate issued by Russian Trusted Root CA
+(Ministry of Digital Development), which is absent in the default JVM truststore. Both domains still work in parallel.
+The plugin uses the new domain by default and trusts Russian Trusted Root CA bundled into the plugin.
+
+See [Rustore API domain migration](docs/usage/rustore-api-domain-migration/README.md) for details on how to configure it.
 
 # Promotion
 

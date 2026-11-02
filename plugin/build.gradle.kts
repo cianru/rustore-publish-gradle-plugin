@@ -98,5 +98,6 @@ dependencies {
     testImplementation(libs.test.mockitoKotlin)
     testImplementation(libs.test.hamcreast)
     testImplementation(libs.test.assertk)
+    testImplementation(libs.test.okhttpTls)
     testImplementation(libs.androidGradlePlugin)
 }

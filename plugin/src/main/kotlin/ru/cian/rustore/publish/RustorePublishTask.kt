@@ -85,14 +85,6 @@ abstract class RustorePublishTask : DefaultTask() {
     )
     var buildFormat: BuildFormat? = null
 
-    @get:Internal
-    @set:Option(
-        option = "requestTimeout",
-        description = "The time in seconds to wait for the publication to complete. " +
-            "Increase it if you build is a large. Default value is 300 seconds."
-    )
-    var requestTimeout: String? = null
-
     @Suppress("MaxLineLength")
     @get:Internal
     @set:Option(
@@ -164,6 +156,57 @@ abstract class RustorePublishTask : DefaultTask() {
     var appType: AppTypes? = null
 
     @get:Internal
+    @set:Option(
+        option = "apiBaseUrl",
+        description = "Base url of Rustore Public API. Available values: " +
+            "['https://public-api-m.rustore.ru', 'https://public-api.rustore.ru']. " +
+            "Default value is 'https://public-api-m.rustore.ru'."
+    )
+    var apiBaseUrl: String? = null
+
+    @get:Internal
+    @set:Option(
+        option = "useBundledRussianTrustedRootCa",
+        description = "Trust Russian Trusted Root CA certificate bundled into the plugin " +
+            "in addition to JVM default CAs. It's required for 'https://public-api-m.rustore.ru' domain " +
+            "if the certificate isn't installed into JVM truststore. Enabled by default, " +
+            "use '--no-useBundledRussianTrustedRootCa' to disable it."
+    )
+    var useBundledRussianTrustedRootCa: Boolean? = null
+
+    @get:Internal
+    @set:Option(
+        option = "trustedCertificatePath",
+        description = "Path to CA certificate file (X.509 in PEM or DER format) " +
+            "to trust in addition to JVM default CAs."
+    )
+    var trustedCertificatePath: String? = null
+
+    @get:Internal
+    @set:Option(
+        option = "connectTimeout",
+        description = "Timeout in seconds to establish connection to Rustore API. " +
+            "'0' means no timeout. Default value is 30."
+    )
+    var connectTimeout: String? = null
+
+    @get:Internal
+    @set:Option(
+        option = "readTimeout",
+        description = "Timeout in seconds between data packets while reading Rustore API response. " +
+            "'0' means no timeout. Default value is 300 (5min)."
+    )
+    var readTimeout: String? = null
+
+    @get:Internal
+    @set:Option(
+        option = "writeTimeout",
+        description = "Timeout in seconds between data packets while sending request body " +
+            "(including build file upload) to Rustore API. '0' means no timeout. Default value is 60 (1min)."
+    )
+    var writeTimeout: String? = null
+
+    @get:Internal
     @set:Option(option = "apiStub", description = "Use RestAPI stub instead of real RestAPI requests")
     var apiStub: Boolean? = false
 
@@ -178,7 +221,6 @@ abstract class RustorePublishTask : DefaultTask() {
             credentialsPath = credentialsPath,
             keyId = keyId,
             clientSecret = clientSecret,
-            requestTimeout = requestTimeout,
             mobileServicesType = mobileServicesType,
             buildFormat = buildFormat,
             buildFile = buildFile,
@@ -188,6 +230,12 @@ abstract class RustorePublishTask : DefaultTask() {
             apiStub = apiStub,
             minAndroidVersion = minAndroidVersion,
             appType = appType,
+            apiBaseUrl = apiBaseUrl,
+            useBundledRussianTrustedRootCa = useBundledRussianTrustedRootCa,
+            trustedCertificatePath = trustedCertificatePath,
+            connectTimeout = connectTimeout,
+            readTimeout = readTimeout,
+            writeTimeout = writeTimeout,
         )
 
         rustoreLogger.i("extension=$extension")
@@ -219,7 +267,8 @@ abstract class RustorePublishTask : DefaultTask() {
         val rustoreService = RustoreServiceImpl(
             logger = rustoreLogger,
             baseEntryPoint = mockServerWrapper.getBaseUrl(),
-            requestTimeout = config.requestTimeout,
+            timeouts = config.timeouts,
+            trustedCertificates = config.trustedCertificates,
         )
 
         rustoreLogger.v("Found build file: `${config.artifactFile.name}`")
@@ -289,7 +338,7 @@ abstract class RustorePublishTask : DefaultTask() {
                 requestFormArgument = artifactFormat.fileExtension,
             )
         } else {
-            MockServerWrapperStub()
+            MockServerWrapperStub(baseUrl = config.apiBaseUrl)
         }
     }
 

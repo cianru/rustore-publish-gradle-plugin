@@ -1,3 +1,44 @@
+# 0.6.0
+
+### Features
+* [issue#38](https://github.com/cianru/rustore-publish-gradle-plugin/issues/38) Support of Rustore Public API domain migration to certificates issued by Russian Trusted Root CA
+([Rustore blog](https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam)).
+New params are grouped in `networkSetting { ... }` block:
+  * `apiBaseUrl` param (CLI: `--apiBaseUrl`) to choose API domain. Default value is the new domain `https://public-api-m.rustore.ru`,
+    the old domain is `https://public-api.rustore.ru`.
+  * `useBundledRussianTrustedRootCa` param (CLI: `--useBundledRussianTrustedRootCa`) to trust Russian Trusted Root CA
+    bundled into the plugin. Default value is `true`.
+  * `trustedCertificatePath` param (CLI: `--trustedCertificatePath`) to trust custom CA certificate file.
+
+### Breaking changes
+* `requestTimeout` param (CLI: `--requestTimeout`) is removed. Use timeout params of `networkSetting { ... }` block instead.
+Before all timeouts were 300 seconds by default, now connect and write timeouts are shorter (30 and 60 seconds).
+```kotlin
+// Before
+requestTimeout = 1800 // seconds
+// After
+networkSetting {
+    readTimeout = 1800 // seconds
+    writeTimeout = 1800 // seconds
+}
+```
+* `connectTimeout`, `readTimeout`, `writeTimeout` params in seconds in `networkSetting { ... }` block
+(CLI: `--connectTimeout`, `--readTimeout`, `--writeTimeout`) to configure network timeouts separately.
+Default values: `connectTimeout = 30`, `readTimeout = 300`, `writeTimeout = 60`.
+Each timeout limits a pause between data packets, not a total request time,
+so `writeTimeout` doesn't limit the upload time of a large build file.
+
+### Fix
+* [issue#37](https://github.com/cianru/rustore-publish-gradle-plugin/issues/37) Rustore API errors without json body
+(e.g. `504 Gateway Timeout` with `upstream request timeout` from Rustore gateway on large AAB upload) were masked
+as `JsonSyntaxException` and `Request is failed. Something went wrong, please check request!`.
+Now the plugin fails with `RustoreHttpException` that contains HTTP code, request method, url and response body:
+```
+Rustore API request failed: HTTP 504 Gateway Timeout for POST https://public-api.rustore.ru/public/v1/application/<package>/version/<versionId>/aab. Response body: 'upstream request timeout'
+```
+Note: `504 upstream request timeout` is a timeout on the Rustore gateway side, the plugin timeout params don't affect it.
+
+
 # 0.5.6
 
 ### Add

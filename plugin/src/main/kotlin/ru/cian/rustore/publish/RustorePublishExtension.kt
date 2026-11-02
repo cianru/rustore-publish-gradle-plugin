@@ -1,7 +1,12 @@
 package ru.cian.rustore.publish
 
 import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.Project
+import ru.cian.rustore.publish.utils.DEFAULT_CONNECT_TIMEOUT_SECONDS
+import ru.cian.rustore.publish.utils.DEFAULT_READ_TIMEOUT_SECONDS
+import ru.cian.rustore.publish.utils.DEFAULT_WRITE_TIMEOUT_SECONDS
+import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL_RUSSIAN_CA
 
 open class RustorePublishExtension(
     project: Project
@@ -53,15 +58,6 @@ class RustorePublishExtensionConfig(
      * Default value: `instantly`
      */
     var publishType = PublishType.INSTANTLY
-
-    /**
-     * (Optional)
-     * The time in seconds to wait for the publication to complete. Increase it if you build is large.
-     * Type: Long (Optional)
-     * Default value: `300` // (5min)
-     * CLI: `--requestTimeout`
-     */
-    var requestTimeout: Long? = null
 
     /**
      * (Optional)
@@ -157,6 +153,13 @@ class RustorePublishExtensionConfig(
      */
     var appType: AppTypes? = null
 
+    /**
+     * (Optional)
+     * Network settings of requests to Rustore API. For more info see NetworkSettingExtension params desc.
+     * Gradle Extension DSL: `networkSetting { ... }`
+     */
+    var networkSetting: NetworkSettingExtension = NetworkSettingExtension()
+
     init {
         require(name.isNotBlank()) {
             "Name must not be blank nor empty"
@@ -171,12 +174,22 @@ class RustorePublishExtensionConfig(
         return releasePhase!!
     }
 
+    fun networkSetting(action: Action<NetworkSettingExtension>) {
+        action.execute(networkSetting)
+    }
+
+    fun networkSetting(closure: Closure<NetworkSettingExtension>): NetworkSettingExtension {
+        closure.delegate = networkSetting
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.call(networkSetting)
+        return networkSetting
+    }
+
     override fun toString(): String {
         return "RustorePublishExtensionConfig(" +
             "name='$name', " +
             "credentialsPath='$credentialsPath', " +
             "publishType='$publishType', " +
-            "requestTimeout='$requestTimeout', " +
             "mobileServicesType='$mobileServicesType', " +
             "seoTagIds='$seoTagIds', " +
             "buildFormat='$buildFormat', " +
@@ -185,7 +198,90 @@ class RustorePublishExtensionConfig(
             "releaseNotes='$releaseNotes', " +
             "minAndroidVersion='$minAndroidVersion', " +
             "developerContacts='$developerContacts', " +
-            "appType='$appType'" +
+            "appType='$appType', " +
+            "networkSetting='$networkSetting'" +
+            ")"
+    }
+}
+
+open class NetworkSettingExtension : java.io.Serializable {
+
+    /**
+     * (Optional)
+     * Base url of Rustore Public API.
+     * Rustore moves Public API to the new domain with certificate issued by Russian Trusted Root CA,
+     * see https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam
+     * Available values:
+     * ----| 'https://public-api-m.rustore.ru' – the new domain with certificate issued by Russian Trusted Root CA.
+     *       JVM must trust Russian Trusted Root CA: it's trusted by default with `useBundledRussianTrustedRootCa`,
+     *       also it can be installed into JVM truststore or set by `trustedCertificatePath` param.
+     * ----| 'https://public-api.rustore.ru' – the old domain with international certificate.
+     * Type: String (Optional)
+     * Default value: `https://public-api-m.rustore.ru`
+     * CLI: `--apiBaseUrl`
+     */
+    var apiBaseUrl: String = RUSTORE_API_BASE_URL_RUSSIAN_CA
+
+    /**
+     * (Optional)
+     * Trust Russian Trusted Root CA (Ministry of Digital Development) certificate bundled into the plugin
+     * in addition to JVM default CAs. It's required for `https://public-api-m.rustore.ru` domain
+     * if the certificate isn't installed into JVM truststore.
+     * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
+     * Type: Boolean (Optional)
+     * Default value: `true`
+     * CLI: `--useBundledRussianTrustedRootCa`, `--no-useBundledRussianTrustedRootCa`
+     */
+    var useBundledRussianTrustedRootCa: Boolean = true
+
+    /**
+     * (Optional)
+     * Path to CA certificate file (X.509 in PEM or DER format, PEM file may contain several certificates)
+     * to trust in addition to JVM default CAs. For example, Russian Trusted Root CA from https://www.gosuslugi.ru/crt
+     * The certificate is applied only to plugin requests to Rustore API, JVM global settings are not changed.
+     * Type: String (Optional)
+     * Default value: `null`
+     * CLI: `--trustedCertificatePath`
+     */
+    var trustedCertificatePath: String? = null
+
+    /**
+     * (Optional)
+     * Timeout in seconds to establish TCP and TLS connection to Rustore API. `0` means no timeout.
+     * Type: Long (Optional)
+     * Default value: `30`
+     * CLI: `--connectTimeout`
+     */
+    var connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT_SECONDS
+
+    /**
+     * (Optional)
+     * Timeout in seconds between data packets while reading Rustore API response,
+     * including waiting for the response after build file upload. `0` means no timeout.
+     * Type: Long (Optional)
+     * Default value: `300` // (5min)
+     * CLI: `--readTimeout`
+     */
+    var readTimeout: Long = DEFAULT_READ_TIMEOUT_SECONDS
+
+    /**
+     * (Optional)
+     * Timeout in seconds between data packets while sending request body to Rustore API,
+     * including build file upload. It limits a pause, not the total upload time. `0` means no timeout.
+     * Type: Long (Optional)
+     * Default value: `60` // (1min)
+     * CLI: `--writeTimeout`
+     */
+    var writeTimeout: Long = DEFAULT_WRITE_TIMEOUT_SECONDS
+
+    override fun toString(): String {
+        return "NetworkSettingExtension(" +
+            "apiBaseUrl='$apiBaseUrl', " +
+            "useBundledRussianTrustedRootCa='$useBundledRussianTrustedRootCa', " +
+            "trustedCertificatePath='$trustedCertificatePath', " +
+            "connectTimeout='$connectTimeout', " +
+            "readTimeout='$readTimeout', " +
+            "writeTimeout='$writeTimeout'" +
             ")"
     }
 }

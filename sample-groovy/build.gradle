@@ -20,7 +20,13 @@ rustorePublish {
         fullRelease {
             credentialsPath = "$projectDir/rustore-credentials-2.json"
             buildFormat = "apk"
-            requestTimeout = 120
+            networkSetting {
+                apiBaseUrl = "https://public-api-m.rustore.ru"
+                useBundledRussianTrustedRootCa = true
+                connectTimeout = 120
+                readTimeout = 120
+                writeTimeout = 120
+            }
             seoTagIds = [
                 116,
                 69,

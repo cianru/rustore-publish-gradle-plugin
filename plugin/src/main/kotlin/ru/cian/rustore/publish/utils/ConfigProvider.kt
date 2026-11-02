@@ -7,7 +7,10 @@ import ru.cian.rustore.publish.RustorePublishCli
 import ru.cian.rustore.publish.PluginConfig
 import ru.cian.rustore.publish.ReleaseNotesConfig
 import ru.cian.rustore.publish.ReleasePhaseConfig
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import ru.cian.rustore.publish.RustorePublishExtensionConfig
+import ru.cian.rustore.publish.TimeoutsConfig
+import ru.cian.rustore.publish.TrustedCertificatesConfig
 import java.io.File
 import java.io.FileNotFoundException
 
@@ -21,7 +24,6 @@ internal class ConfigProvider(
 
     fun getConfig(): PluginConfig {
 
-        val requestTimeout = cli.requestTimeout?.toLongOrNull() ?: extension.requestTimeout
         val mobileServicesType = cli.mobileServicesType ?: extension.mobileServicesType
         val publishType = cli.publishType ?: extension.publishType
         val artifactFormat = cli.buildFormat ?: extension.buildFormat
@@ -33,6 +35,9 @@ internal class ConfigProvider(
         val minAndroidVersion = cli.minAndroidVersion ?: extension.minAndroidVersion
         val developerContacts = getDeveloperContactsConfig()
         val appType = cli.appType ?: extension.appType
+        val apiBaseUrl = getApiBaseUrl()
+        val trustedCertificates = getTrustedCertificatesConfig()
+        val timeouts = getTimeoutsConfig()
 
         val artifactFile = getBuildFile(customBuildFilePath, artifactFormat)
         val artifactFileExtension = artifactFile.extension
@@ -48,7 +53,6 @@ internal class ConfigProvider(
         return PluginConfig(
             credentials = credentialsConfig,
             publishType = publishType,
-            requestTimeout = requestTimeout,
             mobileServicesType = mobileServicesType,
             artifactFormat = actualArtifactFormat,
             artifactFile = artifactFile,
@@ -59,6 +63,58 @@ internal class ConfigProvider(
             minAndroidVersion = minAndroidVersion,
             developerContacts = developerContacts,
             appType = appType,
+            apiBaseUrl = apiBaseUrl,
+            trustedCertificates = trustedCertificates,
+            timeouts = timeouts,
+        )
+    }
+
+    private fun getTimeoutsConfig(): TimeoutsConfig {
+        val networkSetting = extension.networkSetting
+        return TimeoutsConfig(
+            connectTimeout = getTimeout("connectTimeout", cli.connectTimeout, networkSetting.connectTimeout),
+            readTimeout = getTimeout("readTimeout", cli.readTimeout, networkSetting.readTimeout),
+            writeTimeout = getTimeout("writeTimeout", cli.writeTimeout, networkSetting.writeTimeout),
+        )
+    }
+
+    private fun getTimeout(paramName: String, cliValue: String?, extensionValue: Long): Long {
+        val timeoutMs = if (cliValue != null) {
+            requireNotNull(cliValue.trim().toLongOrNull()) {
+                "Wrong `$paramName` CLI param value: '$cliValue'. It should be a number of seconds."
+            }
+        } else {
+            extensionValue
+        }
+        require(timeoutMs >= 0) {
+            "Wrong `$paramName` param value: '$timeoutMs'. It should be greater or equal to 0."
+        }
+        return timeoutMs
+    }
+
+    private fun getApiBaseUrl(): String {
+        val apiBaseUrl = (cli.apiBaseUrl ?: extension.networkSetting.apiBaseUrl).trim().trimEnd('/')
+        require(apiBaseUrl.toHttpUrlOrNull() != null) {
+            "Wrong `apiBaseUrl` param value: '$apiBaseUrl'. It should be a http(s) url, " +
+                "for example '$RUSTORE_API_BASE_URL' or '$RUSTORE_API_BASE_URL_RUSSIAN_CA'."
+        }
+        return apiBaseUrl
+    }
+
+    private fun getTrustedCertificatesConfig(): TrustedCertificatesConfig {
+        val networkSetting = extension.networkSetting
+        val certificatePath = (cli.trustedCertificatePath ?: networkSetting.trustedCertificatePath).nullIfBlank()
+        val certificateFile = certificatePath?.let { File(it) }
+        if (certificateFile != null && !certificateFile.exists()) {
+            throw FileNotFoundException(
+                "${certificateFile.absolutePath} (No such file or directory). " +
+                    "Certificate file from `trustedCertificatePath` param is not found."
+            )
+        }
+        return TrustedCertificatesConfig(
+            useBundledRussianTrustedRootCa = cli.useBundledRussianTrustedRootCa
+                ?: networkSetting.useBundledRussianTrustedRootCa,
+            certificateFile = certificateFile,
         )
     }
 

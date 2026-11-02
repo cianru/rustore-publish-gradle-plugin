@@ -1,11 +1,11 @@
 package ru.cian.rustore.publish.service.mock
 
-import ru.cian.rustore.publish.service.RustoreServiceImpl
-
-class MockServerWrapperStub : MockServerWrapper {
+class MockServerWrapperStub(
+    private val baseUrl: String,
+) : MockServerWrapper {
 
     override fun getBaseUrl(): String {
-        return RustoreServiceImpl.DOMAIN_URL
+        return baseUrl
     }
 
     override fun start() {
