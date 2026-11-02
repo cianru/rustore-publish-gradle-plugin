@@ -1,7 +1,7 @@
-# 0.5.7
+# 0.6.0
 
 ### Features
-* Support of Rustore Public API domain migration to certificates issued by Russian Trusted Root CA
+* [issue#38](https://github.com/cianru/rustore-publish-gradle-plugin/issues/38) Support of Rustore Public API domain migration to certificates issued by Russian Trusted Root CA
 ([Rustore blog](https://www.rustore.ru/developer/blog/rustore-obnovlyaet-sertifikaty-i-domeny-chto-nuzhno-sdelat-razrabotchikam)).
 New params are grouped in `networkSetting { ... }` block:
   * `apiBaseUrl` param (CLI: `--apiBaseUrl`) to choose API domain. Default value is the new domain `https://public-api-m.rustore.ru`,
@@ -9,12 +9,6 @@ New params are grouped in `networkSetting { ... }` block:
   * `useBundledRussianTrustedRootCa` param (CLI: `--useBundledRussianTrustedRootCa`) to trust Russian Trusted Root CA
     bundled into the plugin. Default value is `true`.
   * `trustedCertificatePath` param (CLI: `--trustedCertificatePath`) to trust custom CA certificate file.
-  * TLS errors are reported as `RustoreTlsException` with the list of ways to fix the certificate trust.
-* `connectTimeout`, `readTimeout`, `writeTimeout` params in seconds in `networkSetting { ... }` block
-(CLI: `--connectTimeout`, `--readTimeout`, `--writeTimeout`) to configure network timeouts separately.
-Default values: `connectTimeout = 30`, `readTimeout = 300`, `writeTimeout = 60`.
-Each timeout limits a pause between data packets, not a total request time,
-so `writeTimeout` doesn't limit the upload time of a large build file.
 
 ### Breaking changes
 * `requestTimeout` param (CLI: `--requestTimeout`) is removed. Use timeout params of `networkSetting { ... }` block instead.
@@ -28,6 +22,11 @@ networkSetting {
     writeTimeout = 1800 // seconds
 }
 ```
+* `connectTimeout`, `readTimeout`, `writeTimeout` params in seconds in `networkSetting { ... }` block
+(CLI: `--connectTimeout`, `--readTimeout`, `--writeTimeout`) to configure network timeouts separately.
+Default values: `connectTimeout = 30`, `readTimeout = 300`, `writeTimeout = 60`.
+Each timeout limits a pause between data packets, not a total request time,
+so `writeTimeout` doesn't limit the upload time of a large build file.
 
 ### Fix
 * [issue#37](https://github.com/cianru/rustore-publish-gradle-plugin/issues/37) Rustore API errors without json body
