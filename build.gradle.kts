@@ -11,7 +11,7 @@ buildscript {
 }
 
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.benManesVersions)
 //    alias(libs.plugins.gradleDoctor)
 }
@@ -63,17 +63,3 @@ allprojects {
 //        extraMessage.set("Gradle Doctor Issue!")
 //    }
 //}
-
-configurations.all {
-    resolutionStrategy {
-        eachDependency {
-            if (requested.group == "org.jetbrains.kotlin") {
-                useVersion(libs.versions.kotlin.get())
-            }
-        }
-    }
-}
-
-dependencies {
-    implementation(platform(libs.kotlinBom))
-}

@@ -9,11 +9,22 @@ targetSdkVersion  = "35"
 minSdkVersion     = "21"
 
 jvm = "17"
-kotlin = "2.0.21"
+# The plugin is built with Kotlin API/language version 1.8 to be compatible with Gradle 8.x embedded Kotlin.
+# Kotlin 2.3+ dropped language version 1.8, so don't upgrade it before raising minimal supported Gradle version;
+kotlin = "2.2.21"
 detekt = "1.23.8"
-junitJupiter = "5.9.3"
-androidGradlePlugin = "8.7.3"
-sampleRustorePlugin = "0.6.0-alpha01"
+junit = "5.14.4"
+# AGP for building sample apps. AGP 8.x is incompatible with Gradle 9.6+;
+androidGradlePlugin = "9.5.0"
+# Minimal AGP API the plugin is compiled against (`compileOnly`);
+androidGradlePluginApi = "8.7.3"
+# Oldest Gradle and AGP versions supported by the plugin. The plugin is compiled against this Gradle API;
+minSupportedGradle = "8.0.2"
+androidGradlePluginMinSupported = "8.0.2"
+# Latest Gradle 8.x and compatible AGP versions for functional tests;
+functionalTestGradle8 = "8.14.6"
+functionalTestAndroidGradlePlugin8 = "8.13.2"
+sampleRustorePlugin = "0.6.0"
 
 [libraries]
 appcompat = "androidx.appcompat:appcompat:1.6.1"
@@ -21,8 +32,9 @@ kotlinBom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref =
 kotlinDateTime = "org.jetbrains.kotlinx:kotlinx-datetime:0.5.0"
 gson = "com.google.code.gson:gson:2.8.6"
 okHttp = "com.squareup.okhttp3:okhttp:4.12.0"
+gradleApiMinSupported = { module = "dev.gradleplugins:gradle-api", version.ref = "minSupportedGradle" }
 mockServer = "com.squareup.okhttp3:mockwebserver:4.9.3"
-androidGradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+androidGradlePluginApi = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePluginApi" }
 
 detektFormating = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", version.ref = "detekt" }
 detektRules = { module = "io.gitlab.arturbosch.detekt:detekt-rules-libraries", version.ref = "detekt" }
@@ -33,14 +45,15 @@ test-okhttpTls = "com.squareup.okhttp3:okhttp-tls:4.12.0"
 test-mockk = "io.mockk:mockk:1.13.5"
 test-mockito = "org.mockito:mockito-core:2.23.4"
 test-mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
-test-junitJupiterApi = { group = "org.junit.jupiter", name = "junit-jupiter-api", version.ref = "junitJupiter" }
-test-junitJupiterEngine = { group = "org.junit.jupiter", name = "junit-jupiter-engine", version.ref = "junitJupiter" }
-test-junitJupiterParams = { group = "org.junit.jupiter", name = "junit-jupiter-params", version.ref = "junitJupiter" }
+test-junitBom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
+test-junitJupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
+test-junitPlatformLauncher = { group = "org.junit.platform", name = "junit-platform-launcher" }
 
 [plugins]
-dokka = { id = "org.jetbrains.dokka", version = "2.0.0" }
+dokka = { id = "org.jetbrains.dokka", version = "2.2.0" }
 pluginPublish = { id = "com.gradle.plugin-publish", version = "2.1.1" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-benManesVersions = { id = "com.github.ben-manes.versions", version = "0.47.0" }
+kotlinSamWithReceiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver", version.ref = "kotlin" }
+benManesVersions = { id = "io.github.ben-manes.versions", version = "0.67.0" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 gradleDoctor = { id = "com.osacky.doctor", version = "0.9.1" }

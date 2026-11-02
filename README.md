@@ -45,7 +45,7 @@ The following features are available:
 - :white_check_mark: Separated settings for different configurations build types and flavors
 - :white_check_mark: Support of Gradle Portal and Gradle DSL
 - :white_check_mark: Support of Configuration Cache
-- :white_check_mark: Support of Gradle 8.+
+- :white_check_mark: Support of Gradle 8.+ and 9.+
 
 The following features are missing:
 
@@ -60,10 +60,14 @@ The following features are not available on Rustore API side yet:
 The Android Gradle Plugin often changes the Variant API,
 so a different version of AGP corresponds to a specific version of the current plugin
 
-| AGP | Plugin                                                                     |
-|-----|----------------------------------------------------------------------------|
-| 7.+ | 0.2.2                                                                      |
-| 8.+ | [latest](https://github.com/cianru/rustore-publish-gradle-plugin/releases) |
+| AGP | Gradle        | Plugin                                                                     |
+|-----|---------------|----------------------------------------------------------------------------|
+| 7.+ | 7.+           | 0.2.2                                                                      |
+| 8.+ | 8.+, 9.0–9.5  | [latest](https://github.com/cianru/rustore-publish-gradle-plugin/releases) |
+| 9.+ | 9.+           | [latest](https://github.com/cianru/rustore-publish-gradle-plugin/releases) |
+
+AGP 8.x isn't compatible with Gradle 9.6+ ([details](https://docs.gradle.org/current/userguide/upgrading_version_9.html#agp_8x_incompatible)),
+use AGP 9.x with it. The plugin is tested on Gradle 8.0 with AGP 8.0, Gradle 8.14 with AGP 8.13 and Gradle 9.8 with AGP 9.5.
 
 # Adding the plugin to your project
 

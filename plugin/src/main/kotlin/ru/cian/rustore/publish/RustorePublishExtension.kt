@@ -2,19 +2,22 @@ package ru.cian.rustore.publish
 
 import groovy.lang.Closure
 import org.gradle.api.Action
-import org.gradle.api.Project
+import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.model.ObjectFactory
 import ru.cian.rustore.publish.utils.DEFAULT_CONNECT_TIMEOUT_SECONDS
 import ru.cian.rustore.publish.utils.DEFAULT_READ_TIMEOUT_SECONDS
 import ru.cian.rustore.publish.utils.DEFAULT_WRITE_TIMEOUT_SECONDS
 import ru.cian.rustore.publish.utils.RUSTORE_API_BASE_URL_RUSSIAN_CA
+import javax.inject.Inject
 
-open class RustorePublishExtension(
-    project: Project
+open class RustorePublishExtension @Inject constructor(
+    objects: ObjectFactory,
 ) {
 
-    val instances = project.container(RustorePublishExtensionConfig::class.java) { name ->
-        RustorePublishExtensionConfig(name)
-    }
+    val instances: NamedDomainObjectContainer<RustorePublishExtensionConfig> =
+        objects.domainObjectContainer(RustorePublishExtensionConfig::class.java) { name ->
+            RustorePublishExtensionConfig(name)
+        }
 
     companion object {
 

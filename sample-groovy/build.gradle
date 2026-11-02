@@ -49,44 +49,44 @@ rustorePublish {
 }
 
 android {
-    compileSdk libs.versions.compileSdkVersion.get() as Integer
+    compileSdk = libs.versions.compileSdkVersion.get() as Integer
 
-    namespace 'ru.cian.rustore.sample.groovy'
+    namespace = 'ru.cian.rustore.sample.groovy'
 
     defaultConfig {
-        applicationId "ru.cian.rustore.sample_groovy"
-        minSdkVersion libs.versions.minSdkVersion.get() as Integer
-        targetSdkVersion libs.versions.targetSdkVersion.get() as Integer
-        versionCode 1
-        versionName "1.0"
+        applicationId = "ru.cian.rustore.sample_groovy"
+        minSdk = libs.versions.minSdkVersion.get() as Integer
+        targetSdk = libs.versions.targetSdkVersion.get() as Integer
+        versionCode = 1
+        versionName = "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            debuggable false
+            minifyEnabled = false
+            debuggable = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            debuggable true
-            applicationIdSuffix ".debug"
-            versionNameSuffix "-debug"
+            debuggable = true
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
     }
 
-    flavorDimensions "version"
+    flavorDimensions = ["version"]
     productFlavors {
         demo {
-            dimension "version"
-            applicationIdSuffix ".demo"
-            versionNameSuffix "-demo"
+            dimension = "version"
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
         }
         full {
-            dimension "version"
-            applicationIdSuffix ".full"
-            versionNameSuffix "-full"
+            dimension = "version"
+            applicationIdSuffix = ".full"
+            versionNameSuffix = "-full"
         }
     }
 }

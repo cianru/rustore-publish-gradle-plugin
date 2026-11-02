@@ -24,6 +24,9 @@ Run `./gradlew :plugin:detekt` to check code style.
 
 Run `./gradlew :plugin:test` to check Unit Tests.
 
+Run `./gradlew :plugin:functionalTest` to check the plugin on Android projects with supported Gradle and AGP versions
+(it requires network access and Android SDK from `local.properties` or `ANDROID_HOME`).
+
 When your changes are ready, create a PR for the `develop` branch.
 
 ### Code reviews

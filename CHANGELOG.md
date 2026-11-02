@@ -1,3 +1,14 @@
+# Unreleased
+
+### Features
+* Support of Gradle 9 and Android Gradle Plugin 9. Gradle 8.0+ and AGP 8.0+ are still supported:
+the plugin is compiled against Gradle 8.0 API with Kotlin API/language version 1.8
+and is tested on Gradle 8.0 with AGP 8.0, Gradle 8.14 with AGP 8.13 and Gradle 9.8 with AGP 9.5.
+
+### Changes
+* The plugin project is built with Gradle 9.8 and `java-gradle-plugin` + Kotlin JVM plugins instead of `kotlin-dsl`.
+* Functional tests on Android projects for supported Gradle and AGP versions (`./gradlew :plugin:functionalTest`).
+
 # 0.6.0
 
 ### Features

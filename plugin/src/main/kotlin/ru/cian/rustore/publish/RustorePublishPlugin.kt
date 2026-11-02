@@ -3,84 +3,61 @@ package ru.cian.rustore.publish
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
-import com.android.build.api.variant.VariantSelector
-import com.android.build.gradle.AppPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
 
 class RustorePublishPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.plugins.withType<AppPlugin> {
+        project.pluginManager.withPlugin(ANDROID_APPLICATION_PLUGIN_ID) {
             configureRustorePublish(project)
         }
     }
 
     private fun configureRustorePublish(project: Project) {
-        val rustorePublishExtension = project.extensions.create<RustorePublishExtension>(
+        val rustorePublishExtension = project.extensions.create(
             RustorePublishExtension.MAIN_EXTENSION_NAME,
-            project
+            RustorePublishExtension::class.java,
         )
 
-        val androidComponents = project.extensions.getByType<ApplicationAndroidComponentsExtension>()
-        androidComponents.onVariants(androidComponents.selector().all() as VariantSelector) { variant ->
+        val androidComponents = project.extensions.getByType(ApplicationAndroidComponentsExtension::class.java)
+        androidComponents.onVariants(androidComponents.selector().all()) { variant ->
             createTask(project, variant, rustorePublishExtension)
         }
     }
 
-    @Suppress("DefaultLocale", "UnusedPrivateProperty")
     private fun createTask(
         project: Project,
         variant: ApplicationVariant,
         rustorePublishExtension: RustorePublishExtension,
     ) {
         val extension = rustorePublishExtension.instances.find { it.name.equals(variant.name, ignoreCase = true) }
-        if (extension != null) {
-            val capitalizedVariantName = variant.name.capitalize()
-            val publishTaskName = "${RustorePublishTask.TASK_NAME}$capitalizedVariantName"
-            val publishTask = project.tasks.register<RustorePublishTask>(publishTaskName)
+            ?: return
+        val capitalizedVariantName = variant.name.replaceFirstChar { it.uppercaseChar() }
+        val publishTaskName = "${RustorePublishTask.TASK_NAME}$capitalizedVariantName"
 
-            publishTask.configure {
-                description = "Upload and publish application build file " +
-                    "to RuStore for ${variant.name} buildType"
-                applicationId.set(variant.applicationId)
-                variantName.set(variant.name)
-                apkDirectory.set(variant.artifacts.get(SingleArtifact.APK))
-                bundleFile.set(variant.artifacts.get(SingleArtifact.BUNDLE))
-                builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
-                extensionConfig = extension
-            }
-
-            scheduleTasksOrder(publishTask, project, capitalizedVariantName)
+        project.tasks.register(publishTaskName, RustorePublishTask::class.java) {
+            description = "Upload and publish application build file " +
+                "to RuStore for ${variant.name} buildType"
+            applicationId.set(variant.applicationId)
+            variantName.set(variant.name)
+            apkDirectory.set(variant.artifacts.get(SingleArtifact.APK))
+            bundleFile.set(variant.artifacts.get(SingleArtifact.BUNDLE))
+            builtArtifactsLoader.set(variant.artifacts.getBuiltArtifactsLoader())
+            extensionConfig = extension
+            // Build tasks are resolved lazily when the task graph is calculated,
+            // so tasks registered by AGP after `onVariants` are found as well;
+            mustRunAfter(
+                project.provider {
+                    listOf("assemble$capitalizedVariantName", "bundle$capitalizedVariantName")
+                        .mapNotNull { project.tasks.findByName(it) }
+                }
+            )
         }
     }
 
-    private fun scheduleTasksOrder(
-        publishTask: TaskProvider<RustorePublishTask>,
-        project: Project,
-        variantName: String
-    ) {
-        project.afterEvaluate {
-            logger.info("RustorePublishPlugin: mustRunAfter(assemble$variantName)")
-            mustRunAfter(publishTask, "assemble$variantName")
-            logger.info("RustorePublishPlugin: mustRunAfter(bundle$variantName)")
-            mustRunAfter(publishTask, "bundle$variantName")
-        }
-    }
+    private companion object {
 
-    private fun Project.mustRunAfter(
-        publishTask: TaskProvider<RustorePublishTask>,
-        taskBeforeName: String,
-    ) {
-        if (tasks.findByName(taskBeforeName) != null) {
-            publishTask.configure {
-                mustRunAfter(tasks.named(taskBeforeName))
-            }
-        }
+        const val ANDROID_APPLICATION_PLUGIN_ID = "com.android.application"
     }
 }

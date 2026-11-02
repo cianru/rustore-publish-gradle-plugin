@@ -35,14 +35,15 @@ pluginManagement {
 }
 
 plugins {
-    id("com.gradle.enterprise") version("3.13.2")
+    id("com.gradle.develocity") version("4.6.1")
 }
 
-gradleEnterprise {
+develocity {
     buildScan {
-        termsOfServiceUrl = "https://gradle.com/terms-of-service"
-        termsOfServiceAgree = "yes"
+        termsOfUseUrl = "https://gradle.com/help/legal-terms-of-use"
+        termsOfUseAgree = "yes"
         // To publish report add `-Pscan` to build command;
-        publishAlwaysIf(settings.extra.has("scan"))
+        val publishScan = settings.extra.has("scan")
+        publishing.onlyIf { publishScan }
     }
 }
